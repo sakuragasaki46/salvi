@@ -13,7 +13,7 @@ suitable as a community or team knowledge base.
 + Revision history
 + Stored in SQLite databases
 + Material Icons
-+ Light/dark theme (requires JS as of now)
++ Light/dark theme
 + Works fine even with JavaScript disabled.
 
 ## Requirements

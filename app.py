@@ -11,7 +11,9 @@ Application is kept compact, with all its core in a single file.
 Extensions are supported, kept in extensions/ folder.
 '''
 
-from flask import Flask, abort, flash, g, jsonify, redirect, request, render_template, send_from_directory
+from flask import (
+    Flask, abort, flash, g, jsonify, make_response, redirect, request,
+    render_template, send_from_directory)
 from werkzeug.routing import BaseConverter
 from peewee import *
 import datetime, re, markdown, uuid, json, importlib, sys, hashlib, html, os, csv, random
@@ -27,7 +29,7 @@ try:
 except ImportError:
     slugify = None
     
-__version__ = '0.1-dev'
+__version__ = '0.2'
 
 #### CONSTANTS ####
 
@@ -370,9 +372,10 @@ def is_url_available(url):
     return url not in forbidden_urls and not Page.select().where(Page.url == url).exists()
 
 forbidden_urls = [
-    'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media', 'accounts',
-    'tags', 'init-config', 'upload', 'upload-info', 'about', 'stats', 'terms', 'privacy',
-    'easter', 'search', 'help', 'circles'
+    'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media',
+    'accounts', 'tags', 'init-config', 'upload', 'upload-info', 'about',
+    'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
+    'protect',
 ]
 
 app = Flask(__name__)
@@ -396,7 +399,7 @@ def _before_request():
 @app.context_processor
 def _inject_variables():
     return {
-        'T': partial(get_string, g.lang)
+        'T': partial(get_string, g.lang),
     }
 
 @app.route('/')
@@ -625,6 +628,13 @@ def stats():
         upload_count=Upload.select().count(),
         revision_count=PageRevision.select().count()
     )
+
+@app.route('/accounts/theme-switch')
+def theme_switch():
+    cook = request.cookies.get('dark')
+    resp = make_response(redirect(request.args.get('next', '/')))
+    resp.set_cookie('dark', '0' if cook == '1' else '1', max_age=31556952, path='/')
+    return resp
 
 ## easter egg (lol) ##
 
