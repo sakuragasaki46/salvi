@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{% if q %}Search results for "{{ q }}"{% else %}Search{% endif %} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>Search</h1>
+
+<form method="POST">
+  <div>
+    <label for="q">Search for: </label>
+    <input type="search" name="q" value="{{ q }}" class="search-input">
+  </div>
+  <div>
+    <input type="checkbox" name="include-tags" value="1" {% if pl_include_tags %}checked{% endif %}>
+    <label for="include-tags">{{ T('include-tags') }}</label>
+  </div>
+</form>
+
+{% if results %}
+<h2>Search results for <em>{{ q }}</em></h2>
+
+<ul class="nl-list">
+  {% for n in results %}
+  <li>{% include "includes/nl_item.html" %}</li>
+  {% endfor %}
+</ul>
+{% elif q %}
+<h2>{{ T('search-no-results') }} <em>{{ q }}</em></h2>
+{% endif %}
+
+{% endblock %}

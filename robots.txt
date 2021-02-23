@@ -1,0 +1,4 @@
+User-Agent: *
+Noindex: /edit/
+Noindex: /history/
+Disallow: /accounts/

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ T('homepage') }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ T('welcome').format(app_name) }}</h1>
+
+<h2>{{ T('latest-notes') }}</h2>
+
+<ul class="nl-list">
+  <li class="nl-new">
+    <a href="/create/"><button class="submit-primary">{{ T('new-note') }}</button></a>
+    <a href="/upload/"><button class="submit-secondary">{{ T('upload-file') }}</button></a>
+  </li>
+  {% for n in new_notes %}
+  <li>
+    <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
+    <p class="nl-desc">{{ n.short_desc() }}</p>
+    {% if n.tags %}
+    <p class="nl-tags">{{ T('tags') }}: 
+    {% for tag in n.tags %}
+      {% set tn = tag.name %}
+      <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+    {% endfor %}
+    </p>
+    {% endif %}
+  </li>
+  {% endfor %}
+  <li><a href="/p/most_recent/">Show all</a></li>
+</ul>
+
+<h2>{{ T('latest-uploads') }}</h2>
+
+{{ gallery|safe }}
+{% endblock %}

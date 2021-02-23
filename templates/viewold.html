@@ -1,0 +1,9 @@
+{% extends "view.html" %}
+
+{% block history_nav %}
+<div class="history-nav">
+  <p>{{ T('old-revision-notice') }}
+    <time datetime="{{ rev.pub_date.isoformat() }}">{{ rev.pub_date.strftime('%B %-d, %Y at %H:%M:%S') }}</time>
+  (ID #{{ rev.id }}). <a href="{{ p.get_url() }}">Show latest</a></p>
+</div>
+{% endblock %}

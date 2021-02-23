@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Not found - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>Not Found</h1>
+
+<p>The url at <strong>{{ request.path }}</strong> does not exist.</p>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Page history - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>Page history for "{{ p.title }}"</h1>
+
+<ul>
+{% for rev in history %}
+  <li><a href="/history/revision/{{ rev.id }}/">
+    #{{ rev.id }}
+    &middot;
+    {{ rev.pub_date.strftime("%B %-d, %Y %H:%M:%S") }}
+  </a></li>
+{% endfor %}
+</ul>
+{% endblock %}

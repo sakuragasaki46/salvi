@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Edit note - {{ app_name }}{% endblock %}
+
+{% block content %}
+
+{% if preview %}
+<h1>{{ pl_title }} (preview)</h1>
+
+<div class="preview-area">
+  <div class="preview-warning">
+    Remember this is only a preview. 
+    <strong>Your changes were not saved yet!</strong>
+    <a href="#editing-area">Jump to editing area</a></div>
+  <div class="inner-content">{{ preview|safe }}</div>
+  <div style="clear:both"></div>
+</div>
+{% endif %}
+
+<form method="POST">
+  <div>
+    <label for="title">URL: </label>
+    <input type="text" name="url" class="url-input" placeholder="No URL" maxlength="64" value="{{ pl_url or '' }}">
+  </div>
+  <div>
+    <input type="text" required name="title" placeholder="Title (required)" class="title-input" maxlength="256" value="{{ pl_title }}">
+  </div>
+  <div id="editing-area">
+    <div class="pre-text-input">
+      <p>This editor is using Markdown for text formatting (e.g. bold, italic, headers and tables). <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" rel="nofollow">More info on Markdown</a>.</p>
+    </div>
+    <div class="over-text-input"></div>
+    <textarea name="text" class="text-input">{{ pl_text }}</textarea>
+  </div>
+  <div>
+    <label for="tags">Tags (comma separated):</label>
+    <input type="text" name="tags" class="tags-input" placeholder="No tags" value="{{ pl_tags }}">
+  </div>
+  <div>
+    <input type="submit" value="Save" id="save-button" class="submit-primary">
+    <input type="submit" name="preview" value="Preview" id="preview-button" class="submit-secondary">
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/edit.js"></script>
+{% endblock %}

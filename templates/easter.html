@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ T('easter-date-calc') }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ T('easter-date-calc') }}</h1>
+
+<form>
+  <div>
+    <label for="y">Year: </label>
+    <input type="text" name="y" value="{{ y }}">
+    <input type="submit" value="Calculate">
+  </div>
+</form>
+
+{% if easter_dates %}
+<div class="easter-results">
+  <p class="easter-date">{{ T('easter') }}: <strong>{{ easter_dates['easter'].strftime('%B %-d, %Y') }}</strong></p>
+  
+  <h2>{{ T('other-dates') }}</h2>
+  <ul>
+    <li>Mercoledì delle Ceneri: <strong>{{ easter_dates['ceneri'].strftime('%B %-d, %Y') }}</strong></li>
+    <li>Ascensione: <strong>{{ easter_dates['ascensione'].strftime('%B %-d, %Y') }}</strong></li>
+    <li>Pentecoste: <strong>{{ easter_dates['pentecoste'].strftime('%B %-d, %Y') }}</strong></li>
+    <li>Prima Domenica d'Avvento: <strong>{{ easter_dates['avvento1'].strftime('%B %-d, %Y') }}</strong></li>
+  </ul>
+</div>
+{% endif %}
+{% endblock %}

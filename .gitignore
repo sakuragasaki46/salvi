@@ -1,0 +1,12 @@
+# application content
+media/
+**.sqlite
+database/
+
+# automatically generated garbage
+**/__pycache__/
+**.pyc
+**~
+**/.\#*
+**/\#*\#
+ig_api_settings/

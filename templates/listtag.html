@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Notes tagged #{{ tagname }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ T('notes-tagged') }} #{{ tagname }}</h1>
+
+{% if total_count > 0 %}
+<p class="nl-pagination">Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong> of <strong>{{ total_count }}</strong> total.</p>
+
+<ul class="nl-list">
+  {% if page_n > 1 %}
+  <li class="nl-prev"><a href="/tags/{{ tagname }}/{{ page_n - 1 }}/">&laquo; Previous page</a></li>
+  {% endif %}
+  {% for n in tagged_notes %}
+  <li>
+    <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
+    <p class="nl-desc">{{ n.short_desc() }}</p>
+    <p class="nl-tags">Tags: 
+    {% for tag in n.tags %}
+      {% set tn = tag.name %}
+      {% if tn == tagname %}
+      <strong class="nl-tag-hl">#{{ tn }}</strong>
+      {% else %}
+      <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+      {% endif %}
+    {% endfor %}
+    </p>
+  </li>
+  {% endfor %}
+  {% if page_n < total_count // 20 %}
+  <li class="nl-next"><a href="/tags/{{ tagname }}/{{ page_n + 1 }}/">Next page &raquo;</a></li>
+  {% endif %}
+</ul>
+{% else %}
+<p class="nl-placeholder">{{ T('notes-tagged-empty') }}</p>
+{% endif %}
+
+
+{% endblock %}

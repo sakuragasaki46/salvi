@@ -1,0 +1,14 @@
+<p class="nl-title">
+  <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
+</p>
+<p class="nl-desc">{{ n.short_desc() }}</p>
+<p class="nl-tags">Tags: 
+  {% for tag in n.tags %}
+  {% set tn = tag.name %}
+  {% if hl_tag_name and tn == hl_tag_name %}
+  <strong class="nl-tag-hl">#{{ tn }}</strong>
+  {% else %}
+  <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+  {% endif %}
+  {% endfor %}
+</p>

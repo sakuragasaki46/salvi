@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Upload new file</h1>
+
+<p>Types supported: <strong>.jpeg</strong>, <strong>.jpg</strong>, <strong>.png</strong>.</p>
+
+<form method="POST" enctype="multipart/form-data">
+  <div>
+    <label for="name">Name: </label>
+    <input type="text" id="name-input" name="name" required maxlength="256">
+  </div>
+  <div>
+    <label for="file">File: </label>
+    <input type="file" id="file-input" name="file" accept="image/jpeg, image/png">
+  </div>
+  <div>
+    <input type="submit" class="submit-primary" value="Upload">
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  function last(a){
+    return a[a.length-1];
+  }
+  
+  var fileInput = document.getElementById('file-input');
+  var nameInput = document.getElementById('name-input');
+  fileInput.onchange = function(){
+    var name = last(fileInput.value.split(/[\/\\]/));
+    if(name.indexOf('.') >= 0){
+      name = name.replace(/\..*$/, '');
+    }
+    nameInput.value = name;
+    
+    // TODO: add image preview
+  }
+})();
+</script>
+{% endblock %}

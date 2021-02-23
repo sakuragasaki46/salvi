@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Export pages - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>Export pages</h1>
+
+<p>You can export how many pages you want, that will be downloaded in JSON format and can be imported in another {{ app_name }} instance.</p>
+
+<p>In order to add page to export list, please enter exact title, /url, #tag or +id. Entering a tag will add all pages with that tag to list. Each page or tag is separated by a newline.</p>
+
+<form method="POST">
+  <div>
+    <textarea style="height:20em;width:100%" name="export-list" placeholder="Title, /url, #tag, or +id, newline-separated"></textarea>
+  </div>
+  <div>
+    <input type="submit" value="Download">
+  </div>
+</form>
+{% endblock %}
