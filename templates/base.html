@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/style.css">
     <!-- material icons -->
     <link rel="stylesheet" href="https://cdn.sakuragasaki46.local/common/material-icons.css">
+    {% block json_info %}{% endblock %}
   </head>
   <body{% if request.cookies.get('dark') == '1' %} class="dark"{% endif %}>
     <div id="__top"></div>

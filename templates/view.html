@@ -2,6 +2,8 @@
 
 {% block title %}{{ p.title }} - {{ app_name }}{% endblock %}
 
+{% block json_info %}<script>window.page_info={{ p.js_info()|tojson|safe }};</script>{% endblock %}
+
 {% block content %}
 <h1>{{ p.title }}</h1>
 

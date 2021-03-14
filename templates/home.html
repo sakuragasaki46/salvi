@@ -31,5 +31,6 @@
 
 <h2>{{ T('latest-uploads') }}</h2>
 
+{# TODO security flaw; find a way to do this in a more safe manner! #}
 {{ gallery|safe }}
 {% endblock %}

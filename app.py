@@ -76,6 +76,21 @@ class Page(BaseModel):
             (PageTag.name << (old_tags - new_tags))).execute()
         for tag in (new_tags - old_tags):
             PageTag.create(page=self, name=tag)
+    def js_info(self):
+        latest = self.latest
+        return dict(
+            id=self.id,
+            url=self.url,
+            title=self.title,
+            is_redirect=self.is_redirect,
+            touched=self.touched.timestamp(),
+            latest=dict(
+                id=latest.id if latest else None,
+                length=latest.length,
+                pub_date=latest.pub_date.timestamp() if latest and latest.pub_date else None
+            ),
+            tags=[x.name for x in self.tags]
+        )
     @property
     def prop(self):
         return PagePropertyDict(self)
