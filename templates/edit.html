@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Edit note - {{ app_name }}{% endblock %}
+
+{% block title %}
+{% if pl_title %}Editing “{{ pl_title }}”
+{% else %}Edit note{% endif %}
+ - {{ app_name }}
+{% endblock %}
+
+{% block json_info %}<script>window.page_info={{ ( pl_js_info or {} )|tojson|safe }};</script>{% endblock %}
 
 {% block content %}
 
