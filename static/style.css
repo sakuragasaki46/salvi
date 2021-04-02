@@ -1,9 +1,9 @@
 /* basic styles */
 body{font-family:sans-serif}
-.content{margin: 3em 1.6em}
+.content{margin: 3em 1.3em}
 
 /* content styles */
-.inner-content{font-family:serif; margin: 0 auto; max-width: 1280px; line-height: 1.7; color: #1f2528}
+.inner-content{font-family:serif; margin: 1.7em auto; max-width: 1280px; line-height: 1.7; color: #1f2528}
 .inner-content em,.inner-content strong{color: black}
 .inner-content h1{color: #99081f}
 .inner-content table, .inner-content h2, .inner-content h3, .inner-content h4, .inner-content h5, .inner-content h6{font-family:sans-serif; color: black}
@@ -30,6 +30,7 @@ input.error{border-bottom-color:#ff1800}
 input[type="submit"],input[type="reset"],input[type="button"],button{font-family:inherit;border-radius:12px;border:1px solid #ccc;display:inline-block}
 .submit-primary{color:white;background-color:#37b92e;font-family:inherit;border:1px solid #37b92e;font-size:1.2em;height:2em;min-width:8em}
 .submit-secondary{color:black;background-color:white;font-family:inherit;border:1px solid #809980;font-size:1.2em;height:2em;min-width:8em}
+.submit-quick{color:white;background-color:#37b92e;font-family:inherit;border:1px solid #37b92e;font-size:inherit;border-radius:6px}
 .flash{background-color:#fff2b4;padding:12px;border-radius:4px;border:1px #ffe660 solid}
 .page-tags p{display:inline-block}
 .page-tags ul{padding:0;margin:0;list-style:none;display:inline-block}
@@ -91,7 +92,7 @@ body.dark, .dark input, .dark textarea{background-color: #1f1f1f; color: white}
 .dark input[type="text"]{border-bottom-color:#555}
 .dark input[type="text"]:focus{border-bottom-color:#4bf;color:white}
 .dark input[type="text"].error{border-bottom-color:#e01400}
-.dark .submit-primary{background-color: #5d3; border-color: #5d3}
+.dark .submit-primary,.dark .submit-quick{background-color: #5d3; border-color: #5d3}
 .dark .submit-secondary{color: white; background-color: #1f1f1f; border-color: #9d3}
 .dark .page-tags .tag-count{color: #ee0}
 .dark .flash{background-color: #771; border-color: #fd2}
