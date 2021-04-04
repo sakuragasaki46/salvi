@@ -47,6 +47,18 @@ UPLOAD_DIR = APP_BASE_DIR + '/media'
 
 DATABASE_DIR = APP_BASE_DIR + "/database"
 
+#### misc. helpers ####
+
+def _makelist(l):
+    if isinstance(l, (str, bytes, bytearray)):
+        return [l]
+    elif hasattr(l, '__iter__'):
+        return list(l)
+    elif l:
+        return [l]
+    else:
+        return []
+
 #### DATABASE SCHEMA ####
 
 database = SqliteDatabase(DATABASE_DIR + '/data.sqlite')
@@ -55,11 +67,18 @@ class BaseModel(Model):
     class Meta:
         database = database
 
+# Used for PagePolicy
+def _passphrase_hash(pp):
+    pp_bin = pp.encode('utf-8')
+    h = str(len(pp_bin)) + ':' + hashlib.sha256(pp_bin).hexdigest()
+    return h
+
 class Page(BaseModel):
     url = CharField(64, unique=True, null=True)
-    title = CharField(256)
-    is_redirect = BooleanField()
-    touched = DateTimeField()
+    title = CharField(256, index=True)
+    touched = DateTimeField(index=True)
+    flags = BitField()
+    is_redirect = flags.flag(1)
     @property
     def latest(self):
         if self.revisions:
@@ -94,6 +113,21 @@ class Page(BaseModel):
     @property
     def prop(self):
         return PagePropertyDict(self)
+    def unlock(self, perm, pp, sec):
+        ## XX complete later!
+        policies = self.policies.where(Policy.type << _makelist(perm))
+        if not policies.exists():
+            return True
+        for policy in policies:
+            if policy.verify(pp, sec):
+                return True
+        return False
+    def is_locked(self, perm):
+        policies = self.policies.where(Policy.type << _makelist(perm))
+        return policies.exists()
+    def is_classified(self):
+        return self.is_locked(POLICY_CLASSIFY)
+            
 
 class PageText(BaseModel):
     content = BlobField()
@@ -125,11 +159,11 @@ class PageText(BaseModel):
         )
         
 class PageRevision(BaseModel):
-    page = FK(Page, backref='revisions')
+    page = FK(Page, backref='revisions', index=True)
     user_id = IntegerField(default=0)
-    comment = CharField(256, default='')
+    comment = CharField(1024, default='')
     textref = FK(PageText)
-    pub_date = DateTimeField()
+    pub_date = DateTimeField(index=True)
     length = IntegerField()
     @property
     def text(self):
@@ -138,8 +172,8 @@ class PageRevision(BaseModel):
         return md(self.text)
 
 class PageTag(BaseModel):
-    page = ForeignKeyField(Page, backref='tags')
-    name = CharField(64)
+    page = FK(Page, backref='tags', index=True)
+    name = CharField(64, index=True)
     class Meta:
         indexes = (
             (('page', 'name'), True),
@@ -148,7 +182,7 @@ class PageTag(BaseModel):
         return PageTag.select().where(PageTag.name == self.name).count()
 
 class PageProperty(BaseModel):
-    page = ForeignKeyField(Page, backref='page_meta')
+    page = ForeignKeyField(Page, backref='page_meta', index=True)
     key = CharField(64)
     value = CharField(8000)
     class Meta:
@@ -199,14 +233,49 @@ class PagePropertyDict(object):
         return PageProperty.select().where((PageProperty.page == self._page) &
             (PageProperty.key == key)).exists()
 
+# Store keys for PagePolicy.
+# Experimental.
+class PagePolicyKey(BaseModel):
+    passphrase = CharField()
+    sec_code = IntegerField()
+    class Meta:
+        indexes = (
+            (('passphrase','sec_code'), True),
+        )
+
+    @classmethod
+    def create_from_plain(cls, pp, sec):
+        PagePolicyKey.create(passphrase=_passphrase_hash(pp), sec_code=sec)
+    def verify(self, pp, sec):
+        h = _passphrase_hash(pp)
+        return self.passphrase == h and self.sec_code == sec
+
+POLICY_ADMIN = 1
+POLICY_READ = 2
+POLICY_EDIT = 3
+POLICY_META = 4
+POLICY_CLASSIFY = 5
+
+# Manage policies for pages (e.g., reading or editing).
+# Experimental.
+class PagePolicy(BaseModel):
+    page = FK(Page, backref='policies', index=True, null=True)
+    type = IntegerField()
+    key = FK(PagePolicyKey, backref='applied_to')
+    sitewide = IntegerField(default=0)
+
+    class Meta:
+        indexes = (
+            (('page', 'key'), True),
+        )
 
 class Upload(BaseModel):
     name = CharField(256)
     url_name = CharField(256, null=True)
     filetype = SmallIntegerField()
     filesize = IntegerField()
-    upload_date = DateTimeField()
-    md5 = CharField(32)
+    upload_date = DateTimeField(index=True)
+    md5 = CharField(32, index=True)
     @property
     def filepath(self):
         return '{0}/{1}/{2}{3}.{4}'.format(self.md5[:1], self.md5[:2], self.id, 
@@ -257,7 +326,7 @@ class Upload(BaseModel):
         return obj
 
 def init_db():
-    database.create_tables([Page, PageText, PageRevision, PageTag, PageProperty, Upload])
+    database.create_tables([Page, PageText, PageRevision, PageTag, PageProperty, PagePolicyKey, PagePolicy, Upload])
 
 #### WIKI SYNTAX ####
 
@@ -390,7 +459,7 @@ forbidden_urls = [
     'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media',
     'accounts', 'tags', 'init-config', 'upload', 'upload-info', 'about',
     'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
-    'protect',
+    'protect', 
 ]
 
 app = Flask(__name__)
@@ -438,13 +507,18 @@ def error_404(body):
     return render_template('notfound.html'), 404
 
 
-# Helpers for page editing.
+# Middle point during page editing.
 def savepoint(form, is_preview=False):
     if is_preview:
         preview = md(form['text'])
     else:
         preview = None
-    return render_template('edit.html', pl_url=form['url'], pl_title=form['title'], pl_text=form['text'], pl_tags=form['tags'], preview=preview)
+    pl_js_info = dict()
+    pl_js_info['editing'] = dict(
+        original_text = None, # TODO
+        preview_text = form['text'],
+    )
+    return render_template('edit.html', pl_url=form['url'], pl_title=form['title'], pl_text=form['text'], pl_tags=form['tags'], preview=preview, pl_js_info=pl_js_info)
 
 @app.route('/create/', methods=['GET', 'POST'])
 def create():
