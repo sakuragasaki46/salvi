@@ -43,9 +43,31 @@ REDIRECT_RE = r'\{\{\s*redirect\s*:\s*(\d+)\s*\}\}'
 
 upload_types = {'jpeg': 1, 'jpg': 1, 'png': 2}
 upload_types_rev = {1: 'jpg', 2: 'png'}
-UPLOAD_DIR = APP_BASE_DIR + '/media'
 
+UPLOAD_DIR = APP_BASE_DIR + '/media'
 DATABASE_DIR = APP_BASE_DIR + "/database"
+
+#### GENERAL CONFIG ####
+
+DEFAULT_CONF = {
+    ('site', 'title'):          'Salvi',
+    ('config', 'media_dir'):    APP_BASE_DIR + '/media',
+    ('config', 'database_dir'): APP_BASE_DIR + "/database",
+}
+
+_cfp = ConfigParser()
+if _cfp.read([APP_BASE_DIR + '/site.conf']):
+    @lru_cache(maxsize=50)
+    def _getconf(k1, k2, fallback=None):
+        if fallback is None:
+            fallback = DEFAULT_CONF.get((k1, k2))
+        v = _cfp.get(k1, k2, fallback=fallback)
+        return v
+else:
+    def _getconf(k1, k2, fallback=None):
+        if fallback is None:
+            fallback = DEFAULT_CONF.get((k1, k2))
+        return fallback
 
 #### misc. helpers ####
 
@@ -61,7 +83,7 @@ def _makelist(l):
 
 #### DATABASE SCHEMA ####
 
-database = SqliteDatabase(DATABASE_DIR + '/data.sqlite')
+database = SqliteDatabase(_getconf("config", "database_dir") + '/data.sqlite')
 
 class BaseModel(Model):
     class Meta:
@@ -484,6 +506,7 @@ def _before_request():
 def _inject_variables():
     return {
         'T': partial(get_string, g.lang),
+        'app_name': _getconf('site', 'title')
     }
 
 @app.route('/')

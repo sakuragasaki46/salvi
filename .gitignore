@@ -2,6 +2,7 @@
 media/
 **.sqlite
 database/
+site.conf
 
 # automatically generated garbage
 **/__pycache__/
