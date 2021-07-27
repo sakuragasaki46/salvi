@@ -21,10 +21,12 @@ body{font-family:sans-serif}
 
 /* interface styles */
 .nl-list{list-style:none}
+.nl-list > li{margin-bottom: 1em}
 .nl-title{font-size:1.2em; font-weight: 500}
 .nl-desc{font-size:0.9em;opacity:.75;font-family:serif}
-.nl-new{margin:6px 0 12px 0;display:flex;justify-content:start}
+.nl-new{margin:6px 0 12px 0;display:flex;justify-content:start; float: right}
 .nl-new > a{margin-right:12px}
+.nl-prev,.nl-next{text-align:center}
 input{border:0;border-bottom:3px solid #ccc;font:inherit;color:#181818;background-color:transparent}
 input:focus{color:black;border-bottom-color:#09f}
 input.error{border-bottom-color:#ff1800}
@@ -84,6 +86,12 @@ a:hover{color:#0088ff}
 .metro-links.metro-6{background-color:purple}
 .metro-divider{height:1px;background-color:white;clear:both}
 .metro-badge{background-color:#333;border-radius:4px;color:white;font-size:80%}
+
+/* grids */
+@media (min-width:800px) {
+    .nl-list {display: grid; grid-template-rows: auto; grid-template-columns: 1fr 1fr; column-gap: 1.5em}
+    .nl-list > .nl-prev, .nl-list > .nl-next {grid-column-end: span 2}
+}
 
 /* dark theme */
 body.dark, .dark input, .dark textarea{background-color: #1f1f1f; color: white}

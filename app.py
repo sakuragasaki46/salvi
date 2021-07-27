@@ -506,7 +506,8 @@ def _before_request():
 def _inject_variables():
     return {
         'T': partial(get_string, g.lang),
-        'app_name': _getconf('site', 'title')
+        'app_name': _getconf('site', 'title'),
+        'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
     }
 
 @app.route('/')
