@@ -28,8 +28,12 @@ try:
     from slugify import slugify
 except ImportError:
     slugify = None
-    
-__version__ = '0.3-dev'
+try:
+    import markdown_strikethrough
+except Exception:
+    markdown_strikethrough = None
+
+__version__ = '0.3.0'
 
 #### CONSTANTS ####
 
@@ -384,7 +388,9 @@ def expand_magic_words(text):
 def md(text, expand_magic=True, toc=True):
     if expand_magic:
         text = expand_magic_words(text)
-    extensions = ['tables', 'footnotes', 'markdown_strikethrough.extension', 'fenced_code', 'sane_lists']
+    extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists']
+    if markdown_strikethrough:
+        extensions.append("markdown_strikethrough.extension")
     if toc:
         extensions.append('toc')
     return markdown.Markdown(extensions=extensions).convert(text)
