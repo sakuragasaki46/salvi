@@ -3,6 +3,7 @@ media/
 **.sqlite
 database/
 site.conf
+run_8180.py
 
 # automatically generated garbage
 **/__pycache__/

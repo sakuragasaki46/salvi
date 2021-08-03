@@ -8,7 +8,7 @@ Pages are stored in SQLite databases.
 Markdown is used for text formatting.
 
 Application is kept compact, with all its core in a single file.
-Extensions are supported, kept in extensions/ folder.
+Extensions are supported (?), kept in extensions/ folder.
 '''
 
 from flask import (
@@ -101,6 +101,7 @@ class Page(BaseModel):
     touched = DateTimeField(index=True)
     flags = BitField()
     is_redirect = flags.flag(1)
+    is_sync = flags.flag(2)
     @property
     def latest(self):
         if self.revisions:
@@ -125,6 +126,7 @@ class Page(BaseModel):
             title=self.title,
             is_redirect=self.is_redirect,
             touched=self.touched.timestamp(),
+            is_editable=self.is_editable(),
             latest=dict(
                 id=latest.id if latest else None,
                 length=latest.length,
@@ -137,7 +139,7 @@ class Page(BaseModel):
         return PagePropertyDict(self)
     def unlock(self, perm, pp, sec):
         ## XX complete later!
-        policies = self.policies.where(Policy.type << _makelist(perm))
+        policies = self.policies.where(PagePolicy.type << _makelist(perm))
         if not policies.exists():
             return True
         for policy in policies:
@@ -145,10 +147,12 @@ class Page(BaseModel):
                 return True
         return False
     def is_locked(self, perm):
-        policies = self.policies.where(Policy.type << _makelist(perm))
+        policies = self.policies.where(PagePolicy.type << _makelist(perm))
         return policies.exists()
     def is_classified(self):
         return self.is_locked(POLICY_CLASSIFY)
+    def is_editable(self):
+        return not self.is_locked(POLICY_EDIT)
             
 
 class PageText(BaseModel):
@@ -570,8 +574,8 @@ def create():
                 touched=datetime.datetime.now(),
             )
             p.change_tags(p_tags)
-        except IntegrityError:
-            flash('An error occurred while saving this revision.')
+        except IntegrityError as e:
+            flash('An error occurred while saving this revision: {e}'.format(e=e))
             return savepoint(request.form)
         pr = PageRevision.create(
             page=p,
@@ -620,6 +624,37 @@ def edit(id):
         return redirect(p.get_url())
     return render_template('edit.html', pl_url=p.url, pl_title=p.title, pl_text=p.latest.text, pl_tags=','.join(x.name for x in p.tags))
 
+@app.route("/__sync_start")
+def __sync_start():
+    if _getconf("sync", "master", "this") == "this":
+        abort(403)
+    from app_sync import main
+    main()
+    flash("Successfully synced messages.")
+    return redirect("/")
+
+@app.route('/_jsoninfo/<int:id>', methods=['GET', 'POST'])
+def page_jsoninfo(id):
+    try:
+        p = Page[id]
+    except Page.DoesNotExist:
+        return jsonify({'status':'fail'}), 404
+    j = p.js_info()
+    j["status"] = "ok"
+    if request.method == "POST":
+        j["text"] = p.latest.text
+    return jsonify(j)
+
+@app.route("/_jsoninfo/changed/<float:ts>")
+def jsoninfo_changed(ts):
+    tse = str(datetime.datetime.fromtimestamp(ts).isoformat(" "))
+    ps = Page.select().where(Page.touched >= tse)
+    return jsonify({
+        "ids": [i.id for i in ps],
+        "status": "ok"
+    })
+
+    
 @app.route('/p/<int:id>/')
 def view_unnamed(id):
     try:
