@@ -58,13 +58,18 @@ DEFAULT_CONF = {
 _cfp = ConfigParser()
 if _cfp.read([APP_BASE_DIR + '/site.conf']):
     @lru_cache(maxsize=50)
-    def _getconf(k1, k2, fallback=None):
+    def _getconf(k1, k2, fallback=None, cast=None):
         if fallback is None:
             fallback = DEFAULT_CONF.get((k1, k2))
         v = _cfp.get(k1, k2, fallback=fallback)
+        if cast in (int, float, str):
+            try:
+                v = cast(v)
+            except ValueError:
+                v = fallback
         return v
 else:
-    def _getconf(k1, k2, fallback=None):
+    def _getconf(k1, k2, fallback=None, cast=None):
         if fallback is None:
             fallback = DEFAULT_CONF.get((k1, k2))
         return fallback
@@ -516,8 +521,9 @@ def _inject_variables():
 
 @app.route('/')
 def homepage():
+    page_limit = _getconf("appearance","items_per_page",20,cast=int)
     return render_template('home.html', new_notes=Page.select()
-        .order_by(Page.touched.desc()).limit(20),
+        .order_by(Page.touched.desc()).limit(page_limit),
         gallery=make_gallery((x, '') for x in Upload.select().order_by(Upload.upload_date.desc()).limit(3)))
 
 @app.route('/robots.txt')
@@ -533,6 +539,10 @@ def favicon():
 @app.errorhandler(404)
 def error_404(body):
     return render_template('notfound.html'), 404
+
+@app.errorhandler(403)
+def error_403(body):
+    return render_template('forbidden.html'), 403
 
 
 # Middle point during page editing.
