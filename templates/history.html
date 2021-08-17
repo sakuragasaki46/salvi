@@ -2,6 +2,10 @@
 
 {% block title %}Page history - {{ app_name }}{% endblock %}
 
+{% block meta %}
+<meta name="robots" content="noindex,nofollow" />
+{% endblock %}
+
 {% block content %}
 <h1>Page history for "{{ p.title }}"</h1>
 

@@ -1,5 +1,9 @@
 {% extends "view.html" %}
 
+{% block meta %}
+<meta name="robots" content="noindex,nofollow" />
+{% endblock %}
+
 {% block history_nav %}
 <div class="history-nav">
   <p>{{ T('old-revision-notice') }}

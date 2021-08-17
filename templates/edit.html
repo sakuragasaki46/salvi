@@ -7,6 +7,10 @@
  - {{ app_name }}
 {% endblock %}
 
+{% block meta %}
+<meta name="robots" content="noindex,nofollow" />
+{% endblock %}
+
 {% block json_info %}<script>window.page_info={{ ( pl_js_info or {} )|tojson|safe }};</script>{% endblock %}
 
 {% block content %}

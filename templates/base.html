@@ -4,6 +4,7 @@
     <title>{% block title %}{{ app_name }}{% endblock %}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block meta %}{% endblock %}
     <link rel="stylesheet" href="/static/style.css">
     <!-- material icons -->
     <link rel="stylesheet" href="https://cdn.sakuragasaki46.local/common/material-icons.css">
@@ -21,9 +22,9 @@
     <ul class="top-menu">
       <li class="dark-theme-toggle-anchor"><a href="{{ url_for('theme_switch', next=request.path) }}" onclick="toggleDarkTheme(true);return false" class="dark-theme-toggle-on" title="Dark theme"><span class="material-icons">brightness_3</span></a><a href="{{ url_for('theme_switch', next=request.path) }}" onclick="toggleDarkTheme(false);return false" class="dark-theme-toggle-off" title="Light theme"><span class="material-icons">brightness_5</span></a><script>function toggleDarkTheme(a){document.cookie="dark="+(+a)+";max-age=31556952;path=/;SameSite=Strict";document.body.classList.toggle("dark",a)}</script></li>
       <li><a href="/" title="{{ T('homepage') }}"><span class="material-icons">home</span></a></li>
-      <li><a href="/search/" title="{{ T('search') }}"><span class="material-icons">search</span></a></li>
-      <li><a href="/p/random/" title="{{ T('random-page') }}"><span class="material-icons">shuffle</span></a></li>
-      <li><a href="/create/" title="{{ T('new-note') }}"><span class="material-icons">create</span></a></li>
+      <li><a href="/search/" title="{{ T('search') }}" rel="nofollow"><span class="material-icons">search</span></a></li>
+      <li><a href="/p/random/" title="{{ T('random-page') }}" rel="nofollow"><span class="material-icons">shuffle</span></a></li>
+      <li><a href="/create/" title="{{ T('new-note') }}" rel="nofollow"><span class="material-icons">create</span></a></li>
     </ul>
     <div class="footer">
       <div class="footer-copyright">&copy; 2020–2021 Sakuragasaki46.</div>
