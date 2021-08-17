@@ -1,6 +1,8 @@
 """
 Helper module for sync.
 
+Remember to set sync:master variable in site.conf!
+
 (c) 2021 Sakuragasaki46.
 """
 
@@ -118,7 +120,7 @@ def main():
                 failed += 1
                 continue
         else:
-            if pageinfo["touched"] > p.touched:
+            if pageinfo["touched"] > p.touched.timestamp():
                 update_page(p, pageinfo)
         passed += 1
     with open(DATABASE_DIR + "/last_sync", "w") as fw:
