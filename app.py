@@ -848,7 +848,7 @@ def easter_y(y=None):
 
 #### EXTENSIONS ####
 
-active_extensions = []
+active_extensions = ['circles']
 
 for ext in active_extensions:
     try:

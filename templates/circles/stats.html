@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Circles – {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>Stats</h1>
+
+<ul>
+  <li>All people: <strong>{{ count }}</strong></li>
+  <li>People by type:</li>
+  <ul>
+    {% for k in typed_count.items() %}
+    <li>{{ k[0] }}: <strong>{{ k[1] }}</strong></li>
+    {% endfor %}
+  </ul>
+  <li>People by status zone:</li>
+  <ul>
+    {% for k in status_count.items() %}
+    <li>{{ k[0] }}: <strong>{{ k[1] }}</strong></li>
+    {% endfor %}
+  </ul>
+</ul>
+{% endblock %}

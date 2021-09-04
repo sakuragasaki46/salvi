@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Circles – {{ app_name }}{% endblock %}
+
+{% block content %}
+
+<form method="POST" enctype="multipart/form-data">
+  <p>Enter the contacts you want to bulk add, in comma-separated values (CSV) format, one by line.<br />Order matters.</p>
+  <textarea name="text" style="width:100%;height:20em" placeholder="00000,First,Last,Display,Type"></textarea>
+  <input type="checkbox" disabled="" id="autoConsent" name="consent" value="y" />
+  <input type="submit" value="Save" />
+</form>
+
+<script>
+  setTimeout(() => {
+    let ac = document.getElementById("autoConsent");
+    ac.disabled = false;
+    ac.selected = false;
+  }, 10000)
+</script>
+{% endblock %}

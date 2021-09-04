@@ -41,6 +41,21 @@ input[type="submit"],input[type="reset"],input[type="button"],button{font-family
 .page-tags .tag-count{color:#3c3;font-size:smaller;font-weight:600}
 .search-wrapper {display:flex;width:90%;margin:auto}
 .search-wrapper > input {flex:1}
+.circles-red{color: #e14}
+.circles-orange{color: #f72}
+.circles-green{color: #6e4}
+.circles-yellow{color: #fc6}
+.circles-list{list-style: none}
+.circles-list > li{margin: .5em 0;}
+.circles-list > li::before{font-size: 24px;transform:translatey(50%);font-weight:bold;margin-right:8px}
+.circles-list > li.circles-red::before{color: #e14; content: '❌︎'}
+.circles-list > li.circles-orange::before{color: #f72; content: '△'}
+.circles-list > li.circles-yellow::before{color: #fc6; content: '◇'}
+.circles-list > li.circles-green::before{color: #6e4; content: '○'}
+.circles-add-form{display:table}
+.circles-add-form > div{display:table-row}
+.circles-add-form > div > *{display:table-cell}
+.circles-add-form > div > label{text-align:right}
 
 
 /* floating elements */

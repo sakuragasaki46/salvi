@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Circles – {{ app_name }}{% endblock %}
+
+{% block content %}
+<p>Showing: <strong>{{ cat }}</strong></p>
+
+<div>
+  <p>Show by:</p>
+  <p><strong>Type</strong>:
+    {% set typ_list = [
+      'INTJ', 'INTP', 'INFJ', 'INFP', 'ENTJ', 'ENTP',
+      'ENFJ', 'ENFP', 'ISTJ', 'ISTP', 'ISFJ', 'ISFP',
+      'ESTJ', 'ESTP', 'ESFJ', 'ESFP'] %}
+    {% for t in typ_list %}
+    <a href="/circles/{{ t.lower() }}">{{ t }}</a> ·
+    {% endfor %}
+  </p>
+  <p><strong>Status</strong>:
+    {% set typ_list = ['Green', 'Yellow', 'Orange', 'Red'] %}
+    {% for t in typ_list %}
+    <a href="/circles/{{ t.lower() }}">{{ t }}</a> ·
+    {% endfor %}
+  </p>
+  <p><strong>Area</strong>:
+    {% for t in range(1, 13) %}
+    <a href="/circles/area-{{ t }}">{{ t }}</a> ·
+    {% endfor %}
+  </p>
+</div>
+
+{% if count > people.count() %}
+<p>Showing <strong>{{ people.count() }}</strong> people of <strong>{{ count }}</strong> total.</p>
+{% if count > pageno * 50 %}
+<p><a href="?page={{ pageno + 1 }}" rel="nofollow">Next page</a>{% if pageno > 1 %} · <a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a>{% endif %}</p>
+{% elif pageno > 1 %}
+<a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a></p>
+{% endif %}
+{% else %}
+<p><strong>{{ count }}</strong> people.</p>
+{% endif %}
+
+<ul class="circles-list">
+  {% for p in people %}
+  <li class="circles-{{ 'red' if p.status == -1 else 'green' if p.status == 2 else 'yellow' if p.status == 1 else 'orange' }}">{{ p.code }} – {{ p.display_name }} – {{ p.type }} – {% if p.area %}Area {{ p.area }}{% else %}No area{% endif %} (<a href="/circles/edit/{{ p.code }}">edit</a>)</li>
+  {% endfor %}
+</ul>
+
+{% if count > people.count() %}
+<p>Showing <strong>{{ people.count() }}</strong> people of <strong>{{ count }}</strong> total.</p>
+{% if count > pageno * 50 %}
+<p><a href="?page={{ pageno + 1 }}" rel="nofollow">Next page</a>{% if pageno > 1 %} · <a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a>{% endif %}</p>
+{% elif pageno > 1 %}
+<a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a></p>
+{% endif %}
+{% else %}
+<p><strong>{{ count }}</strong> people.</p>
+{% endif %}
+
+{% endblock %}

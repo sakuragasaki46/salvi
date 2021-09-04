@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Circles – {{ app_name }}{% endblock %}
+
+{% block content %}
+
+<form method="POST" class="circles-add-form">
+  <div>
+    <label>#</label>
+    <input type="number" name="code" placeholder="00000" required="" maxlength="6" value="{{ pl.code if pl else '' }}" />
+  </div>
+  <div>
+    <label>Display name</label>
+    <input type="text" name="display_name" placeholder="Display name" required="" value="{{ pl.display_name if pl else '' }}" />
+  </div>
+  <div>
+    <label>First name</label>
+    <input type="text" name="first_name" placeholder="First name" value="{{ pl.first_name if pl else '' }}" />
+  </div>
+  <div>
+    <label>Last name</label>
+    <input type="text" name="last_name" placeholder="Last name" value="{{ pl.last_name if pl else '' }}" />
+  </div>
+  <div>
+    <label>Type</label>
+    <select name="type">
+      <option disabled=""{% if not pl %} selected=""{% endif %}>(Choose)</option>
+      {% set typ_list = [
+      'INTJ', 'INTP', 'INFJ', 'INFP', 'ENTJ', 'ENTP',
+      'ENFJ', 'ENFP', 'ISTJ', 'ISTP', 'ISFJ', 'ISFP',
+      'ESTJ', 'ESTP', 'ESFJ', 'ESFP', '1x38B'] %}
+      {% for typ in typ_list %}
+      <option value="{{ typ }}"{% if pl and typ == pl.type %} selected=""{% endif %}>{{ typ }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label>Status</label>
+    <select name="status">
+      <option value="-1">Red</option>
+      <option value="0"{% if pl and 0 == pl.status %} selected=""{% endif %}>Orange</option>
+      <option value="1"{% if pl and 1 == pl.status %} selected=""{% endif %}>Yellow</option>
+      <option value="2"{% if pl and 2 == pl.status %} selected=""{% endif %}>Green</option>
+    </select>
+  </div>
+  <div>
+    <label>Area</label>
+    <input type="number" name="area" value="{{ pl.area if pl and pl.area else 0 }}">
+  </div>
+  <input type="submit" value="Save"> 
+</form>
+
+{% if not pl %}
+<p>Looking for mass addition?  Try <a href="/circles/csv">CSV adding form</a> instead.</p>
+{% endif %}
+
+{% endblock %}
