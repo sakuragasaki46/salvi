@@ -33,7 +33,7 @@ try:
 except Exception:
     markdown_strikethrough = None
 
-__version__ = '0.4-dev'
+__version__ = '0.4'
 
 #### CONSTANTS ####
 
@@ -510,15 +510,13 @@ forbidden_urls = [
     'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media',
     'accounts', 'tags', 'init-config', 'upload', 'upload-info', 'about',
     'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
-    'protect', 'kt'
+    'protect', 'kt', 'embed'
 ]
     
 
 app = Flask(__name__)
 app.secret_key = 'qrdldCcvamtdcnidmtasegasdsedrdqvtautar'
 app.url_map.converters['slug'] = SlugConverter
-
-
 
 
 #### ROUTES ####
@@ -707,6 +705,16 @@ def view_unnamed(id):
         else:
             flash('The URL of this page is a reserved URL. Please change it.')
     return render_template('view.html', p=p, rev=p.latest)
+
+@app.route('/embed/<int:id>/')
+def embed_view(id):
+    try:
+        p = Page[id]
+    except Page.DoesNotExist:
+        return "", 404
+    rev = p.latest
+    return "<h1>{0}</h1><div class=\"inner-content\">{1}</div>".format(
+        html.escape(p.title), rev.html())
 
 @app.route('/p/most_recent/')
 @app.route('/p/most_recent/<int:page>/')
