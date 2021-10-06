@@ -5,8 +5,8 @@
 {% block content %}
 <p>Showing: <strong>{{ cat }}</strong></p>
 
-<div>
-  <p>Show by:</p>
+<fieldset>
+  <legend>Show by:</legend>
   <p><strong>Type</strong>:
     {% set typ_list = [
       'INTJ', 'INTP', 'INFJ', 'INFP', 'ENTJ', 'ENTP',
@@ -26,7 +26,9 @@
     {% for t in range(1, 13) %}
     <a href="/circles/area-{{ t }}">{{ t }}</a> ·
     {% endfor %}
+    <a href="/circles/no-area">Unassigned</a>
   </p>
+  <p><a href="/circles/stats">Stats</a> · <a href="/circles/new">Add new</a>.</p>
 </div>
 
 {% if count > people.count() %}
@@ -42,7 +44,10 @@
 
 <ul class="circles-list">
   {% for p in people %}
-  <li class="circles-{{ 'red' if p.status == -1 else 'green' if p.status == 2 else 'yellow' if p.status == 1 else 'orange' }}">{{ p.code }} – {{ p.display_name }} – {{ p.type }} – {% if p.area %}Area {{ p.area }}{% else %}No area{% endif %} (<a href="/circles/edit/{{ p.code }}">edit</a>)</li>
+  <li class="circles-{{ 'red' if p.status == -1 else 'green' if p.status == 2 else 'yellow' if p.status == 1 else 'orange' }}">
+    <span class="circles-li-code">{{ p.code }}</span>
+    <span>{{ p.display_name }} – {{ p.type }} – {% if p.area %}Area {{ p.area }}{% else %}No area{% endif %} (<a href="/circles/edit/{{ p.code }}">edit</a>)</span>
+  </li>
   {% endfor %}
 </ul>
 

@@ -68,6 +68,41 @@ def fetch_updated_ids(baseurl):
         raise RuntimeError("sync unavailable")
     return r.json()["ids"]
 
+def update_contacts(baseurl):
+    from extensions.contactnova import Contact
+    try:
+        with open(_getconf("config", "database_dir") + "/latest_sync") as f:
+            last_sync = float(f.read().rstrip("\n"))
+    except (OSError, ValueError):
+        last_sync = 946681200.0  # Jan 1, 2000
+    r = requests.get(baseurl + "/kt/_jsoninfo/{ts}".format(ts=last_sync))
+    if r.status_code >= 400:
+        raise RuntimeError("sync unavailable")
+    # update contacts
+    updated = 0
+    for pinfo in r.json()['data']:
+        p = Contact.get_or_none(Contact.code == pinfo['code'])
+        if p is None:
+            p = Contact.create(
+                code = pinfo['code'],
+                display_name = pinfo['display_name'],
+                issues = pinfo['issues'],
+                status = pinfo['status'],
+                description = pinfo['description'],
+                due = datetime.date.fromtimestamp(pinfo['due'])
+            )
+        else:
+            p.display_name = pinfo['display_name']
+            p.issues = pinfo['issues']
+            p.status = pinfo['status']
+            p.description = pinfo['description']
+            p.due = datetime.date.fromtimestamp(pinfo['due'])
+            p.touched = datetime.datetime.now()
+            p.save()
+        updated += 1
+    print('\x1b[32m{0} contacts updated :)\x1b[0m'.format(updated))
+    
+
 def update_page(p, pageinfo):
     p.touched = datetime.datetime.fromtimestamp(pageinfo["touched"])
     p.url = pageinfo["url"]
@@ -123,6 +158,11 @@ def main():
             if pageinfo["touched"] > p.touched.timestamp():
                 update_page(p, pageinfo)
         passed += 1
+    try:
+        if _getconf("sync", "contacts", None) is not None:
+            update_contacts(baseurl)
+    except Exception as e:
+        print("\x1b[33mContacts not updated - {e} :(\x1b[0m".format(e=e))
     with open(DATABASE_DIR + "/last_sync", "w") as fw:
         fw.write(str(time.time()))
     if passed > 0 and failed == 0:

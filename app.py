@@ -12,7 +12,7 @@ Extensions are supported (?), kept in extensions/ folder.
 '''
 
 from flask import (
-    Flask, abort, flash, g, jsonify, make_response, redirect, request,
+    Flask, Markup, abort, flash, g, jsonify, make_response, redirect, request,
     render_template, send_from_directory)
 from werkzeug.routing import BaseConverter
 from peewee import *
@@ -33,7 +33,7 @@ try:
 except Exception:
     markdown_strikethrough = None
 
-__version__ = '0.3.0'
+__version__ = '0.4-dev'
 
 #### CONSTANTS ####
 
@@ -205,6 +205,20 @@ class PageRevision(BaseModel):
         return self.textref.get_content()
     def html(self):
         return md(self.text)
+    def human_pub_date(self):
+        delta = datetime.datetime.now() - self.pub_date
+        T = partial(get_string, g.lang)
+        if delta < datetime.timedelta(seconds=60):
+            return T('just-now')
+        elif delta < datetime.timedelta(seconds=3600):
+            return T('n-minutes-ago').format(delta.seconds // 60)
+        
+        elif delta < datetime.timedelta(days=1):
+            return T('n-hours-ago').format(delta.seconds // 3600)
+        elif delta < datetime.timedelta(days=15):
+            return T('n-days-ago').format(delta.days)
+        else:
+            return self.pub_date.strftime('%B %-d, %Y')
 
 class PageTag(BaseModel):
     page = FK(Page, backref='tags', index=True)
@@ -496,12 +510,16 @@ forbidden_urls = [
     'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media',
     'accounts', 'tags', 'init-config', 'upload', 'upload-info', 'about',
     'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
-    'protect', 
+    'protect', 'kt'
 ]
+    
 
 app = Flask(__name__)
 app.secret_key = 'qrdldCcvamtdcnidmtasegasdsedrdqvtautar'
 app.url_map.converters['slug'] = SlugConverter
+
+
+
 
 #### ROUTES ####
 
@@ -524,6 +542,12 @@ def _inject_variables():
         'app_name': _getconf('site', 'title'),
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
     }
+
+@app.template_filter()
+def linebreaks(text):
+    text = html.escape(text)
+    text = text.replace("\n\n", '</p><p>').replace('\n', '<br />')
+    return Markup(text)
 
 @app.route('/')
 def homepage():
@@ -848,7 +872,7 @@ def easter_y(y=None):
 
 #### EXTENSIONS ####
 
-active_extensions = ['circles']
+active_extensions = ['contactnova']
 
 for ext in active_extensions:
     try:

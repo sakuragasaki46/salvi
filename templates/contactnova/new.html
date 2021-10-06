@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Create new contact – {{ app_name }}{% endblock %}
+
+{% block content %}
+<form method="POST" class="circles-add-form">
+  {% if returnto %}<input type="hidden" name="returnto" value="{{ returnto }}">{% endif %}
+  {% if not pl %}
+  <div>
+    <label>Letter</label>
+    <select id="ktCodeLetter" name="letter">
+      <option value="-" disabled="" selected="">(Choose)</option>
+      {% set typ_list = 'ABCDEFGHIJKLMNOPQRSTUVWYZ' %}
+      {% for t in typ_list %}
+      <option value="{{ t }}">{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% endif %}
+  <div>
+    <label>Code</label>
+    <strong id="ktNewCode">---</strong>
+  </div>
+  <div>
+    <label>Display name</label>
+    <input name="display_name" maxlength="50"{% if pl %} value="{{ pl.display_name }}"{% endif %}>
+  </div>
+  <div>
+    <label>Status</label>
+    <select name="status">
+      {% set statuses = {
+      0: 'Variable',
+      1: 'OK',
+      2: 'Issues',
+      } %}
+      {% for k, v in statuses.items() %}
+      <option value="{{ k }}"{% if pl and pl.status == k %} selected=""{% endif %}>{{ v }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label>Issues</label>
+    <textarea maxlength="500" name="issues">{{ pl and pl.issues }}</textarea>
+  </div>
+  <div>
+    <label>Description</label>
+    <textarea maxlength="5000" name="description">{{ pl and pl.description }}</textarea>
+  </div>
+  <div>
+    <label>Due</label>
+    <input name="due" required="" type="date" value="{{ pl.due if pl else pl_date }}" min="2020-01-01" />
+  </div>
+  <input type="submit" id="ktSubmit" value="Save">
+</form>
+
+<script>
+  {% if not pl %}
+  ktSubmit.disabled = true;
+  {% endif %}
+  ktCodeLetter.onchange = function(){
+    let x = new XMLHttpRequest;
+    x.open('GET', '/kt/_newcode/' + ktCodeLetter.value);
+    x.onreadystatechange = () => {
+      if (x.readyState === XMLHttpRequest.DONE && x.status == 200) {
+	ktNewCode.textContent = x.responseText;
+	ktSubmit.disabled = false;
+      }
+    };
+    x.send();
+  }
+</script>
+{% endblock %}

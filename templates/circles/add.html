@@ -5,6 +5,7 @@
 {% block content %}
 
 <form method="POST" class="circles-add-form">
+  {% if returnto %}<input type="hidden" name="returnto" value="{{ returnto }}">{% endif %}
   <div>
     <label>#</label>
     <input type="number" name="code" placeholder="00000" required="" maxlength="6" value="{{ pl.code if pl else '' }}" />

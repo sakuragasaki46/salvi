@@ -8,7 +8,7 @@
 <ul>
   <li>All people: <strong>{{ count }}</strong></li>
   <li>People by type:</li>
-  <ul>
+  <ul class="wrap_responsive_cells_narrow">
     {% for k in typed_count.items() %}
     <li>{{ k[0] }}: <strong>{{ k[1] }}</strong></li>
     {% endfor %}
@@ -18,6 +18,13 @@
     {% for k in status_count.items() %}
     <li>{{ k[0] }}: <strong>{{ k[1] }}</strong></li>
     {% endfor %}
+  </ul>
+  <li>People by area:</li>
+  <ul class="wrap_responsive_cells_narrow">
+    {% for k in area_count.items() %}
+    <li>Area {{ k[0] }}: <strong>{{ k[1] }}</strong></li>
+    {% endfor %}
+    <li>No area: <strong>{{ no_area_count }}</strong></li>
   </ul>
 </ul>
 {% endblock %}

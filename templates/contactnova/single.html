@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Contact {{ p.code }} – {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ p.code }}</h1>
+
+<p>aka: <strong>{{ p.display_name }}</strong></p>
+
+{% if p.issues %}
+<p class="contactnova-issues">{{ p.issues }}</p>
+{% endif %}
+
+<p class="contactnova-description">
+{{ p.description or "No description available." |linebreaks }}
+</p>
+
+<p>&nbsp;</p>
+
+<p>Expires: {{ p.due.strftime('%B %-d, %Y') }}</p>
+
+<p><a href="/kt/">Back</a> · <a href="/kt/edit/{{ p.code }}?returnto=/kt/{{ p.code }}">Edit contact</a></p>
+
+{% endblock %}

@@ -170,8 +170,8 @@ def edit_detail(id):
         p.type = request.form["type"]
         p.area = request.form['area']
         p.save()
-        return redirect("/circles")
-    return render_template("circles/add.html", pl=p)
+        return redirect(request.form['returnto'])
+    return render_template("circles/add.html", pl=p, returnto=request.headers.get('Referer', '/circles'))
 
 @bp.route('/csv', methods=['GET', 'POST'])
 def add_csv():
@@ -207,6 +207,16 @@ def statuslist(typ):
     q = Person.select().where(Person.status == typ).order_by(Person.touched.desc())
     return paginate_list(['Orange', 'Yellow', 'Green', ..., 'Red'][typ], q)
 
+@bp.route('/area-<int:a>')
+def arealist(a):
+    q = Person.select().where(Person.area == a).order_by(Person.status.desc(), Person.touched.desc())
+    return paginate_list('Area {}'.format(a), q)
+
+@bp.route('/no-area')
+def noarealist():
+    q = Person.select().where(Person.area == 0).order_by(Person.touched.desc())
+    return paginate_list('Unassigned area', q)
+
 @bp.route("/stats")
 def stats():
     bq = Person.select()
@@ -222,5 +232,10 @@ def stats():
             'Orange': bq.where(Person.status == 0).count(),
             'Yellow': bq.where(Person.status == 1).count(),
             'Green': bq.where(Person.status == 2).count()
-        }
+        },
+        area_count={
+            k: bq.where(Person.area == k).count()
+            for k in range(1, 13)
+        },
+        no_area_count=bq.where(Person.area == None).count()
     )

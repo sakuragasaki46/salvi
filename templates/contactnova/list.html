@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}List of contacts – {{ app_name }}{% endblock %}
+
+{% block content %}
+<p>Showing: <strong>{{ cat }}</strong> · <a href="/kt/new">New contact</a></p>
+
+<fieldset>
+  <legend>Show by:</legend>
+  <p><strong>Letter</strong>:
+    {% set typ_list = 'ABCDEFGHIJKLMNOPQRSTUVWYZ' %}
+    {% for t in typ_list %}
+    <a href="/kt/{{ t }}">{{ t }}</a> ·
+    {% endfor %}
+  </p>
+  <p>
+    <a href="/kt/">All</a> ·
+    <a href="/kt/expired">Expired</a> ·
+    <a href="/kt/ok">Sane</a>
+  </p>
+</fieldset>
+
+{% if count > people.count() %}
+<p>Showing <strong>{{ people.count() }}</strong> people of <strong>{{ count }}</strong> total.</p>
+{% if count > pageno * 50 %}
+<p><a href="?page={{ pageno + 1 }}" rel="nofollow">Next page</a>{% if pageno > 1 %} · <a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a>{% endif %}</p>
+{% elif pageno > 1 %}
+<a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a></p>
+{% endif %}
+{% else %}
+<p><strong>{{ count }}</strong> people.</p>
+{% endif %}
+
+<table class="contactnova-list">
+  <thead>
+  </thead>
+  <tbody>
+    {% for p in people %}
+    <tr class="contactnova-status_{{ p.status }}">
+      <td><span class="material-icons">{{ p.status_str() }}</span></td>
+      <td class="contactnova-col-code"><a href="/kt/{{ p.code }}">{{ p.code }}</a></td>
+      <td>{{ p.display_name }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if count > people.count() %}
+<p>Showing <strong>{{ people.count() }}</strong> people of <strong>{{ count }}</strong> total.</p>
+{% if count > pageno * 50 %}
+<p><a href="?page={{ pageno + 1 }}" rel="nofollow">Next page</a>{% if pageno > 1 %} · <a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a>{% endif %}</p>
+{% elif pageno > 1 %}
+<a href="?page={{ pageno - 1 }}" rel="nofollow">Prev page</a></p>
+{% endif %}
+{% else %}
+<p><strong>{{ count }}</strong> people.</p>
+{% endif %}
+
+{% endblock %}

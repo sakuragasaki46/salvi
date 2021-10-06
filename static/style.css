@@ -41,6 +41,8 @@ input[type="submit"],input[type="reset"],input[type="button"],button{font-family
 .page-tags .tag-count{color:#3c3;font-size:smaller;font-weight:600}
 .search-wrapper {display:flex;width:90%;margin:auto}
 .search-wrapper > input {flex:1}
+
+/* Circles extension */
 .circles-red{color: #e14}
 .circles-orange{color: #f72}
 .circles-green{color: #6e4}
@@ -56,6 +58,14 @@ input[type="submit"],input[type="reset"],input[type="button"],button{font-family
 .circles-add-form > div{display:table-row}
 .circles-add-form > div > *{display:table-cell}
 .circles-add-form > div > label{text-align:right}
+.circles-li-code {font-size: 120%}
+
+/* ContactNova extension */
+.contactnova-issues {padding-left: 12px; border-left: 4px solid #fc6}
+.contactnova-col-code {font-size: 1.25em; font-weight: bold}
+.contactnova-status_1 .material-icons {color: #6e4}
+.contactnova-status_2 .material-icons {color: #fc6}
+.contactnova-list td {vertical-align: middle}
 
 
 /* floating elements */
@@ -132,3 +142,19 @@ body.dark, .dark input, .dark textarea{background-color: #1f1f1f; color: white}
 a.dark-theme-toggle-off{display: none}
 .dark a.dark-theme-toggle-off{display: inline}
 .dark a.dark-theme-toggle-on{display: none}
+
+/* ?????? */
+.wrap_responsive_cells {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    /* This is better for small screens, once min() is better supported */
+    /* grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); */
+    gap: 1rem;
+}
+.wrap_responsive_cells_narrow {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    /* This is better for small screens, once min() is better supported */
+    /* grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); */
+    gap: 2px;
+}
