@@ -11,12 +11,16 @@ Application is kept compact, with all its core in a single file.
 Extensions are supported (?), kept in extensions/ folder.
 '''
 
+#### IMPORTS ####
+
 from flask import (
     Flask, Markup, abort, flash, g, jsonify, make_response, redirect, request,
     render_template, send_from_directory)
 from werkzeug.routing import BaseConverter
 from peewee import *
-import datetime, re, markdown, uuid, json, importlib, sys, hashlib, html, os, csv, random
+import (
+    csv, datetime, hashlib, html, importlib, json, markdown, os, random, re,
+    sys, uuid, warnings)
 from functools import lru_cache, partial
 from urllib.parse import quote
 from configparser import ConfigParser
@@ -398,9 +402,11 @@ def expand_magic_words(text):
     Unknown keywords are not replaced. Valid keywords with invalid arguments are replaced with nothing.
     '''
     return re.sub(MAGIC_RE, _replace_magic_word, text)
-
-def md(text, expand_magic=True, toc=True):
+ 
+def md(text, expand_magic=False, toc=True):
     if expand_magic:
+        # DEPRECATED seeking for a better solution.
+        warnings.warn('Magic words are no more supported.', DeprecationWarning)
         text = expand_magic_words(text)
     extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists']
     if markdown_strikethrough:
@@ -408,12 +414,6 @@ def md(text, expand_magic=True, toc=True):
     if toc:
         extensions.append('toc')
     return markdown.Markdown(extensions=extensions).convert(text)
-
-# unused, MD already adds anchors by itself
-#def make_header_anchor(match):
-#    tagname, tagattrs, text = match.group(1), match.group(2), match.group(3)
-#    anchor = quote(remove_tags(text, False)).replace('.', '.2E').replace('%', '.')
-#    return '<{0} id="{3}"{1}>{2}</{0}>'.format(tagname, tagattrs, text, anchor)
 
 def remove_tags(text, convert=True, headings=True):
     if headings:
@@ -423,7 +423,7 @@ def remove_tags(text, convert=True, headings=True):
     return re.sub(r'<.*?>|\{\{.*?\}\}', '', text)
 
 
-### Magic words ###
+### Magic words (deprecated!) ###
 
 def expand_backto(pageid):
     p = Page[pageid]
@@ -512,7 +512,6 @@ forbidden_urls = [
     'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
     'protect', 'kt', 'embed'
 ]
-    
 
 app = Flask(__name__)
 app.secret_key = 'qrdldCcvamtdcnidmtasegasdsedrdqvtautar'
@@ -572,6 +571,9 @@ def error_404(body):
 def error_403(body):
     return render_template('forbidden.html'), 403
 
+@app.errorhandler(500)
+def error_400(body):
+    return render_template('badrequest.html'), 400
 
 # Middle point during page editing.
 def savepoint(form, is_preview=False):
