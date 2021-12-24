@@ -3,6 +3,7 @@ body{font-family:sans-serif}
 .content{margin: 3em 1.3em}
 
 /* content styles */
+#firstHeading {font-family: 'Oswald','Anton','Impact',sans-serif; text-align: center;font-size:3em}
 .inner-content{font-family:serif; margin: 1.7em auto; max-width: 1280px; line-height: 1.9; color: #1f2528}
 .inner-content em,.inner-content strong{color: black}
 .inner-content h1{color: #99081f}

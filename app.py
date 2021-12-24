@@ -18,9 +18,8 @@ from flask import (
     render_template, send_from_directory)
 from werkzeug.routing import BaseConverter
 from peewee import *
-import (
-    csv, datetime, hashlib, html, importlib, json, markdown, os, random, re,
-    sys, uuid, warnings)
+import csv, datetime, hashlib, html, importlib, json, markdown, os, random, \
+    re, sys, uuid, warnings
 from functools import lru_cache, partial
 from urllib.parse import quote
 from configparser import ConfigParser

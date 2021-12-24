@@ -5,7 +5,7 @@
 {% block json_info %}<script>window.page_info={{ p.js_info()|tojson|safe }};</script>{% endblock %}
 
 {% block content %}
-<h1>{{ p.title }}</h1>
+<h1 id="firstHeading">{{ p.title }}</h1>
 
 <div class="jump-to-actions">
   <span>{{ T('last-changed') }} {{ rev.human_pub_date() }}</span> ·
