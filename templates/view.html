@@ -5,29 +5,32 @@
 {% block json_info %}<script>window.page_info={{ p.js_info()|tojson|safe }};</script>{% endblock %}
 
 {% block content %}
-<h1 id="firstHeading">{{ p.title }}</h1>
+<article>
+  <h1 id="firstHeading">{{ p.title }}</h1>
+  
+  <div class="jump-to-actions">
+    <span>{{ T('last-changed') }} {{ rev.human_pub_date() }}</span> ·
+    <a href="#page-actions">{{ T('jump-to-actions') }}</a>
+  </div>
 
-<div class="jump-to-actions">
-  <span>{{ T('last-changed') }} {{ rev.human_pub_date() }}</span> ·
-  <a href="#page-actions">{{ T('jump-to-actions') }}</a>
-</div>
+  {% block history_nav %}{% endblock %}
 
-{% block history_nav %}{% endblock %}
+  <div class="inner-content">
+    {{ rev.html()|safe }}
+  </div>
 
-<div class="inner-content">
-  {{ rev.html()|safe }}
-</div>
+  {% if p.tags %}
+  <div class="page-tags">
+    <p>{{ T('tags') }}:</p>
+    <ul>
+      {% for tag in p.tags %}
+      <li><a href="/tags/{{ tag.name }}/">#{{ tag.name }}</a> <span class="tag-count">({{ tag.popularity() }})</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</article>
 
-{% if p.tags %}
-<div class="page-tags">
-  <p>{{ T('tags') }}:</p>
-  <ul>
-    {% for tag in p.tags %}
-    <li><a href="/tags/{{ tag.name }}/">#{{ tag.name }}</a> <span class="tag-count">({{ tag.popularity() }})</span></li>
-    {% endfor %}
-  </ul>
-</div>
-{% endif %}
 {% endblock %}
 
 {% block actions %}
@@ -35,4 +38,8 @@
 <a href="/history/{{ p.id }}/">{{ T('action-history') }}</a> -
 {{ T('last-changed') }} <time datetime="{{ rev.pub_date.isoformat() }}">{{ rev.pub_date.strftime('%B %-d, %Y at %H:%M:%S') }}</time> - 
 {{ T('page-id') }}: {{ p.id }}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/content.js"></script>
 {% endblock %}

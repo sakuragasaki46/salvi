@@ -31,12 +31,8 @@ try:
     from slugify import slugify
 except ImportError:
     slugify = None
-try:
-    import markdown_strikethrough
-except Exception:
-    markdown_strikethrough = None
 
-__version__ = '0.4'
+__version__ = '0.5-dev'
 
 #### CONSTANTS ####
 
@@ -92,6 +88,28 @@ def _makelist(l):
         return [l]
     else:
         return []
+
+
+#### MARKDOWN EXTENSIONS ####
+
+class StrikethroughExtension(markdown.extensions.Extension):
+    def extendMarkdown(self, md, md_globals):
+        postprocessor = StrikethroughPostprocessor(md)
+        md.postprocessors.add('strikethrough', postprocessor, '>raw_html')
+
+class StrikethroughPostprocessor(markdown.postprocessors.Postprocessor):
+    pattern = re.compile(r"~~(((?!~~).)+)~~", re.DOTALL)
+
+    def run(self, html):
+        return re.sub(self.pattern, self.convert, html)
+
+    def convert(self, match):
+        return '<del>' + match.group(1) + '</del>'
+
+### XXX it currently only detects spoilers that are not at the beginning of the line. To be fixed.
+class SpoilerExtension(markdown.extensions.Extension):
+    def extendMarkdown(self, md, md_globals):
+        md.inlinePatterns.register(markdown.inlinepatterns.SimpleTagInlineProcessor(r'()>!(.*?)!<', 'span class="spoiler"'), 'spoiler', 14)
 
 #### DATABASE SCHEMA ####
 
@@ -321,6 +339,9 @@ class PagePolicy(BaseModel):
             (('page', 'key'), True),
         )
 
+# DEPRECATED
+# It will be possibly removed in v0.6.
+# Use external image URL instead.
 class Upload(BaseModel):
     name = CharField(256)
     url_name = CharField(256, null=True)
@@ -382,34 +403,11 @@ def init_db():
 
 #### WIKI SYNTAX ####
 
-magic_word_filters = {}
-
-def _replace_magic_word(match):
-    name = match.group(1)
-    if name not in magic_word_filters:
-        return match.group()
-    f = magic_word_filters[name]
-    try:
-        return f(*(x.strip() for x in match.group(2).split('|')))
-    except Exception:
-        return ''
-
-def expand_magic_words(text):
-    '''
-    Replace the special markups in double curly brackets.
-    
-    Unknown keywords are not replaced. Valid keywords with invalid arguments are replaced with nothing.
-    '''
-    return re.sub(MAGIC_RE, _replace_magic_word, text)
- 
 def md(text, expand_magic=False, toc=True):
     if expand_magic:
         # DEPRECATED seeking for a better solution.
         warnings.warn('Magic words are no more supported.', DeprecationWarning)
-        text = expand_magic_words(text)
-    extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists']
-    if markdown_strikethrough:
-        extensions.append("markdown_strikethrough.extension")
+    extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists', StrikethroughExtension(), SpoilerExtension()]
     if toc:
         extensions.append('toc')
     return markdown.Markdown(extensions=extensions).convert(text)
@@ -418,58 +416,8 @@ def remove_tags(text, convert=True, headings=True):
     if headings:
         text = re.sub(r'\#[^\n]*', '', text)
     if convert:
-        text = md(text, expand_magic=False, toc=False)
+        text = md(text, toc=False)
     return re.sub(r'<.*?>|\{\{.*?\}\}', '', text)
-
-
-### Magic words (deprecated!) ###
-
-def expand_backto(pageid):
-    p = Page[pageid]
-    return '*&laquo; Main article: [{}]({}).*'.format(html.escape(p.title), p.get_url())
-
-magic_word_filters['backto'] = expand_backto
-
-def expand_upload(id, *opt):
-    try:
-        upload = Upload[id]
-    except Upload.DoesNotExist:
-        return ''
-    if opt:
-        desc = opt[-1]
-    else:
-        desc = None
-    classname = 'fig-right'
-    return '<figure class="{0}"><a href="/upload-info/{4}"><img alt="{1}" src="{2}" title="{1}"></a>{3}</figure>'.format(
-        classname, html.escape(upload.name), upload.url, 
-        '<figcaption>{0}</figcaption>'.format(md(desc, expand_magic=False)) if desc else '',
-        upload.id)
-
-magic_word_filters['media'] = expand_upload
-
-def make_gallery(items):
-    result = []
-    for upload, desc in items:
-        result.append('<figure class="fig-gallery"><a href="/upload-info/{0}"><img alt="{1}" src="{2}" title="{1}"></a>{3}</figure>'.format(
-            upload.id, html.escape(upload.name), upload.url,
-            '<figcaption>{0}</figcaption>'.format(md(desc, expand_magic=False)) if desc else ''))
-    return '<div class="gallery">' + ''.join(result) + '</div>'
-
-def expand_gallery(*ids):
-    items = []
-    for i in ids:
-        if ' ' in i:
-            id, desc = i.split(' ', 1)
-        else:
-            id, desc = i, ''
-        try:
-            upload = Upload[id]
-        except Upload.DoesNotExist:
-            continue
-        items.append((upload, desc))
-    return make_gallery(items)
-
-magic_word_filters['gallery'] = expand_gallery
 
 #### I18N ####
 
@@ -549,8 +497,7 @@ def linebreaks(text):
 def homepage():
     page_limit = _getconf("appearance","items_per_page",20,cast=int)
     return render_template('home.html', new_notes=Page.select()
-        .order_by(Page.touched.desc()).limit(page_limit),
-        gallery=make_gallery((x, '') for x in Upload.select().order_by(Upload.upload_date.desc()).limit(3)))
+        .order_by(Page.touched.desc()).limit(page_limit))
 
 @app.route('/robots.txt')
 def robots():
@@ -795,27 +742,10 @@ def listtag(tag, page=1):
 def media(fp):
     return send_from_directory(UPLOAD_DIR, fp)
 
-@app.route('/upload/', methods=['GET', 'POST'])
+# symbolic route as of v0.5
+@app.route('/upload/', methods=['GET'])
 def upload():
-    if request.method == 'POST':
-        name = request.form['name']
-        file = request.files['file']
-        filename = file.filename
-        ext = os.path.splitext(filename)[1]
-        content = file.read()
-        try:
-            upl = Upload.create_content(name, ext, content)
-            flash('File uploaded successfully')
-            return redirect('/upload-info/{}/'.format(upl.id))
-        except Exception:
-            sys.excepthook(*sys.exc_info())
-            flash('Unable to upload file. Try again later.')
     return render_template('upload.html')
-
-@app.route('/upload-info/<int:id>/')
-def upload_info(id):
-    upl = Upload[id]
-    return render_template('uploadinfo.html', upl=upl, type_list=upload_types_rev)
 
 @app.route('/stats/')
 def stats():
@@ -881,7 +811,14 @@ def easter_y(y=None):
 
 #### EXTENSIONS ####
 
-active_extensions = ['contactnova']
+active_extensions = []
+
+_i = 1
+_extension_name = _getconf('extensions', 'ext.{}'.format(_i))
+while _extension_name:
+    active_extensions.append(_extension_name)
+    _i += 1
+    _extension_name = _getconf('extensions', 'ext.{}'.format(_i))
 
 for ext in active_extensions:
     try:

@@ -7,7 +7,6 @@
 
 <div class="nl-new">
   <a href="/create/"><button class="submit-primary">{{ T('new-note') }}</button></a>
-  <a href="/upload/"><button class="submit-secondary">{{ T('upload-file') }}</button></a>
 </div>
 
 <h2>{{ T('latest-notes') }}</h2>
@@ -31,8 +30,4 @@
   <li><a href="/p/most_recent/">{{ T('show-all') }}</a></li>
 </ul>
 
-<h2>{{ T('latest-uploads') }}</h2>
-
-{# TODO security flaw; find a way to do this in a more safe manner! #}
-{{ gallery|safe }}
 {% endblock %}

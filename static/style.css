@@ -1,13 +1,14 @@
 /* basic styles */
-body{font-family:sans-serif}
+body{font-family:sans-serif;background-color:#faf5e9}
 .content{margin: 3em 1.3em}
 
 /* content styles */
-#firstHeading {font-family: 'Oswald','Anton','Impact',sans-serif; text-align: center;font-size:3em}
+#firstHeading {font-family:sans-serif; text-align: center;font-size:3em; font-weight: normal}
 .inner-content{font-family:serif; margin: 1.7em auto; max-width: 1280px; line-height: 1.9; color: #1f2528}
 .inner-content em,.inner-content strong{color: black}
 .inner-content h1{color: #99081f}
-.inner-content table, .inner-content h2, .inner-content h3, .inner-content h4, .inner-content h5, .inner-content h6{font-family:sans-serif; color: black}
+.inner-content table {font-family: sans-serif}
+.inner-content h2, .inner-content h3, .inner-content h4, .inner-content h5, .inner-content h6{font-family:sans-serif; color: black; font-weight: normal}
 .inner-content h3{margin:0.8em 0}
 .inner-content h4{margin:0.6em 0}
 .inner-content h5{margin:0.5em 0}
@@ -19,6 +20,9 @@ body{font-family:sans-serif}
 .inner-content table > * > tr > th, .inner-content table > tr > th {background-color:#f9f9f9;border:#ccc 1px solid;padding:2px}
 .inner-content table > * > tr > td, .inner-content table > tr > td {border:#ccc 1px solid;padding:2px}
 
+/* spoiler styles */
+.spoiler {color: black; background-color:black}
+.spoiler.revealed {color: #1f2528; background-color: transparent}
 
 /* interface styles */
 .nl-list{list-style:none}
@@ -143,6 +147,8 @@ body.dark, .dark input, .dark textarea{background-color: #1f1f1f; color: white}
 a.dark-theme-toggle-off{display: none}
 .dark a.dark-theme-toggle-off{display: inline}
 .dark a.dark-theme-toggle-on{display: none}
+.dark .spoiler {color: white; background-color: white}
+.dark .spoiler.revealed {color: white; background-color: transparent}
 
 /* ?????? */
 .wrap_responsive_cells {
