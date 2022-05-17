@@ -7,6 +7,9 @@
   
   var textInput = getFirst(document.getElementsByClassName('text-input'));
   var overTextInput = getFirst(document.getElementsByClassName('over-text-input'));
+
+  // TODO saving draft
+  var autosaveInterval = null;
   
   overTextInput.innerHTML = [
     '<span class="oti-modified">&nbsp;</span>',
@@ -22,8 +25,9 @@
     if(newText != oldText){
       oldText = newText;
 
-      overTextInput.children[0].innerHTML = newText == originalText? '&nbsp;' : '(*)';
+      overTextInput.children[0].innerHTML = newText === originalText? '&nbsp;' : '(*)';
       overTextInput.children[1].innerHTML = newText.length + ' char' + (newText.length == 1? '' : 's');
+      if (!autosaveInterval) autosaveInterval = setInterval(autosaveText, 30000);
     }
   }
   overTextInput.children[1].innerHTML = originalText.length + ' char' + (originalText.length == 1? '' : 's');
@@ -53,6 +57,7 @@
   var saveButton = document.getElementById('save-button');
   saveButton.onclick = function(){
     window.onbeforeunload = null;
+    localStorage.removeItem('draft' + (page_info.editing.page_id || 'new'));
   }
   var previewButton = document.getElementById('preview-button');
   previewButton.onclick = function(){
@@ -66,4 +71,8 @@
 
   // TODO tag editor
   var tagsInput = getFirst(document.getElementsByClassName('tags-input'));
+
+  function autosaveText(){
+    localStorage.setItem('draft' + (page_info.editing.page_id || 'new'), textInput.value);
+  }
 })();

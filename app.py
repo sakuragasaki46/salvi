@@ -417,7 +417,7 @@ def remove_tags(text, convert=True, headings=True):
         text = re.sub(r'\#[^\n]*', '', text)
     if convert:
         text = md(text, toc=False)
-    return re.sub(r'<.*?>|\{\{.*?\}\}', '', text)
+    return re.sub(r'<.*?>', '', text)
 
 #### I18N ####
 
@@ -485,6 +485,7 @@ def _inject_variables():
         'T': partial(get_string, g.lang),
         'app_name': _getconf('site', 'title'),
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
+        'app_version': __version__
     }
 
 @app.template_filter()
@@ -522,7 +523,7 @@ def error_400(body):
     return render_template('badrequest.html'), 400
 
 # Middle point during page editing.
-def savepoint(form, is_preview=False):
+def savepoint(form, is_preview=False, pageid=None):
     if is_preview:
         preview = md(form['text'])
     else:
@@ -531,6 +532,7 @@ def savepoint(form, is_preview=False):
     pl_js_info['editing'] = dict(
         original_text = None, # TODO
         preview_text = form['text'],
+        page_id = pageid
     )
     return render_template('edit.html', pl_url=form['url'], pl_title=form['title'], pl_text=form['text'], pl_tags=form['tags'], preview=preview, pl_js_info=pl_js_info)
 
@@ -579,21 +581,21 @@ def edit(id):
     p = Page[id]
     if request.method == 'POST':
         if request.form.get('preview'):
-            return savepoint(request.form, is_preview=True)
+            return savepoint(request.form, is_preview=True, pageid=id)
         p_url = request.form['url'] or None
         if p_url:
             if not is_valid_url(p_url):
                 flash('Invalid URL. Valid URLs contain only letters, numbers and hyphens.')
-                return savepoint(request.form)
+                return savepoint(request.form, pageid=id)
             elif not is_url_available(p_url) and p_url != p.url:
                 flash('This URL is not available.')
-                return savepoint(request.form)
+                return savepoint(request.form, pageid=id)
         p_tags = [x.strip().lower().replace(' ', '-').replace('_', '-').lstrip('#')
             for x in request.form.get('tags', '').split(',')]
         p_tags = [x for x in p_tags if x]
         if any(not re.fullmatch(SLUG_RE, x) for x in p_tags):
             flash('Invalid tags text. Tags contain only letters, numbers and hyphens, and are separated by comma.')
-            return savepoint(request.form)
+            return savepoint(request.form, pageid=id)
         p.url = p_url
         p.title = request.form['title']
         p.touched = datetime.datetime.now()
