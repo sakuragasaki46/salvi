@@ -16,22 +16,25 @@
 {% block content %}
 
 {% if preview %}
-<h1>{{ pl_title }} (preview)</h1>
-
-<div class="preview-area">
-  <div class="preview-warning">
-    Remember this is only a preview. 
-    <strong>Your changes were not saved yet!</strong>
-    <a href="#editing-area">Jump to editing area</a></div>
-  <div class="inner-content">{{ preview|safe }}</div>
-  <div style="clear:both"></div>
-</div>
+<article>
+  <h1 id="firstHeading">{{ pl_title }}</h1>
+  <div class="preview-subtitle">Preview</div>
+  
+  <div class="preview-area">
+    <div class="preview-warning">
+      Remember this is only a preview. 
+      <strong>Your changes were not saved yet!</strong>
+      <a href="#editing-area">Jump to editing area</a></div>
+    <div class="inner-content">{{ preview|safe }}</div>
+    <div style="clear:both"></div>
+  </div>
+</article>
 {% endif %}
 
 <form method="POST">
   <div>
-    <label for="title">URL: </label>
-    <input type="text" name="url" class="url-input" placeholder="No URL" maxlength="64" value="{{ pl_url or '' }}">
+    <label for="title"><span class="material-icons">link</span> /</label>
+    <input type="text" name="url" class="url-input" placeholder="(No URL)" maxlength="64" value="{{ pl_url or '' }}">
   </div>
   <div>
     <input type="text" required name="title" placeholder="Title (required)" class="title-input" maxlength="256" value="{{ pl_title }}">

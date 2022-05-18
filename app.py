@@ -139,7 +139,7 @@ class Page(BaseModel):
     def get_url(self):
         return '/' + self.url + '/' if self.url else '/p/{}/'.format(self.id)
     def short_desc(self):
-        text = remove_tags(self.latest.text)
+        text = remove_tags(self.latest.text, convert = not _getconf('site', 'simple_remove_tags', False))
         return text[:200] + ('\u2026' if len(text) > 200 else '')
     def change_tags(self, new_tags):
         old_tags = set(x.name for x in self.tags)

@@ -46,6 +46,7 @@ input[type="submit"],input[type="reset"],input[type="button"],button{font-family
 .page-tags .tag-count{color:#3c3;font-size:smaller;font-weight:600}
 .search-wrapper {display:flex;width:90%;margin:auto}
 .search-wrapper > input {flex:1}
+.preview-subtitle {text-align: center; margin-top: -1em}
 
 /* Circles extension */
 .circles-red{color: #e14}
