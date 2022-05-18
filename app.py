@@ -32,7 +32,7 @@ try:
 except ImportError:
     slugify = None
 
-__version__ = '0.5-dev'
+__version__ = '0.5'
 
 #### CONSTANTS ####
 

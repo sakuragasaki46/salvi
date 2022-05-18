@@ -9,6 +9,7 @@ body{font-family:sans-serif;background-color:#faf5e9}
 .inner-content h1{color: #99081f}
 .inner-content table {font-family: sans-serif}
 .inner-content h2, .inner-content h3, .inner-content h4, .inner-content h5, .inner-content h6{font-family:sans-serif; color: black; font-weight: normal}
+.inner-content h2{border-bottom: 1px solid black}
 .inner-content h3{margin:0.8em 0}
 .inner-content h4{margin:0.6em 0}
 .inner-content h5{margin:0.5em 0}
@@ -128,6 +129,7 @@ a:hover{color:#0088ff}
 body.dark, .dark input, .dark textarea{background-color: #1f1f1f; color: white}
 .dark .inner-content{color: #e5e5e5}
 .dark .inner-content em,.dark .inner-content strong,.dark .inner-content h2,.dark .inner-content h3,.dark .inner-content h4,.dark .inner-content h5,.dark .inner-content h6,.dark .inner-content table{color: white}
+.dark .inner-content h2 {border-bottom-color: white}
 .dark .inner-content h1{color:#ff4860}
 .dark .inner-content blockquote{color:#cecece;border-left-color:#555}
 .dark .inner-content table,.dark .inner-content table > * > tr > th,.dark .inner-content table > * > tr > td,.dark .inner-content table > tr > th,.dark .inner-content table > tr > td{border-color:#555}

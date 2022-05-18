@@ -8,14 +8,17 @@
   var textInput = getFirst(document.getElementsByClassName('text-input'));
   var overTextInput = getFirst(document.getElementsByClassName('over-text-input'));
 
-  // TODO saving draft
+  // saving draft
   var autosaveInterval = null;
+
+  page_info.editing = page_info.editing || {};
   
   overTextInput.innerHTML = [
     '<span class="oti-modified">&nbsp;</span>',
     '<span class="oti-charcount">? chars</span>',
     '<span class="oti-fontselect"><select><option value="sans">Sans-serif</option><option value="serif">Serif</option><option value="monospace">Monospace</option></select></span>',
     //'<span class="oti-linkpage">Link page</span>',
+    '<span class="oti-draft">' + (localStorage.getItem('draft' + (page_info.editing.page_id || 'new')) !== null? '<a href="javascript:restoreDraft();">Draft found</a>': '') + '</span>'
   ].join(' ');
 
   // character counter
@@ -72,7 +75,13 @@
   // TODO tag editor
   var tagsInput = getFirst(document.getElementsByClassName('tags-input'));
 
+  // draft management
   function autosaveText(){
     localStorage.setItem('draft' + (page_info.editing.page_id || 'new'), textInput.value);
+  }
+
+  window.restoreDraft = function(){
+    textInput.value = localStorage.getItem('draft' + (page_info.editing.page_id || 'new'));
+    overTextInput.querySelector('.oti-draft').innerHTML = '';
   }
 })();
