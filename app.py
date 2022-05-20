@@ -31,8 +31,12 @@ try:
     from slugify import slugify
 except ImportError:
     slugify = None
+try:
+    import markdown_katex
+except ImportError:
+    markdown_katex = None
 
-__version__ = '0.5'
+__version__ = '0.6-dev'
 
 #### CONSTANTS ####
 
@@ -41,8 +45,7 @@ APP_BASE_DIR = os.path.dirname(__file__)
 FK = ForeignKeyField
 
 SLUG_RE = r'[a-z0-9]+(?:-[a-z0-9]+)*'
-MAGIC_RE = r'\{\{\s*(' + SLUG_RE + ')\s*:\s*(.*?)\s*\}\}'
-REDIRECT_RE = r'\{\{\s*redirect\s*:\s*(\d+)\s*\}\}'
+ILINK_RE = r'\]\(/(p/\d+|' + SLUG_RE + ')/?\)'
 
 upload_types = {'jpeg': 1, 'jpg': 1, 'png': 2}
 upload_types_rev = {1: 'jpg', 2: 'png'}
@@ -139,7 +142,8 @@ class Page(BaseModel):
     def get_url(self):
         return '/' + self.url + '/' if self.url else '/p/{}/'.format(self.id)
     def short_desc(self):
-        text = remove_tags(self.latest.text, convert = not _getconf('site', 'simple_remove_tags', False))
+        full_text = self.latest.text
+        text = remove_tags(full_text, convert = not '```math' in full_text and not '$`' in full_text and not _getconf('appearance', 'simple_remove_tags', False))
         return text[:200] + ('\u2026' if len(text) > 200 else '')
     def change_tags(self, new_tags):
         old_tags = set(x.name for x in self.tags)
@@ -339,78 +343,71 @@ class PagePolicy(BaseModel):
             (('page', 'key'), True),
         )
 
-# DEPRECATED
-# It will be possibly removed in v0.6.
-# Use external image URL instead.
-class Upload(BaseModel):
-    name = CharField(256)
-    url_name = CharField(256, null=True)
-    filetype = SmallIntegerField()
-    filesize = IntegerField()
-    upload_date = DateTimeField(index=True)
-    md5 = CharField(32, index=True)
-    @property
-    def filepath(self):
-        return '{0}/{1}/{2}{3}.{4}'.format(self.md5[:1], self.md5[:2], self.id, 
-            '-' + self.url_name if self.url_name else '', upload_types_rev[self.filetype])
-    @property
-    def url(self):
-        return '/media/' + self.filepath
-    def get_content(self, check=True):
-        with open(os.path.join(UPLOAD_DIR, self.filepath)) as f:
-            content = f.read()
-        if check:
-            if len(content) != self.filesize:
-                raise AssertionError('file is corrupted')
-            if hashlib.md5(content).hexdigest() != self.md5:
-                raise AssertionError('file is corrupted')
-        return content
-    @classmethod
-    def create_content(cls, name, ext, content):
-        ext = ext.lstrip('.')
-        if ext not in upload_types:
-            raise ValueError('invalid file type')
-        filetype = upload_types[ext]
-        name = name[:256]
-        if slugify:
-            url_name = slugify(name)[:256]
-        else:
-            url_name = None
-        filemd5 = hashlib.md5(content).hexdigest()
-        basepath = os.path.join(UPLOAD_DIR, filemd5[:1], filemd5[:2])
-        if not os.path.exists(basepath):
-            os.makedirs(basepath)
-        obj = cls.create(
-            name=name,
-            url_name=url_name,
-            filetype=filetype,
-            filesize=len(content),
-            upload_date=datetime.datetime.now(),
-            md5=filemd5
+
+# Link table for caching purposes.
+class PageLink(BaseModel):
+    from_page = FK(Page, backref='forward_links')
+    to_page = FK(Page, backref='back_links')
+
+    class Meta:
+        indexes = (
+            (('from_page', 'to_page'), True),
         )
-        try:
-            with open(os.path.join(basepath, '{0}{1}.{2}'.format(obj.id, 
-                    '-' + url_name if url_name else '', upload_types_rev[filetype]
-                    )), 'wb') as f:
-                f.write(content)
-        except OSError:
-            cls.delete_by_id(obj.id)
-            raise
-        return obj
+
+    @classmethod
+    def parse_links(cls, from_page, text, erase=True):
+        with database.atomic():
+            old_links = list(cls.select().where(cls.from_page == from_page))
+            for mo in re.finditer(ILINK_RE, text):
+                try:
+                    pageurl = mo.group(1)
+                    if pageurl.startswith('p/'):
+                        to_page = Page[int(pageurl[2:])]
+                    else:
+                        to_page = Page.get(Page.url == pageurl)
+                    
+                    linkobj, created = PageLink.get_or_create(
+                        from_page = from_page,
+                        to_page = to_page)
+                    if linkobj in old_links:
+                        old_links.remove(linkobj)
+                except Exception:
+                    continue
+            if erase:
+                for linkobj in old_links:
+                    linkobj.delete_instance()
+
+    # The actual ULTIMATE method to refresh all links
+    # To be called from a maintenance script only!
+    @classmethod
+    def refresh_all_links(cls):
+        for p in Page.select():
+            cls.parse_links(p, p.latest.text)
+            
 
 def init_db():
-    database.create_tables([Page, PageText, PageRevision, PageTag, PageProperty, PagePolicyKey, PagePolicy, Upload])
+    database.create_tables([Page, PageText, PageRevision, PageTag, PageProperty, PagePolicyKey, PagePolicy, PageLink])
 
 #### WIKI SYNTAX ####
 
-def md(text, expand_magic=False, toc=True):
+def md(text, expand_magic=False, toc=True, math=True):
     if expand_magic:
         # DEPRECATED seeking for a better solution.
         warnings.warn('Magic words are no more supported.', DeprecationWarning)
     extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists', StrikethroughExtension(), SpoilerExtension()]
+    extension_configs = {}
     if toc:
         extensions.append('toc')
-    return markdown.Markdown(extensions=extensions).convert(text)
+    if math and markdown_katex and ('$`' in text or '```math' in text):
+        extensions.append('markdown_katex')
+        extension_configs['markdown_katex'] = {
+            'no_inline_svg': True,
+            'insert_fonts_css': True
+        }
+    try:
+        return markdown.Markdown(extensions=extensions, extension_configs=extension_configs).convert(text)
+    except Exception as e:
+        return '<p class="error">There was an error during rendering: {e.__class__.__name__}: {e}</p>'.format(e=e)
 
 def remove_tags(text, convert=True, headings=True):
     if headings:
@@ -457,7 +454,7 @@ forbidden_urls = [
     'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media',
     'accounts', 'tags', 'init-config', 'upload', 'upload-info', 'about',
     'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
-    'protect', 'kt', 'embed'
+    'protect', 'kt', 'embed', 'backlinks'
 ]
 
 app = Flask(__name__)
@@ -573,6 +570,7 @@ def create():
             pub_date=datetime.datetime.now(),
             length=len(request.form['text'])
         )
+        PageLink.parse_links(p, request.form['text'])
         return redirect(p.get_url())
     return render_template('edit.html', pl_url=request.args.get('url'))
 
@@ -609,6 +607,7 @@ def edit(id):
             pub_date=datetime.datetime.now(),
             length=len(request.form['text'])
         )
+        PageLink.parse_links(p, request.form['text'])
         return redirect(p.get_url())
     return render_template('edit.html', pl_url=p.url, pl_title=p.title, pl_text=p.latest.text, pl_tags=','.join(x.name for x in p.tags))
 
@@ -717,6 +716,14 @@ def view_old(revisionid):
         abort(404)
     p = rev.page
     return render_template('viewold.html', p=p, rev=rev)
+
+@app.route('/backlinks/<int:id>/')
+def backlinks(id):
+    try:
+        p = Page[id]
+    except Page.DoesNotExist:
+        abort(404)
+    return render_template('backlinks.html', p=p, backlinks=Page.select().join(PageLink, on=PageLink.to_page).where(PageLink.from_page == p))
 
 @app.route('/search/', methods=['GET', 'POST'])
 def search():

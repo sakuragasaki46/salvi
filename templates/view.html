@@ -36,6 +36,7 @@
 {% block actions %}
 <a href="/edit/{{ p.id }}/">{{ T('action-edit') }}</a> -
 <a href="/history/{{ p.id }}/">{{ T('action-history') }}</a> -
+<a href="/backlinks/{{ p.id }}/">Backlinks</a> -
 {{ T('last-changed') }} <time datetime="{{ rev.pub_date.isoformat() }}">{{ rev.pub_date.strftime('%B %-d, %Y at %H:%M:%S') }}</time> - 
 {{ T('page-id') }}: {{ p.id }}
 {% endblock %}

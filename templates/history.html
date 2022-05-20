@@ -7,7 +7,8 @@
 {% endblock %}
 
 {% block content %}
-<h1>Page history for "{{ p.title }}"</h1>
+<h1 id="firstHeading">{{ p.title }}</h1>
+<div class="preview-subtitle">Page history</div>
 
 <ul>
 {% for rev in history %}
