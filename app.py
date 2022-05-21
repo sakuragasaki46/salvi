@@ -109,6 +109,10 @@ class StrikethroughPostprocessor(markdown.postprocessors.Postprocessor):
     def convert(self, match):
         return '<del>' + match.group(1) + '</del>'
 
+# XXX ugly monkeypatch to make spoilers prevail over blockquotes
+from markdown.blockprocessors import BlockQuoteProcessor
+BlockQuoteProcessor.RE = re.compile(r'(^|\n)[ ]{0,3}>(?!!)[ ]?(.*)')
+
 ### XXX it currently only detects spoilers that are not at the beginning of the line. To be fixed.
 class SpoilerExtension(markdown.extensions.Extension):
     def extendMarkdown(self, md, md_globals):
@@ -684,7 +688,20 @@ def view_random():
         except Page.DoesNotExist:
             continue
     return redirect(page.get_url())
-    
+
+@app.route('/p/leaderboard/')
+def page_leaderboard():
+    headers = {
+        'Cache-Control': 'max-age=180, stale-while-revalidate=1800'
+    }
+
+    pages = []
+    for p in Page.select():
+        score = (p.latest.length >> 10) + p.forward_links.count() + p.back_links.count()
+        pages.append((p, score, p.back_links.count(), p.forward_links.count(), p.latest.length))
+    pages.sort(key = lambda x: (x[1], x[2], x[4], x[3]), reverse = True)
+        
+    return render_template('leaderboard.html', pages=pages)
 
 @app.route('/<slug:name>/')
 def view_named(name):

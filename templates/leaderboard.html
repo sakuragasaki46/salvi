@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Best pages - {{ app_name }}{% endblock %}
+
+{% block meta %}
+<meta name="robots" content="noindex,nofollow" />
+{% endblock %}
+
+{% block content %}
+<h1>Best pages</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Page Name</th>
+      <th>Score</th>
+      <th><abbr title="Length in bytes">Len</abbr></th>
+      <th><abbr title="Backlinks">BL</abbr></th>
+      <th><abbr title="Forward links">FL</abbr></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% set counters = namespace(row = 0) %}
+    {% for p, score, bklinks, fwlinks, length in pages %}
+    <tr>
+      {% set counters.row = counters.row + 1 %}
+      <th style="text-align: right">{{ counters.row }}</th>
+      <td><a href="{{ p.get_url() }}">{{ p.title }}</a> (#{{ p.id }})</td>
+      <td><strong>{{ score }}</strong></td>
+      <td>{{ length }}</td>
+      <td>{{ bklinks }}</td>
+      <td>{{ fwlinks }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
