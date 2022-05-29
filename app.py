@@ -139,6 +139,7 @@ class Page(BaseModel):
     flags = BitField()
     is_redirect = flags.flag(1)
     is_sync = flags.flag(2)
+    is_math_enabled = flags.flag(4)
     @property
     def latest(self):
         if self.revisions:
@@ -147,7 +148,7 @@ class Page(BaseModel):
         return '/' + self.url + '/' if self.url else '/p/{}/'.format(self.id)
     def short_desc(self):
         full_text = self.latest.text
-        text = remove_tags(full_text, convert = not '```math' in full_text and not '$`' in full_text and not _getconf('appearance', 'simple_remove_tags', False))
+        text = remove_tags(full_text, convert = not self.is_math_enabled and not _getconf('appearance', 'simple_remove_tags', False))
         return text[:200] + ('\u2026' if len(text) > 200 else '')
     def change_tags(self, new_tags):
         old_tags = set(x.name for x in self.tags)
@@ -233,7 +234,7 @@ class PageRevision(BaseModel):
     def text(self):
         return self.textref.get_content()
     def html(self):
-        return md(self.text)
+        return md(self.text, math=self.page.is_math_enabled)
     def human_pub_date(self):
         delta = datetime.datetime.now() - self.pub_date
         T = partial(get_string, g.lang)
@@ -417,7 +418,7 @@ def remove_tags(text, convert=True, headings=True):
     if headings:
         text = re.sub(r'\#[^\n]*', '', text)
     if convert:
-        text = md(text, toc=False)
+        text = md(text, toc=False, math=False)
     return re.sub(r'<.*?>', '', text)
 
 #### I18N ####
@@ -486,7 +487,8 @@ def _inject_variables():
         'T': partial(get_string, g.lang),
         'app_name': _getconf('site', 'title'),
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
-        'app_version': __version__
+        'app_version': __version__,
+        'math_version': markdown_katex.__version__ if markdown_katex else None
     }
 
 @app.template_filter()
@@ -526,7 +528,7 @@ def error_400(body):
 # Middle point during page editing.
 def savepoint(form, is_preview=False, pageid=None):
     if is_preview:
-        preview = md(form['text'])
+        preview = md(form['text'], math='enablemath' in form)
     else:
         preview = None
     pl_js_info = dict()
@@ -535,7 +537,16 @@ def savepoint(form, is_preview=False, pageid=None):
         preview_text = form['text'],
         page_id = pageid
     )
-    return render_template('edit.html', pl_url=form['url'], pl_title=form['title'], pl_text=form['text'], pl_tags=form['tags'], preview=preview, pl_js_info=pl_js_info)
+    return render_template(
+        'edit.html',
+        pl_url=form['url'],
+        pl_title=form['title'],
+        pl_text=form['text'],
+        pl_tags=form['tags'],
+        pl_enablemath='enablemath' in form,
+        preview=preview,
+        pl_js_info=pl_js_info
+    )
 
 @app.route('/create/', methods=['GET', 'POST'])
 def create():
@@ -561,6 +572,7 @@ def create():
                 title=request.form['title'],
                 is_redirect=False,
                 touched=datetime.datetime.now(),
+                is_math_enabled='enablemath' in request.form
             )
             p.change_tags(p_tags)
         except IntegrityError as e:
@@ -601,6 +613,7 @@ def edit(id):
         p.url = p_url
         p.title = request.form['title']
         p.touched = datetime.datetime.now()
+        p.is_math_enabled = 'enablemath' in request.form
         p.save()
         p.change_tags(p_tags)
         pr = PageRevision.create(
@@ -613,7 +626,22 @@ def edit(id):
         )
         PageLink.parse_links(p, request.form['text'])
         return redirect(p.get_url())
-    return render_template('edit.html', pl_url=p.url, pl_title=p.title, pl_text=p.latest.text, pl_tags=','.join(x.name for x in p.tags))
+    pl_js_info = dict()
+    pl_js_info['editing'] = dict(
+        original_text = None, # TODO
+        preview_text = None,
+        page_id = id
+    )
+    
+    return render_template(
+        'edit.html',
+        pl_url=p.url,
+        pl_title=p.title,
+        pl_text=p.latest.text,
+        pl_tags=','.join(x.name for x in p.tags),
+        pl_js_info=pl_js_info,
+        pl_enablemath = p.is_math_enabled
+    )
 
 @app.route("/__sync_start")
 def __sync_start():
