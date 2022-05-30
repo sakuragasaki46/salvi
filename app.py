@@ -18,6 +18,7 @@ from flask import (
     render_template, send_from_directory)
 from werkzeug.routing import BaseConverter
 from peewee import *
+from playhouse.db_url import connect as dbconnect
 import csv, datetime, hashlib, html, importlib, json, markdown, os, random, \
     re, sys, uuid, warnings
 from functools import lru_cache, partial
@@ -57,8 +58,7 @@ DATABASE_DIR = APP_BASE_DIR + "/database"
 
 DEFAULT_CONF = {
     ('site', 'title'):          'Salvi',
-    ('config', 'media_dir'):    APP_BASE_DIR + '/media',
-    ('config', 'database_dir'): APP_BASE_DIR + "/database",
+    ('database', 'directory'):  APP_BASE_DIR + "/database",
 }
 
 _cfp = ConfigParser()
@@ -120,7 +120,11 @@ class SpoilerExtension(markdown.extensions.Extension):
 
 #### DATABASE SCHEMA ####
 
-database = SqliteDatabase(_getconf("config", "database_dir") + '/data.sqlite')
+database_url = _getconf('database', 'url')
+if database_url:
+    database = dbconnect(database_url)
+else:
+    database = SqliteDatabase(_getconf("database", "directory") + '/data.sqlite')
 
 class BaseModel(Model):
     class Meta:
