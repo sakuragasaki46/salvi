@@ -16,7 +16,7 @@
   {% block history_nav %}{% endblock %}
 
   <div class="inner-content">
-    {{ rev.html()|safe }}
+    {{ rev.html(math = request.args.get('math') not in ['0', 'false', 'no', 'off'])|safe }}
   </div>
 
   {% if p.tags %}

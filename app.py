@@ -237,8 +237,8 @@ class PageRevision(BaseModel):
     @property
     def text(self):
         return self.textref.get_content()
-    def html(self):
-        return md(self.text, math=self.page.is_math_enabled)
+    def html(self, *, math=True):
+        return md(self.text, math=self.page.is_math_enabled and math)
     def human_pub_date(self):
         delta = datetime.datetime.now() - self.pub_date
         T = partial(get_string, g.lang)
