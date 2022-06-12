@@ -11,7 +11,7 @@ suitable as a community or team knowledge base.
 + Write notes on the go, using Markdown syntax
 + Any note can have its own URL
 + Revision history
-+ Stored in SQLite databases
++ Stored in SQLite/MySQL databases
 + Material Icons
 + Light/dark theme
 + Works fine even with JavaScript disabled.
@@ -19,8 +19,12 @@ suitable as a community or team knowledge base.
 ## Requirements
 
 + **Python** 3.6+.
-+ **Flask** web framework.
++ **Flask** web framework (and Flask-Login / Flask-WTF extensions).
 + **Peewee** ORM.
+
+### Optional requirements
+
+* **Markdown-KaTeX** if you want to display math inside pages.
 
 ## Caveats
 

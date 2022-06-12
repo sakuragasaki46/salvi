@@ -32,10 +32,6 @@ try:
     from slugify import slugify
 except ImportError:
     slugify = None
-try:
-    import markdown_katex
-except ImportError:
-    markdown_katex = None
 
 __version__ = '0.6-dev'
 
@@ -48,13 +44,9 @@ FK = ForeignKeyField
 SLUG_RE = r'[a-z0-9]+(?:-[a-z0-9]+)*'
 ILINK_RE = r'\]\(/(p/\d+|' + SLUG_RE + ')/?\)'
 
-upload_types = {'jpeg': 1, 'jpg': 1, 'png': 2}
-upload_types_rev = {1: 'jpg', 2: 'png'}
-
-UPLOAD_DIR = APP_BASE_DIR + '/media'
-DATABASE_DIR = APP_BASE_DIR + "/database"
-
 #### GENERAL CONFIG ####
+
+CONFIG_FILE = os.environ.get('SALVI_CONF', APP_BASE_DIR + '/site.conf')
 
 DEFAULT_CONF = {
     ('site', 'title'):          'Salvi',
@@ -62,7 +54,7 @@ DEFAULT_CONF = {
 }
 
 _cfp = ConfigParser()
-if _cfp.read([APP_BASE_DIR + '/site.conf']):
+if _cfp.read([CONFIG_FILE]):
     @lru_cache(maxsize=50)
     def _getconf(k1, k2, fallback=None, cast=None):
         if fallback is None:
@@ -79,6 +71,15 @@ else:
         if fallback is None:
             fallback = DEFAULT_CONF.get((k1, k2))
         return fallback
+
+#### OPTIONAL IMPORTS ####
+
+markdown_katex = None
+try:
+    if _getconf('appearance', 'math') != 'off':
+        import markdown_katex
+except ImportError:
+    pass
 
 #### misc. helpers ####
 
