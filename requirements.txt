@@ -1,0 +1,6 @@
+flask
+peewee
+markdown
+flask-login
+flask-wtf
+python-i18n

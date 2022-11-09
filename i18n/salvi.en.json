@@ -1,0 +1,33 @@
+{
+    "en": {
+        "welcome": "Welcome to {0}!",
+        "homepage": "Homepage",
+        "latest-notes": "Latest notes", 
+        "latest-uploads": "Latest uploads", 
+        "new-note": "New note", 
+        "upload-file": "Upload file", 
+        "easter-date-calc": "Easter date calculation", 
+        "easter": "Easter", 
+        "other-dates": "Other dates", 
+        "jump-to-actions": "Jump to actions", 
+        "last-changed": "Last changed", 
+        "page-id": "Page ID", 
+        "action-edit": "Edit", 
+        "action-history": "History", 
+        "tags": "Tags", 
+        "old-revision-notice": "Showing an old revision of the page as of", 
+        "notes-tagged": "Notes tagged", 
+        "include-tags": "Include tags", 
+        "notes-tagged-empty": "None found :(", 
+        "search-no-results": "No results for", 
+        "random-page": "Random page", 
+        "search": "Search", 
+        "year": "Year", 
+        "calculate": "Calculate", 
+        "show-all": "Show all", 
+        "just-now": "just now", 
+        "n-minutes-ago": "{0} minutes ago", 
+        "n-hours-ago": "{0} hours ago", 
+        "n-days-ago": "{0} days ago"
+    }
+}

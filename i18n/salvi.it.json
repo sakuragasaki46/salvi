@@ -1,0 +1,33 @@
+{
+    "it": {
+        "welcome": "Benvenuti in {0}!",
+        "homepage": "Pagina iniziale",
+        "latest-notes": "Note pi\u00f9 recenti",
+        "latest-uploads": "Caricamenti pi\u00f9 recenti",
+        "new-note": "Crea nota",
+        "upload-file": "Carica immagine",
+        "easter-date-calc": "Calcolo della data di Pasqua",
+        "easter": "Pasqua",
+        "other-dates": "Altre date",
+        "jump-to-actions": "Salta alle azioni",
+        "last-changed": "Ultima modifica",
+        "page-id": "ID pagina",
+        "action-edit": "Modifica",
+        "action-history": "Cronologia",
+        "tags": "Etichette",
+        "old-revision-notice": "\u00c8 mostrata una revisione vecchia della pagina, risalente al",
+        "notes-tagged": "Note con etichetta",
+        "include-tags": "Includi etichette",
+        "notes-tagged-empty": "Non c\u2019\u00e8 nulla :(",
+        "search-no-results": "Nessun risultato per",
+        "random-page": "Pagina casuale",
+        "search": "Cerca",
+        "year": "Anno",
+        "calculate": "Calcola",
+        "show-all": "Mostra tutto",
+        "just-now": "poco fa",
+        "n-minutes-ago": "{0} minuti fa",
+        "n-hours-ago": "{0} ore fa",
+        "n-days-ago": "{0} giorni fa"
+    }
+}

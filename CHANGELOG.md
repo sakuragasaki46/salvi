@@ -1,5 +1,10 @@
 # What’s New
 
+## 0.7
+
++ Added `python-i18n` as a dependency.  Therefore, i18n changed format, using JSON files now.
++ Like it or not, now gzip library is required.
+
 ## 0.6
 
 + Added support for database URLs: you can now specify the URL of the database

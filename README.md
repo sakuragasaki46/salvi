@@ -21,6 +21,8 @@ suitable as a community or team knowledge base.
 + **Python** 3.6+.
 + **Flask** web framework (and Flask-Login / Flask-WTF extensions).
 + **Peewee** ORM.
++ **Markdown** for page rendering.
++ **Python-I18n**.
 
 ### Optional requirements
 

@@ -24,16 +24,10 @@ import csv, datetime, hashlib, html, importlib, json, markdown, os, random, \
 from functools import lru_cache, partial
 from urllib.parse import quote
 from configparser import ConfigParser
-try:
-    import gzip
-except ImportError:
-    gzip = None
-try:
-    from slugify import slugify
-except ImportError:
-    slugify = None
+import i18n
+import gzip
 
-__version__ = '0.6'
+__version__ = '0.7-dev'
 
 #### CONSTANTS ####
 
@@ -428,26 +422,12 @@ def remove_tags(text, convert=True, headings=True):
 
 #### I18N ####
 
-lang_poses = {'en': 1, 'en-US': 1, 'it': 2, 'it-IT': 2}
+i18n.load_path.append(os.path.join(APP_BASE_DIR, 'i18n'))
+i18n.set('file_format', 'json')
 
-def read_strings():
-    with open(APP_BASE_DIR + '/strings.csv', encoding='utf-8') as f:
-        return csv.reader(f)
-
-@lru_cache(maxsize=1000)
-def get_string(lang, name):
-    with open(APP_BASE_DIR + '/strings.csv', encoding='utf-8') as f:
-        for line in csv.reader(f):
-            if not line[0] or line[0].startswith('#'):
-                continue
-            if line[0] == name:
-                ln = lang_poses[lang]
-                if len(line) > ln and line[ln]:
-                    return line[ln]
-                elif len(line) > 1:
-                    return line[1]
-    return '(' + name + ')'
-
+def get_string(loc, s):
+    i18n.set('locale', loc)
+    return i18n.t('salvi.' + s)
 
 #### APPLICATION CONFIG ####
 
@@ -479,9 +459,8 @@ def _before_request():
     for l in request.headers.get('accept-language', 'it,en').split(','):
         if ';' in l:
             l, _ = l.split(';')
-            if l in lang_poses:
-                lang = l
-                break
+            lang = l
+            break
     else:
         lang = 'en'
     g.lang = lang
@@ -797,9 +776,6 @@ def listtag(tag, page=1):
     return render_template('listtag.html', tagname=tag, tagged_notes=page_query,
         page_n=page, total_count=general_query.count(), min=min)
 
-@app.route('/media/<path:fp>')
-def media(fp):
-    return send_from_directory(UPLOAD_DIR, fp)
 
 # symbolic route as of v0.5
 @app.route('/upload/', methods=['GET'])
@@ -811,7 +787,7 @@ def stats():
     return render_template('stats.html', 
         notes_count=Page.select().count(),
         notes_with_url=Page.select().where(Page.url != None).count(),
-        upload_count=Upload.select().count(),
+        #upload_count=Upload.select().count(),
         revision_count=PageRevision.select().count()
     )
 
