@@ -2,6 +2,11 @@
 
 ## 0.7
 
++ Schema changes:
+  + Removed `PagePolicy` and `PagePolicyKey` tables altogether. They were never useful.
+  + Added `calendar` field to `Page`.
+  + Added `User` table.
++ Added `Flask-Login` and `Flask-WTF` dependencies in order to implement user logins.
 + Added `python-i18n` as a dependency.  Therefore, i18n changed format, using JSON files now.
 + Like it or not, now gzip library is required.
 

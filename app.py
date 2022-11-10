@@ -15,6 +15,8 @@ Application is kept compact, with all its core in a single file.
 from flask import (
     Flask, Markup, abort, flash, g, jsonify, make_response, redirect, request,
     render_template, send_from_directory)
+from flask_login import LoginManager
+from flask_wtf import CSRFProtect
 from werkzeug.routing import BaseConverter
 from peewee import *
 from playhouse.db_url import connect as dbconnect
@@ -130,14 +132,27 @@ def _passphrase_hash(pp):
     h = str(len(pp_bin)) + ':' + hashlib.sha256(pp_bin).hexdigest()
     return h
 
+class User(BaseModel):
+    username = CharField(32, unique=True)
+    email = CharField(256, null=True)
+    password = CharField()
+    join_date = DateTimeField(default=datetime.datetime.now)
+    karma = IntegerField(default=1)
+    privileges = BitField()
+    is_admin = privileges.flag(1)
+
+
 class Page(BaseModel):
     url = CharField(64, unique=True, null=True)
     title = CharField(256, index=True)
     touched = DateTimeField(index=True)
+    calendar = DateTimeField(index=True, null=True)
+    owner = ForeignKeyField(User, null=True)
     flags = BitField()
     is_redirect = flags.flag(1)
     is_sync = flags.flag(2)
     is_math_enabled = flags.flag(4)
+    is_locked = flags.flag(8)
     @property
     def latest(self):
         if self.revisions:
@@ -174,22 +189,6 @@ class Page(BaseModel):
     @property
     def prop(self):
         return PagePropertyDict(self)
-    def unlock(self, perm, pp, sec):
-        ## XX complete later!
-        policies = self.policies.where(PagePolicy.type << _makelist(perm))
-        if not policies.exists():
-            return True
-        for policy in policies:
-            if policy.verify(pp, sec):
-                return True
-        return False
-    def is_locked(self, perm):
-        policies = self.policies.where(PagePolicy.type << _makelist(perm))
-        return policies.exists()
-    def is_classified(self):
-        return self.is_locked(POLICY_CLASSIFY)
-    def is_editable(self):
-        return not self.is_locked(POLICY_EDIT)
             
 
 class PageText(BaseModel):
@@ -223,7 +222,7 @@ class PageText(BaseModel):
         
 class PageRevision(BaseModel):
     page = FK(Page, backref='revisions', index=True)
-    user_id = IntegerField(default=0)
+    user = ForeignKeyField(User, null=True)
     comment = CharField(1024, default='')
     textref = FK(PageText)
     pub_date = DateTimeField(index=True)
@@ -310,42 +309,6 @@ class PagePropertyDict(object):
         return PageProperty.select().where((PageProperty.page == self._page) &
             (PageProperty.key == key)).exists()
 
-# Store keys for PagePolicy.
-# Experimental.
-class PagePolicyKey(BaseModel):
-    passphrase = CharField()
-    sec_code = IntegerField()
-    class Meta:
-        indexes = (
-            (('passphrase','sec_code'), True),
-        )
-
-    @classmethod
-    def create_from_plain(cls, pp, sec):
-        PagePolicyKey.create(passphrase=_passphrase_hash(pp), sec_code=sec)
-    def verify(self, pp, sec):
-        h = _passphrase_hash(pp)
-        return self.passphrase == h and self.sec_code == sec
-
-POLICY_ADMIN = 1
-POLICY_READ = 2
-POLICY_EDIT = 3
-POLICY_META = 4
-POLICY_CLASSIFY = 5
-
-# Manage policies for pages (e.g., reading or editing).
-# Experimental.
-class PagePolicy(BaseModel):
-    page = FK(Page, backref='policies', index=True, null=True)
-    type = IntegerField()
-    key = FK(PagePolicyKey, backref='applied_to')
-    sitewide = IntegerField(default=0)
-
-    class Meta:
-        indexes = (
-            (('page', 'key'), True),
-        )
-
 
 # Link table for caching purposes.
 class PageLink(BaseModel):
@@ -389,7 +352,9 @@ class PageLink(BaseModel):
             
 
 def init_db():
-    database.create_tables([Page, PageText, PageRevision, PageTag, PageProperty, PagePolicyKey, PagePolicy, PageLink])
+    database.create_tables([
+        Page, PageText, PageRevision, PageTag, PageProperty, PageLink
+    ])
 
 #### WIKI SYNTAX ####
 
@@ -447,8 +412,11 @@ forbidden_urls = [
 ]
 
 app = Flask(__name__)
-app.secret_key = 'qrdldCcvamtdcnidmtasegasdsedrdqvtautar'
+app.secret_key = b'\xf3\xa9?\xbee$L\xabA\xd3\r\xa2\x08\xf6\x00%0b\xa9\xfe\x11\x04\xa6\xd8=\xd3\xa2\x00\xb3\xd5;9'
 app.url_map.converters['slug'] = SlugConverter
+
+csrf = CSRFProtect(app)
+login_manager = LoginManager(app)
 
 
 #### ROUTES ####
@@ -474,6 +442,11 @@ def _inject_variables():
         'math_version': markdown_katex.__version__ if markdown_katex else None,
         'material_icons_url': _getconf('site', 'material_icons_url')
     }
+
+@login_manager.user_loader
+def _inject_user(userid):
+    return User[userid]
+
 
 @app.template_filter()
 def linebreaks(text):
@@ -713,7 +686,7 @@ def page_leaderboard():
         pages.append((p, score, p.back_links.count(), p.forward_links.count(), p.latest.length))
     pages.sort(key = lambda x: (x[1], x[2], x[4], x[3]), reverse = True)
         
-    return render_template('leaderboard.html', pages=pages)
+    return render_template('leaderboard.html', pages=pages), headers
 
 @app.route('/<slug:name>/')
 def view_named(name):
