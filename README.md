@@ -23,10 +23,28 @@ suitable as a community or team knowledge base.
 + **Peewee** ORM.
 + **Markdown** for page rendering.
 + **Python-I18n**.
++ The database drivers needed for the type of database.
 
 ### Optional requirements
 
 * **Markdown-KaTeX** if you want to display math inside pages.
+
+## Usage
+
++ Clone this repository: `git clone https://github.com/sakuragasaki46/salvi`
++ Edit site.conf with the needed parameters. An example site.conf:
+
+```
+[site]
+name = Salvi
+
+[database]
+directory = /path/to/database/
+```
+
++ Run `flask run`.
++ You can now access Salvi in your browser at port 5000.
+
 
 ## Caveats
 

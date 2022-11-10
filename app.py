@@ -4,11 +4,10 @@
 '''
 A simple wiki-like note webapp.
 
-Pages are stored in SQLite databases.
+Pages are stored in SQLite/MySQL databases.
 Markdown is used for text formatting.
 
 Application is kept compact, with all its core in a single file.
-Extensions are supported (?), kept in extensions/ folder.
 '''
 
 #### IMPORTS ####
@@ -472,7 +471,8 @@ def _inject_variables():
         'app_name': _getconf('site', 'title'),
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
         'app_version': __version__,
-        'math_version': markdown_katex.__version__ if markdown_katex else None
+        'math_version': markdown_katex.__version__ if markdown_katex else None,
+        'material_icons_url': _getconf('site', 'material_icons_url')
     }
 
 @app.template_filter()
