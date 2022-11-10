@@ -6,6 +6,7 @@
 <h1>Search</h1>
 
 <form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   <div class="search-wrapper">
     <label for="q">Search for: </label>
     <input type="search" name="q" value="{{ q }}" class="search-input">
