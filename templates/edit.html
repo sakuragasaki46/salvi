@@ -32,6 +32,7 @@
 {% endif %}
 
 <form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   <div>
     <label for="title"><span class="material-icons">link</span> /</label>
     <input type="text" name="url" class="url-input" placeholder="(No URL)" maxlength="64" value="{{ pl_url or '' }}">

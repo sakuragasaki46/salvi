@@ -189,6 +189,8 @@ class Page(BaseModel):
     @property
     def prop(self):
         return PagePropertyDict(self)
+    def is_editable(self):
+        return not self.is_locked
             
 
 class PageText(BaseModel):
