@@ -34,6 +34,9 @@
         "back-to": "Torna a",
         "login": "Entra",
         "username": "Nome utente",
-        "password": "Password"
+        "password": "Password",
+        "not-found": "Non trovato",
+        "not-found-text-1": "La pagina con url",
+        "not-found-text-2": "non esiste"
     }
 }

@@ -36,6 +36,9 @@
         "username": "Username",
         "password": "Password",
         "no-account-sign-up": "Don’t have an account?",
-        "sign-up": "Sign up"
+        "sign-up": "Sign up",
+        "not-found": "Not found",
+        "not-found-text-1": "The page at",
+        "not-found-text-2": "does not exist."
     }
 }

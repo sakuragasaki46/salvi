@@ -373,7 +373,7 @@ def md(text, expand_magic=False, toc=True, math=True):
         extensions.append('markdown_katex')
         extension_configs['markdown_katex'] = {
             'no_inline_svg': True,
-            'insert_fonts_css': True
+            'insert_fonts_css': not _getconf('site', 'katex_url')
         }
     try:
         return markdown.Markdown(extensions=extensions, extension_configs=extension_configs).convert(text)
@@ -446,7 +446,8 @@ def _inject_variables():
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
         'app_version': __version__,
         'math_version': markdown_katex.__version__ if markdown_katex else None,
-        'material_icons_url': _getconf('site', 'material_icons_url')
+        'material_icons_url': _getconf('site', 'material_icons_url'),
+        'katex_url': _getconf('site', 'katex_url')
     }
 
 @login_manager.user_loader

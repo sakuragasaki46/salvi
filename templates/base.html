@@ -12,6 +12,19 @@
     {% else %}
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     {% endif %}
+    {% if math_version and katex_url %}
+    <link rel="stylesheet" href="{{ katex_url }}" />
+    <style type="text/css">
+    .katex img {
+      object-fit: fill;
+      padding: unset;
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: inherit;
+    }
+    </style>
+    {% endif %}
     {% block json_info %}{% endblock %}
   </head>
   <body{% if request.cookies.get('dark') == '1' %} class="dark"{% endif %}>

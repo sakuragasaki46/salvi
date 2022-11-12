@@ -3,7 +3,7 @@
 {% block title %}Not found - {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>Not Found</h1>
+<h1>{{ T('not-found') }}</h1>
 
-<p>The url at <strong>{{ request.path }}</strong> does not exist.</p>
+<p>{{ T('not-found-text-1')}} <strong>{{ request.path }}</strong> {{ T('not-found-text-2' )}}.</p>
 {% endblock %}
