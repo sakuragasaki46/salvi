@@ -1,0 +1,10 @@
+{
+    "fr": {
+        "welcome": "Bienvenue à {0}!",
+        "homepage": "Page de démarrage",
+        "latest-notes": "Dernières notes",
+        "latest-uploads": "Derniers téléchargements",
+        "new-note": "Créer un note",
+        "upload-file": "Télécharger une image"
+    }
+}

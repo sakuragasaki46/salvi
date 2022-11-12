@@ -28,6 +28,12 @@
         "just-now": "poco fa",
         "n-minutes-ago": "{0} minuti fa",
         "n-hours-ago": "{0} ore fa",
-        "n-days-ago": "{0} giorni fa"
+        "n-days-ago": "{0} giorni fa",
+        "backlinks": "Collegamenti in entrata",
+        "backlinks-empty": "Nessuna altra pagina punta qui. Questa pagina è orfana?",
+        "back-to": "Torna a",
+        "login": "Entra",
+        "username": "Nome utente",
+        "password": "Password"
     }
 }

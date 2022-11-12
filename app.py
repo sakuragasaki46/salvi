@@ -15,8 +15,9 @@ Application is kept compact, with all its core in a single file.
 from flask import (
     Flask, Markup, abort, flash, g, jsonify, make_response, redirect, request,
     render_template, send_from_directory)
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user, logout_user
 from flask_wtf import CSRFProtect
+from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.routing import BaseConverter
 from peewee import *
 from playhouse.db_url import connect as dbconnect
@@ -425,13 +426,16 @@ login_manager = LoginManager(app)
 
 @app.before_request
 def _before_request():
-    for l in request.headers.get('accept-language', 'it,en').split(','):
-        if ';' in l:
-            l, _ = l.split(';')
-            lang = l
-            break
+    if request.args.get('uselang') is not None:
+        lang = request.args['uselang']
     else:
-        lang = 'en'
+        for l in request.headers.get('accept-language', 'it,en').split(','):
+            if ';' in l:
+                l, _ = l.split(';')
+                lang = l
+                break
+        else:
+            lang = 'en'
     g.lang = lang
 
 @app.context_processor
@@ -766,12 +770,40 @@ def stats():
         revision_count=PageRevision.select().count()
     )
 
+## account management ##
+
 @app.route('/accounts/theme-switch')
 def theme_switch():
     cook = request.cookies.get('dark')
     resp = make_response(redirect(request.args.get('next', '/')))
     resp.set_cookie('dark', '0' if cook == '1' else '1', max_age=31556952, path='/')
     return resp
+
+@app.route('/accounts/login/', methods=['GET','POST'])
+def accounts_login():
+    if request.method == 'POST':
+        try:
+            username = request.form['username']
+            user = User.get(User.username == username)
+            if not check_password_hash(user.password, request.form['password']):
+                flash('Invalid username or password.')
+                return render_template('login.html')
+        except User.DoesNotExist:
+            flash('Invalid username or password.')
+        else:
+            remember_for = int(request.form['remember'])
+            if remember_for > 0:
+                login_user(user, remember=True,
+                duration=datetime.timedelta(days=remember_for))
+            else:
+                login_user(user)
+            return redirect(request.args.get('next', '/'))
+    return render_template('login.html')
+
+@app.route('/accounts/logout/')
+def accounts_logout():
+    logout_user()
+    return redirect(request.args.get('next', '/'))
 
 ## easter egg (lol) ##
 

@@ -8,7 +8,7 @@
 
 {% block content %}
 <h1 id="firstHeading">{{ p.title }}</h1>
-<div class="preview-subtitle">Backlinks</div>
+<div class="preview-subtitle">{{ T('backlinks') }}</div>
 
 {% if backlinks %}
 <ul>
@@ -19,9 +19,9 @@
 {% endfor %}
 </ul>
 {% else %}
-<p class="placeholder">No other pages linking here. Is this page orphan?</p>
+<p class="placeholder">{{ T("backlinks-empty") }}</p>
 {% endif %}
 
-<p>Back to <a href="{{ p.get_url() }}">{{ p.title }}</a>.</p>
+<p>{{ T("back-to") }} <a href="{{ p.get_url() }}">{{ p.title }}</a>.</p>
 {% endblock %}
 

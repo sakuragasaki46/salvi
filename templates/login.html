@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ T('login') }} – {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ T('login') }}</h1>
+
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div>
+        <label>{{ T('username') }}:</label>
+        <input type="text" name="username" />
+    </div>
+    <div>
+        <label>{{ T('password') }}:</label>
+        <input type="password" name="password" />
+    </div>
+    <div>
+        <label>{{ T('remember-me-for') }}</label>
+        <select name="remember">
+            <option value="0">This session only</option>
+            <option value="7">A week</option>
+            <option value="30">A month</option>
+            <option value="365">A year</option>
+        </select>
+    </div>
+    <div>
+        <input type="submit" value="{{ T('login') }}" />
+    </div>
+</form>
+
+<p>{{ T('no-account-sign-up') }}</p>
+{% endblock %}

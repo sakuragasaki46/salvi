@@ -28,6 +28,14 @@
         "just-now": "just now", 
         "n-minutes-ago": "{0} minutes ago", 
         "n-hours-ago": "{0} hours ago", 
-        "n-days-ago": "{0} days ago"
+        "n-days-ago": "{0} days ago",
+        "backlinks": "Backlinks",
+        "backlinks-empty": "No other pages linking here. Is this page orphan?",
+        "back-to": "Back to",
+        "login": "Log in",
+        "username": "Username",
+        "password": "Password",
+        "no-account-sign-up": "Don’t have an account?",
+        "sign-up": "Sign up"
     }
 }
