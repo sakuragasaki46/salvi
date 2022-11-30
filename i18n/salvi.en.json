@@ -39,6 +39,12 @@
         "sign-up": "Sign up",
         "not-found": "Not found",
         "not-found-text-1": "The page at",
-        "not-found-text-2": "does not exist."
+        "not-found-text-2": "does not exist.",
+        "users-count": "Number of users",
+        "notes-count": "Number of notes",
+        "notes-count-with-url": "Number of pages with URL set",
+        "revision-count": "Number of revisions",
+        "revision-count-per-page": "Average revisions per page",
+        "remember-me-for": "Remember me for"
     }
 }

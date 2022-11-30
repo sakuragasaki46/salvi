@@ -10,8 +10,12 @@
 <p>In order to add page to export list, please enter exact title, /url, #tag or +id. Entering a tag will add all pages with that tag to list. Each page or tag is separated by a newline.</p>
 
 <form method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   <div>
     <textarea style="height:20em;width:100%" name="export-list" placeholder="Title, /url, #tag, or +id, newline-separated"></textarea>
+  </div>
+  <div>
+    <input type="checkbox" name="history" value="1"><label>Include history (file can be very large!)</label>
   </div>
   <div>
     <input type="submit" value="Download">

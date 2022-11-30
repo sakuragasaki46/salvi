@@ -6,9 +6,10 @@
 <h1>Statistics</h1>
 
 <ul>
-  <li>Number of pages: <strong>{{ notes_count }}</strong></li>
-  <li>Number of pages with URL set: <strong>{{ notes_with_url }}</strong></li>
-  <li>Number of revisions: <strong>{{ revision_count }}</strong></li>
-  <li>Average revisions per page: <strong>{{ (revision_count / notes_count)|round(2) }}</strong></li>
+  <li>{{ T("notes-count") }}: <strong>{{ notes_count }}</strong></li>
+  <li>{{ T("notes-count-with-url") }}: <strong>{{ notes_with_url }}</strong></li>
+  <li>{{ T("revision-count") }}: <strong>{{ revision_count }}</strong></li>
+  <li>{{ T("revision-count-per-page") }}: <strong>{{ (revision_count / notes_count)|round(2) }}</strong></li>
+  <li>{{ T('users-count') }}: <strong>{{ users_count }}</strong></li>
 </ul>
 {% endblock %}

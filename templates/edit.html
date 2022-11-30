@@ -43,6 +43,9 @@
   <div id="editing-area">
     <div class="pre-text-input">
       <p>This editor is using Markdown for text formatting (e.g. bold, italic, headers and tables). <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" rel="nofollow">More info on Markdown</a>.</p>
+      {% if math_version %}
+      <p>Math with KaTeX is <mark>enabled</mark>. <a href="https://katex.org/docs/supported.html">KaTeX guide</a></p>
+      {% endif %}
     </div>
     <div class="over-text-input"></div>
     <textarea name="text" class="text-input">{{ pl_text }}</textarea>
