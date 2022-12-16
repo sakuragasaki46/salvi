@@ -8,7 +8,9 @@
   + Added `User` table.
 + Added `Flask-Login` and `Flask-WTF` dependencies in order to implement user logins.
 + Added `python-i18n` as a dependency.  Therefore, i18n changed format, using JSON files now.
++ Now you can export pages in a JSON format. Coming soon: importing.
 + Like it or not, now gzip library is required.
++ Added CSS variables in the site style.
 
 ## 0.6
 

@@ -71,6 +71,7 @@ input[type="submit"],input[type="reset"],input[type="button"],button{font-family
 .search-wrapper {display:flex;width:90%;margin:auto}
 .search-wrapper > input {flex:1}
 .preview-subtitle {text-align: center; margin-top: -1em}
+textarea {background-color: var(--bg-sharp); color: var(--fg-sharp)}
 
 /* Circles extension */
 .circles-red{color: #e14}

@@ -908,7 +908,7 @@ def exportpages():
         while q_list:
             query |= q_list.pop(0)
         e = Exporter()
-        e.add_page_list(query)
+        e.add_page_list(query, include_history='history' in request.form)
         return e.export(), {'Content-Type': 'application/json', 'Content-Disposition': 'attachment; ' + 
             'filename=export-{}.json'.format(datetime.datetime.now().strftime('%Y%m%d-%H%M%S'))}
     return render_template('exportpages.html')
