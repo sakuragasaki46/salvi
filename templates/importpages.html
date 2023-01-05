@@ -5,5 +5,27 @@
 {% block content %}
 <h1>Import pages</h1>
 
+{% if current_user.is_admin %}
+<p>
+  You can import files produced by the <a href="/manage/export">exporter tool</a>, in JSON format.
+  Importing pages can be done by users with Admin permissions only.
+</p>
+
+
+<form enctype="multipart/form-data" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+  <div>
+    <input type="file" accept="application/json" name="import" />
+  </div>
+  <div>
+    <input type="checkbox" name="ovwurls" value="1" checked="" />
+    <label for="ovwurls">Overwrite URLs</label>
+  </div>
+  <div>
+    <input type="submit" value="Import" />
+  </div>
+</form>
+{% else %}
 <p>Importing pages can be done by users with Admin permissions only.</p>
+{% endif %}
 {% endblock %}

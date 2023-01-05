@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ T('sign-up') }} – {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ T('sign-up') }}</h1>
+
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div>
+        <label>{{ T('username') }}:</label>
+        <input type="text" name="username" />
+    </div>
+    <div>
+        <label>{{ T('password') }}:</label>
+        <input type="password" name="password" />
+    </div>
+    <div>
+        <label>{{ T('confirm-password') }}:</label>
+        <input type="password" name="confirmpassword" />
+    </div>
+    <div>
+        <label>{{ T('email') }} ({{ T('optional') }}):</label>
+        <input type="email" name="email" />
+    </div>
+    <div>
+        <input type="checkbox" name="legal" value="1" />
+        <label>{{ T('have-read-terms').format(T('terms-of-service'), T('privacy-policy')) }}</label>
+    </div>
+    <div>
+        <input type="submit" value="{{ T('login') }}" />
+    </div>
+</form>
+
+<p>{{ T('already-have-account') }} <a href="/accounts/login" rel="nofollow">{{ T("login") }}</a></p>
+{% endblock %}

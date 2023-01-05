@@ -45,6 +45,15 @@
         "notes-count-with-url": "Number of pages with URL set",
         "revision-count": "Number of revisions",
         "revision-count-per-page": "Average revisions per page",
-        "remember-me-for": "Remember me for"
+        "remember-me-for": "Remember me for",
+        "confirm-password": "Confirm password",
+        "email": "E-mail",
+        "optional": "optional",
+        "have-read-terms": "I have read {0} and {1}",
+        "terms-of-service": "Terms of Service",
+        "privacy-policy": "Privacy Policy",
+        "already-have-account": "Already have an account?",
+        "logged-in-as": "Logged in as",
+        "not-logged-in": "Not logged in"
     }
 }

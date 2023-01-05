@@ -35,8 +35,16 @@
         "login": "Entra",
         "username": "Nome utente",
         "password": "Password",
+        "no-account-sign-up": "Non hai un account?",
+        "sign-up": "Registrati",
         "not-found": "Non trovato",
         "not-found-text-1": "La pagina con url",
-        "not-found-text-2": "non esiste"
+        "not-found-text-2": "non esiste",
+        "users-count": "Numero di utenti",
+        "notes-count": "Numero di note",
+        "notes-count-with-url": "Numero di note con URL impostato",
+        "revision-count": "Numero di revisioni",
+        "revision-count-per-page": "Media di revisioni per pagina",
+        "remember-me-for": "Ricordami per"
     }
 }

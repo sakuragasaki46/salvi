@@ -15,7 +15,7 @@ Application is kept compact, with all its core in a single file.
 from flask import (
     Flask, Markup, abort, flash, g, jsonify, make_response, redirect, request,
     render_template, send_from_directory)
-from flask_login import LoginManager, login_user, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_wtf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.routing import BaseConverter
@@ -39,6 +39,8 @@ FK = ForeignKeyField
 
 SLUG_RE = r'[a-z0-9]+(?:-[a-z0-9]+)*'
 ILINK_RE = r'\]\(/(p/\d+|' + SLUG_RE + ')/?\)'
+USERNAME_RE = r'[a-z0-9_-]{3,30}'
+PING_RE = r'(?<!\w)@(' + USERNAME_RE + r')'
 
 #### GENERAL CONFIG ####
 
@@ -115,6 +117,11 @@ class SpoilerExtension(markdown.extensions.Extension):
     def extendMarkdown(self, md, md_globals):
         md.inlinePatterns.register(markdown.inlinepatterns.SimpleTagInlineProcessor(r'()>!(.*?)!<', 'span class="spoiler"'), 'spoiler', 14)
 
+
+#class PingExtension(markdown.extensions.Extension):
+#    def extendMarkdown(self, md):
+#        pass
+
 #### DATABASE SCHEMA ####
 
 database_url = _getconf('database', 'url')
@@ -141,6 +148,17 @@ class User(BaseModel):
     karma = IntegerField(default=1)
     privileges = BitField()
     is_admin = privileges.flag(1)
+
+    # helpers for flask_login
+    @property
+    def is_anonymous(self):
+        return False
+    @property
+    def is_active(self):
+        return True
+    @property
+    def is_authenticated(self):
+        return True
 
 
 class Page(BaseModel):
@@ -208,7 +226,7 @@ class PageText(BaseModel):
         else:
             return c.decode('latin-1')
     @classmethod
-    def create_content(cls, text, treshold=600, search_dup=True):
+    def create_content(cls, text, *, treshold=600, search_dup=True):
         c = text.encode('utf-8')
         use_gzip = len(c) > treshold
         if use_gzip and gzip:
@@ -387,6 +405,9 @@ def remove_tags(text, convert=True, headings=True):
         text = md(text, toc=False, math=False)
     return re.sub(r'<.*?>', '', text)
 
+def is_username(s):
+    return re.match('^' + USERNAME_RE + '$', s)
+
 #### I18N ####
 
 i18n.load_path.append(os.path.join(APP_BASE_DIR, 'i18n'))
@@ -420,6 +441,8 @@ app.url_map.converters['slug'] = SlugConverter
 
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
+
+login_manager.login_view = 'accounts_login'
 
 
 #### ROUTES ####
@@ -801,6 +824,36 @@ def accounts_login():
             return redirect(request.args.get('next', '/'))
     return render_template('login.html')
 
+@app.route('/accounts/register/', methods=['GET','POST'])
+def accounts_register():
+    if current_user.is_authenticated:
+        return redirect(request.args.get('next', '/'))
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if not is_username(username):
+            flash('Invalid username: usernames can contain only letters, numbers, underscores and hyphens.')
+            return render_template('register.html')
+        if request.form['password'] != request.form['confirm_password']:
+            flash('Passwords do not match.')
+            return render_template('register.html')
+        if not request.form['legal']:
+            flash('You must accept Terms in order to register.')
+        try:
+            with database.atomic():
+                u = User.create(
+                    username = username,
+                    email = request.form.get('email'),
+                    password = generate_password_hash(password),
+                    join_date = datetime.datetime.now()
+                )
+            
+            login_user(u)
+            return redirect(request.args.get('next', '/'))
+        except IntegrityError:
+            flash('Username taken')
+    return render_template('register.html')
+
 @app.route('/accounts/logout/')
 def accounts_logout():
     logout_user()
@@ -862,6 +915,10 @@ class Exporter(object):
         pobj['title'] = p.title
         pobj['url'] = p.url
         pobj['tags'] = [tag.name for tag in p.tags]
+        pobj['calendar'] = p.calendar
+        pobj['flags'] = p.flags
+        if include_users:
+            pobj['owner'] = p.owner_id
         hist = []
         for rev in (p.revisions if include_history else [p.latest]):
             revobj = {}
@@ -883,6 +940,58 @@ class Exporter(object):
             self.add_page(p, include_history=include_history, include_users=include_users)
     def export(self):
         return json.dumps(self.root)
+
+class Importer(object):
+    def __init__(self, dump, *, overwrite_urls = True):
+        self.root = json.loads(dump)
+        self.owner = None
+        self.overwrite_urls = overwrite_urls
+    def claim(self, owner):
+        self.owner = owner
+    def execute(self):
+        no_pages = 0
+        no_revs = 0
+        for pobj in self.root['pages']:
+            purl = pobj.get("url")
+            try:
+                if purl:
+                    try:
+                        p2 = Page.get(Page.url == purl)
+                        p2.url = None
+                        p2.save()
+                    except Page.DoesNotExist:
+                        pass
+
+                p = Page.create(
+                    url = purl if self.overwrite_urls else None,
+                    title = pobj['title'],
+                    calendar = pobj.get('calendar'),
+                    owner = self.owner.id,
+                    flags = pobj.get('flags'),
+                    touched = datetime.datetime.now()
+                )
+                p.change_tags(pobj.get('tags'))
+                no_pages += 1
+
+                for revobj in pobj['history']:
+                    textref = PageText.create_content(
+                        revobj['text']
+                    )
+
+                    rev = PageRevision.create(
+                        page = p,
+                        user = self.owner.id,
+                        textref = textref,
+                        comment = revobj.get('comment'),
+                        pub_date = datetime.datetime.fromtimestamp(revobj['timestamp']),
+                        length = revobj['length']
+                    )
+                    no_revs += 1
+            except Exception as e:
+                sys.excepthook(*sys.exc_info())
+                continue
+        return no_pages, no_revs
+
 
 @app.route('/manage/export/', methods=['GET', 'POST'])
 def exportpages():
@@ -914,7 +1023,18 @@ def exportpages():
     return render_template('exportpages.html')
 
 @app.route('/manage/import/', methods=['GET', 'POST'])
+@login_required
 def importpages():
+    if request.method == 'POST':
+        if current_user.is_admin:
+            f = request.files['import']
+            overwrite_urls = request.form.get('ovwurls')
+            im = Importer(f.read(), overwrite_urls=overwrite_urls)
+            im.claim(current_user)
+            res = im.execute()
+            flash('Imported successfully {} pages and {} revisions'.format(*res))
+        else:
+            flash('Pages can be imported by Administrators only!')
     return render_template('importpages.html')
 
 #### EXTENSIONS ####

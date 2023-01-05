@@ -1,6 +1,6 @@
 from playhouse.migrate import migrate, SqliteMigrator, MySQLMigrator
 from peewee import MySQLDatabase, SqliteDatabase, \
-    IntegerField, DateTimeField, ForeignKeyField
+    IntegerField, DateTimeField, ForeignKeyField, DeferredForeignKey
 from app import database, User
 
 if type(database) == MySQLDatabase:
@@ -15,6 +15,6 @@ with database.atomic():
     database.create_tables([User])
     migrate(
         migrator.add_column('page', 'calendar', DateTimeField(index=True, null=True)),
-        migrator.add_column('page', 'owner_id', IntegerField(null=True))
+        migrator.add_column('page', 'owner', DeferredForeignKey('User', null=True))
     )
 
