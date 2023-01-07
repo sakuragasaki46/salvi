@@ -210,6 +210,13 @@ class Page(BaseModel):
         return PagePropertyDict(self)
     def is_editable(self):
         return not self.is_locked
+
+    def can_edit(self, user):
+        if self.is_locked:
+            return user.id == self.owner.id
+        return True
+    def is_owned_by(self, user):
+        return user.id == self.owner.id
             
 
 class PageText(BaseModel):
@@ -508,12 +515,16 @@ def error_404(body):
 def error_403(body):
     return render_template('forbidden.html'), 403
 
-@app.errorhandler(500)
+@app.errorhandler(400)
 def error_400(body):
     return render_template('badrequest.html'), 400
 
+@app.errorhandler(500)
+def error_500(body):
+    return render_template('internalservererror.html'), 500
+
 # Middle point during page editing.
-def savepoint(form, is_preview=False, pageid=None):
+def savepoint(form, is_preview=False, pageobj=None):
     if is_preview:
         preview = md(form['text'], math='enablemath' in form)
     else:
@@ -522,7 +533,7 @@ def savepoint(form, is_preview=False, pageid=None):
     pl_js_info['editing'] = dict(
         original_text = None, # TODO
         preview_text = form['text'],
-        page_id = pageid
+        page_id = pageobj.id if pageobj else None
     )
     return render_template(
         'edit.html',
@@ -531,11 +542,15 @@ def savepoint(form, is_preview=False, pageid=None):
         pl_text=form['text'],
         pl_tags=form['tags'],
         pl_enablemath='enablemath' in form,
+        pl_is_locked='lockpage' in form,
+        pl_owner_is_current_user=pageobj.is_owned_by(current_user) if pageobj else True,
         preview=preview,
-        pl_js_info=pl_js_info
+        pl_js_info=pl_js_info,
+        pl_readonly=not pageobj.can_edit(current_user) if pageobj else False
     )
 
 @app.route('/create/', methods=['GET', 'POST'])
+@login_required
 def create():
     if request.method == 'POST':
         if request.form.get('preview'):
@@ -559,7 +574,9 @@ def create():
                 title=request.form['title'],
                 is_redirect=False,
                 touched=datetime.datetime.now(),
-                is_math_enabled='enablemath' in request.form
+                owner=current_user,
+                is_math_enabled='enablemath' in request.form,
+                is_locked = 'lockpage' in request.form
             )
             p.change_tags(p_tags)
         except IntegrityError as e:
@@ -567,7 +584,7 @@ def create():
             return savepoint(request.form)
         pr = PageRevision.create(
             page=p,
-            user_id=0,
+            user_id=p.owner.id,
             comment='',
             textref=PageText.create_content(request.form['text']),
             pub_date=datetime.datetime.now(),
@@ -575,37 +592,49 @@ def create():
         )
         PageLink.parse_links(p, request.form['text'])
         return redirect(p.get_url())
-    return render_template('edit.html', pl_url=request.args.get('url'))
+    return savepoint({
+        "url": request.args.get("url"),
+        "title": "",
+        "text": "",
+        "tags": ""
+    })
 
 @app.route('/edit/<int:id>/', methods=['GET', 'POST'])
+@login_required
 def edit(id):
     p = Page[id]
     if request.method == 'POST':
+        # check if page is locked first!
+        if not p.can_edit(current_user):
+            flash('You are trying to edit a locked page!')
+            abort(403)
+
         if request.form.get('preview'):
-            return savepoint(request.form, is_preview=True, pageid=id)
+            return savepoint(request.form, is_preview=True, pageobj=p)
         p_url = request.form['url'] or None
         if p_url:
             if not is_valid_url(p_url):
                 flash('Invalid URL. Valid URLs contain only letters, numbers and hyphens.')
-                return savepoint(request.form, pageid=id)
+                return savepoint(request.form, pageobj=p)
             elif not is_url_available(p_url) and p_url != p.url:
                 flash('This URL is not available.')
-                return savepoint(request.form, pageid=id)
+                return savepoint(request.form, pageobj=p)
         p_tags = [x.strip().lower().replace(' ', '-').replace('_', '-').lstrip('#')
             for x in request.form.get('tags', '').split(',')]
         p_tags = [x for x in p_tags if x]
         if any(not re.fullmatch(SLUG_RE, x) for x in p_tags):
             flash('Invalid tags text. Tags contain only letters, numbers and hyphens, and are separated by comma.')
-            return savepoint(request.form, pageid=id)
+            return savepoint(request.form, pageobj=p)
         p.url = p_url
         p.title = request.form['title']
         p.touched = datetime.datetime.now()
         p.is_math_enabled = 'enablemath' in request.form
+        p.is_locked = 'lockpage' in request.form
         p.save()
         p.change_tags(p_tags)
         pr = PageRevision.create(
             page=p,
-            user_id=0,
+            user_id=current_user.id,
             comment='',
             textref=PageText.create_content(request.form['text']),
             pub_date=datetime.datetime.now(),
@@ -613,22 +642,19 @@ def edit(id):
         )
         PageLink.parse_links(p, request.form['text'])
         return redirect(p.get_url())
-    pl_js_info = dict()
-    pl_js_info['editing'] = dict(
-        original_text = None, # TODO
-        preview_text = None,
-        page_id = id
-    )
     
-    return render_template(
-        'edit.html',
-        pl_url=p.url,
-        pl_title=p.title,
-        pl_text=p.latest.text,
-        pl_tags=','.join(x.name for x in p.tags),
-        pl_js_info=pl_js_info,
-        pl_enablemath = p.is_math_enabled
-    )
+    form = {
+        "url": p.url,
+        "title": p.title,
+        "text": p.latest.text,
+        "tags": ','.join(x.name for x in p.tags)
+    }
+    if p.is_math_enabled:
+        form["enablemath"] = "1"
+    if p.is_locked:
+        form["lockpage"] = "1"
+    
+    return savepoint(form, pageobj=p)
 
 @app.route("/__sync_start")
 def __sync_start():
@@ -805,6 +831,8 @@ def theme_switch():
 
 @app.route('/accounts/login/', methods=['GET','POST'])
 def accounts_login():
+    if current_user.is_authenticated:
+        return redirect(request.args.get('next', '/'))
     if request.method == 'POST':
         try:
             username = request.form['username']
@@ -826,8 +854,6 @@ def accounts_login():
 
 @app.route('/accounts/register/', methods=['GET','POST'])
 def accounts_register():
-    if current_user.is_authenticated:
-        return redirect(request.args.get('next', '/'))
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -980,7 +1006,7 @@ class Importer(object):
 
                     rev = PageRevision.create(
                         page = p,
-                        user = self.owner.id,
+                        user_id = self.owner.id,
                         textref = textref,
                         comment = revobj.get('comment'),
                         pub_date = datetime.datetime.fromtimestamp(revobj['timestamp']),

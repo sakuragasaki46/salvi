@@ -11,7 +11,7 @@
 <meta name="robots" content="noindex,nofollow" />
 {% endblock %}
 
-{% block json_info %}<script>window.page_info={{ ( pl_js_info or {} )|tojson|safe }};</script>{% endblock %}
+{% block json_info %}<script>/*<![CDATA[*/window.page_info={{ ( pl_js_info or {} )|tojson|safe }};/*]]>*/</script>{% endblock %}
 
 {% block content %}
 
@@ -35,25 +35,32 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
   <div>
     <label for="title"><span class="material-icons">link</span> /</label>
-    <input type="text" name="url" class="url-input" placeholder="(No URL)" maxlength="64" value="{{ pl_url or '' }}">
+    <input type="text" name="url" class="url-input" placeholder="(No URL)" maxlength="64" value="{{ pl_url or '' }}" {% if pl_readonly %}disabled=""{% endif %}>
   </div>
   <div>
-    <input type="text" required name="title" placeholder="Title (required)" class="title-input" maxlength="256" value="{{ pl_title }}">
+    <input type="text" required name="title" placeholder="Title (required)" class="title-input" maxlength="256" value="{{ pl_title }}" {% if pl_readonly %}disabled=""{% endif %}>
   </div>
   <div id="editing-area">
+    {% if not pl_readonly %}
     <div class="pre-text-input">
       <p>This editor is using Markdown for text formatting (e.g. bold, italic, headers and tables). <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" rel="nofollow">More info on Markdown</a>.</p>
-      {% if math_version %}
+      {% if math_version and pl_enablemath %}
       <p>Math with KaTeX is <mark>enabled</mark>. <a href="https://katex.org/docs/supported.html">KaTeX guide</a></p>
       {% endif %}
     </div>
     <div class="over-text-input"></div>
-    <textarea name="text" class="text-input">{{ pl_text }}</textarea>
+    {% else %}
+    <div class="pre-text-input">
+      <p>This page was locked by the owner, and is therefore not editable. You can still copy the source text.</p>
+    </div>
+    {% endif %}
+    <textarea name="text" class="text-input" {% if pl_readonly %}disabled=""{% endif %}>{{ pl_text }}</textarea>
   </div>
   <div>
     <label for="tags">Tags (comma separated):</label>
     <input type="text" name="tags" class="tags-input" placeholder="No tags" value="{{ pl_tags }}">
   </div>
+  {% if not pl_readonly %}
   <div>
     <input type="submit" value="Save" id="save-button" class="submit-primary">
     <input type="submit" name="preview" value="Preview" id="preview-button" class="submit-secondary">
@@ -63,6 +70,13 @@
     <input type="checkbox" id="CB__enablemath" name="enablemath" {% if math_version and pl_enablemath %}checked=""{% elif not math_version %}disabled=""{% endif %}>
     <label for="CB__enablemath">Enable math expressions parsing {% if not math_version %}(disabled for this instance){% endif %}</label>
   </div>
+  {% if pl_owner_is_current_user %}
+  <div>
+    <input type="checkbox" id="CB__lockpage" name="lockpage" {% if pl_is_locked %}checked=""{% endif %}>
+    <label for="CB__lockpage">Lock page for editing by other users</label>
+  </div>
+  {% endif %}
+  {% endif %}
 </form>
 {% endblock %}
 

@@ -16,6 +16,8 @@
     #{{ rev.id }}
     &middot;
     {{ rev.pub_date.strftime("%B %-d, %Y %H:%M:%S") }}
+    by
+    {{ rev.user.username }}
   </a></li>
 {% endfor %}
 </ul>

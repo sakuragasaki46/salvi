@@ -45,6 +45,7 @@
         "notes-count-with-url": "Numero di note con URL impostato",
         "revision-count": "Numero di revisioni",
         "revision-count-per-page": "Media di revisioni per pagina",
-        "remember-me-for": "Ricordami per"
+        "remember-me-for": "Ricordami per",
+        "owner": "Proprietario"
     }
 }
