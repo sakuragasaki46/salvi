@@ -55,6 +55,8 @@
         "already-have-account": "Already have an account?",
         "logged-in-as": "Logged in as",
         "not-logged-in": "Not logged in",
-        "owner": "Owner"
+        "owner": "Owner",
+        "page-created": "Page created",
+        "write-a-comment": "Write a comment…"
     }
 }

@@ -21,8 +21,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.routing import BaseConverter
 from peewee import *
 from playhouse.db_url import connect as dbconnect
-import csv, datetime, hashlib, html, importlib, json, markdown, os, random, \
-    re, sys, uuid, warnings
+import datetime, hashlib, html, importlib, json, markdown, os, random, \
+    re, sys, warnings
 from functools import lru_cache, partial
 from urllib.parse import quote
 from configparser import ConfigParser
@@ -250,7 +250,7 @@ class PageText(BaseModel):
         
 class PageRevision(BaseModel):
     page = FK(Page, backref='revisions', index=True)
-    user = ForeignKeyField(User, null=True)
+    user = ForeignKeyField(User, backref='contributions', null=True)
     comment = CharField(1024, default='')
     textref = FK(PageText)
     pub_date = DateTimeField(index=True)
@@ -439,7 +439,7 @@ forbidden_urls = [
     'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media',
     'accounts', 'tags', 'init-config', 'upload', 'upload-info', 'about',
     'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
-    'protect', 'kt', 'embed', 'backlinks'
+    'protect', 'kt', 'embed', 'backlinks', 'u'
 ]
 
 app = Flask(__name__)
@@ -541,6 +541,7 @@ def savepoint(form, is_preview=False, pageobj=None):
         pl_title=form['title'],
         pl_text=form['text'],
         pl_tags=form['tags'],
+        pl_comment=form['comment'],
         pl_enablemath='enablemath' in form,
         pl_is_locked='lockpage' in form,
         pl_owner_is_current_user=pageobj.is_owned_by(current_user) if pageobj else True,
@@ -596,7 +597,8 @@ def create():
         "url": request.args.get("url"),
         "title": "",
         "text": "",
-        "tags": ""
+        "tags": "",
+        "comment": get_string(g.lang, "page-created")
     })
 
 @app.route('/edit/<int:id>/', methods=['GET', 'POST'])
@@ -632,22 +634,24 @@ def edit(id):
         p.is_locked = 'lockpage' in request.form
         p.save()
         p.change_tags(p_tags)
-        pr = PageRevision.create(
-            page=p,
-            user_id=current_user.id,
-            comment='',
-            textref=PageText.create_content(request.form['text']),
-            pub_date=datetime.datetime.now(),
-            length=len(request.form['text'])
-        )
-        PageLink.parse_links(p, request.form['text'])
+        if request.form['text'] != p.latest.text:
+            pr = PageRevision.create(
+                page=p,
+                user_id=current_user.id,
+                comment=request.form["comment"],
+                textref=PageText.create_content(request.form['text']),
+                pub_date=datetime.datetime.now(),
+                length=len(request.form['text'])
+            )
+            PageLink.parse_links(p, request.form['text'])
         return redirect(p.get_url())
     
     form = {
         "url": p.url,
         "title": p.title,
         "text": p.latest.text,
-        "tags": ','.join(x.name for x in p.tags)
+        "tags": ','.join(x.name for x in p.tags),
+        "comment": ""
     }
     if p.is_math_enabled:
         form["enablemath"] = "1"
@@ -765,6 +769,15 @@ def history(id):
     except Page.DoesNotExist:
         abort(404)
     return render_template('history.html', p=p, history=p.revisions.order_by(PageRevision.pub_date.desc()))
+
+@app.route('/u/<username>/')
+def contributions(username):
+    try:
+        user = User.get(User.username == username)
+    except User.DoesNotExist:
+        abort(404)
+    return render_template('contributions.html', u=user, contributions=user.contributions.order_by(PageRevision.pub_date.desc()))
+
 
 @app.route('/history/revision/<int:revisionid>/')
 def view_old(revisionid):

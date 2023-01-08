@@ -64,6 +64,7 @@
   <div>
     <input type="submit" value="Save" id="save-button" class="submit-primary">
     <input type="submit" name="preview" value="Preview" id="preview-button" class="submit-secondary">
+    <input type="text" name="comment" value="{{ pl_comment }}" placeholder="{{ T('write-a-comment') }}" />
   </div>
   <h3>Advanced options</h3>
   <div>
@@ -78,6 +79,7 @@
   {% endif %}
   {% endif %}
 </form>
+
 {% endblock %}
 
 {% block scripts %}
