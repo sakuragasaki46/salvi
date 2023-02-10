@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Calendar – {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>Calendar</h1>
+
+<form>
+  <fieldset>
+    <legend>Calendar view</legend>
+
+    <div>
+      <label><strong>Show as</strong>:</label>
+      <ul class="inline">
+        {% set view_choices = ["month"] %}
+        {% for vch in view_choices %}
+        <li>
+          {% if vch == viewas %}
+          <strong>{{ T(vch) }}</strong>
+          {% else %}
+          <a href="/calendar/{{ vch }}">{{ T(vch) }}</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" >
+    <div>
+      <label><strong>Show month</strong></label>
+    </div>
+  </fieldset>
+</form>
+{% endblock %}

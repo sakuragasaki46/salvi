@@ -70,8 +70,13 @@ input[type="submit"],input[type="reset"],input[type="button"],button{font-family
 .page-tags .tag-count{color: var(--btn-success);font-size:smaller;font-weight:600}
 .search-wrapper {display:flex;width:90%;margin:auto}
 .search-wrapper > input {flex:1}
+.calendar-subtitle {text-align: center; margin-top: -1em}
 .preview-subtitle {text-align: center; margin-top: -1em}
 textarea {background-color: var(--bg-sharp); color: var(--fg-sharp)}
+ul.inline {margin:0; padding:0; display: inline}
+ul.inline > li {display: inline-block;}
+ul.inline > li::after {content: "·"}
+ul.inline > li:last-child::after {content: ""}
 
 /* Circles extension */
 .circles-red{color: #e14}

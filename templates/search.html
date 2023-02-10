@@ -27,6 +27,8 @@
 </ul>
 {% elif q %}
 <h2>{{ T('search-no-results') }} <em>{{ q }}</em></h2>
+{% else %}
+<p>Please note that search queries do not search for page text.</p> 
 {% endif %}
 
 {% endblock %}

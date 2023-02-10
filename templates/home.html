@@ -25,6 +25,12 @@
     {% endfor %}
     </p>
     {% endif %}
+    {% if n.calendar %}
+    <p class="nl-calendar">
+      <span class="material-icons">calendar_today</span>
+      <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+    </p>
+    {% endif %}
   </li>
   {% endfor %}
   <li><a href="/p/most_recent/">{{ T('show-all') }}</a></li>

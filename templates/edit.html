@@ -77,6 +77,11 @@
     <label for="CB__lockpage">Lock page for editing by other users</label>
   </div>
   {% endif %}
+  <div>
+    <input type="checkbox" id="CB__usecalendar" name="usecalendar" {% if pl_calendar %}checked=""{% endif %}>
+    <label for="CB__usecalendar">Use calendar:</label>
+    <input type="date" name="calendar" {% if pl_calendar %}value="{{ pl_calendar }}"{% endif %}>
+  </div>
   {% endif %}
 </form>
 

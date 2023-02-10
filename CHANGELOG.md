@@ -8,7 +8,12 @@
   + Added `User` table.
 + Added `Flask-Login` and `Flask-WTF` dependencies in order to implement user logins.
 + Added `python-i18n` as a dependency.  Therefore, i18n changed format, using JSON files now.
-+ Now you can export pages in a JSON format. Coming soon: importing.
++ Login is now required for creating and editing.
++ Now you can leave a comment while changing a page’s text. Moreover, a new revision is created now
+  only in case of an effective text change.
++ Now a page can be dated in the calendar.
++ Now you can export and import pages in a JSON format. Importing can be done by admin users only.
++ Improved page history view, and added user contributions page.
 + Like it or not, now gzip library is required.
 + Added CSS variables in the site style.
 

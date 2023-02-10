@@ -21,7 +21,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.routing import BaseConverter
 from peewee import *
 from playhouse.db_url import connect as dbconnect
-import datetime, hashlib, html, importlib, json, markdown, os, random, \
+import calendar, datetime, hashlib, html, importlib, json, markdown, os, random, \
     re, sys, warnings
 from functools import lru_cache, partial
 from urllib.parse import quote
@@ -436,10 +436,10 @@ def is_url_available(url):
     return url not in forbidden_urls and not Page.select().where(Page.url == url).exists()
 
 forbidden_urls = [
-    'create', 'edit', 'p', 'ajax', 'history', 'manage', 'static', 'media',
-    'accounts', 'tags', 'init-config', 'upload', 'upload-info', 'about',
-    'stats', 'terms', 'privacy', 'easter', 'search', 'help', 'circles',
-    'protect', 'kt', 'embed', 'backlinks', 'u'
+    'about', 'accounts', 'ajax', 'backlinks', 'calendar', 'circles', 'create',
+    'easter', 'edit', 'embed', 'help', 'history', 'init-config', 'kt',
+    'manage', 'media', 'p', 'privacy', 'protect', 'search', 'static', 'stats', 
+    'tags', 'terms', 'u', 'upload', 'upload-info'
 ]
 
 app = Flask(__name__)
@@ -547,6 +547,7 @@ def savepoint(form, is_preview=False, pageobj=None):
         pl_owner_is_current_user=pageobj.is_owned_by(current_user) if pageobj else True,
         preview=preview,
         pl_js_info=pl_js_info,
+        pl_calendar=('usecalendar' in form) and form['calendar'],
         pl_readonly=not pageobj.can_edit(current_user) if pageobj else False
     )
 
@@ -575,7 +576,8 @@ def create():
                 title=request.form['title'],
                 is_redirect=False,
                 touched=datetime.datetime.now(),
-                owner=current_user,
+                owner_id=current_user.id,
+                calendar=datetime.date.fromisoformat(request.form["calendar"]) if 'usecalendar' in request.form else None,
                 is_math_enabled='enablemath' in request.form,
                 is_locked = 'lockpage' in request.form
             )
@@ -632,6 +634,7 @@ def edit(id):
         p.touched = datetime.datetime.now()
         p.is_math_enabled = 'enablemath' in request.form
         p.is_locked = 'lockpage' in request.form
+        p.calendar = datetime.date.fromisoformat(request.form["calendar"]) if 'usecalendar' in request.form else None
         p.save()
         p.change_tags(p_tags)
         if request.form['text'] != p.latest.text:
@@ -657,6 +660,12 @@ def edit(id):
         form["enablemath"] = "1"
     if p.is_locked:
         form["lockpage"] = "1"
+    if p.calendar:
+        form["usecalendar"] = "1"
+        try:
+            form["calendar"] = p.calendar.isoformat().split("T")[0]
+        except Exception:
+            form["calendar"] = p.calendar
     
     return savepoint(form, pageobj=p)
 
@@ -778,6 +787,18 @@ def contributions(username):
         abort(404)
     return render_template('contributions.html', u=user, contributions=user.contributions.order_by(PageRevision.pub_date.desc()))
 
+@app.route('/calendar/')
+def calendar_view():
+    return render_template('calendar.html')
+
+@app.route('/calendar/<int:y>/<int:m>')
+def calendar_month(y, m):
+    notes = Page.select().where(
+        (datetime.date(y, m, 1) <= Page.calendar) &
+        (Page.calendar < datetime.date(y+1 if m==12 else y, 1 if m==12 else m+1, 1))
+    ).order_by(Page.calendar)
+
+    return render_template('month.html', d=datetime.date(y, m, 1), notes=notes)
 
 @app.route('/history/revision/<int:revisionid>/')
 def view_old(revisionid):
