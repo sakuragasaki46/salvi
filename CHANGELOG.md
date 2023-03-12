@@ -2,6 +2,8 @@
 
 ## 0.7
 
++ XXX Custom Markdown extensions are broken with Markdown 3.4.1. While we find a workaround to it,
+  use the config `[markdown]disable_custom_extensions` set to 1.
 + Schema changes:
   + Removed `PagePolicy` and `PagePolicyKey` tables altogether. They were never useful.
   + Added `calendar` field to `Page`.

@@ -95,7 +95,7 @@ def _makelist(l):
 #### MARKDOWN EXTENSIONS ####
 
 class StrikethroughExtension(markdown.extensions.Extension):
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md, md_globals=None):
         postprocessor = StrikethroughPostprocessor(md)
         md.postprocessors.add('strikethrough', postprocessor, '>raw_html')
 
@@ -114,7 +114,7 @@ BlockQuoteProcessor.RE = re.compile(r'(^|\n)[ ]{0,3}>(?!!)[ ]?(.*)')
 
 ### XXX it currently only detects spoilers that are not at the beginning of the line. To be fixed.
 class SpoilerExtension(markdown.extensions.Extension):
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md, md_globals=None):
         md.inlinePatterns.register(markdown.inlinepatterns.SimpleTagInlineProcessor(r'()>!(.*?)!<', 'span class="spoiler"'), 'spoiler', 14)
 
 
@@ -390,8 +390,11 @@ def md(text, expand_magic=False, toc=True, math=True):
     if expand_magic:
         # DEPRECATED seeking for a better solution.
         warnings.warn('Magic words are no more supported.', DeprecationWarning)
-    extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists', StrikethroughExtension(), SpoilerExtension()]
+    extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists']
     extension_configs = {}
+    if not _getconf('markdown', 'disable_custom_extensions'): 
+        extensions.append(StrikethroughExtension())
+        extensions.append(SpoilerExtension())
     if toc:
         extensions.append('toc')
     if math and markdown_katex and ('$`' in text or '```math' in text):
