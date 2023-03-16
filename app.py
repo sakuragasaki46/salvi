@@ -97,7 +97,7 @@ def _makelist(l):
 class StrikethroughExtension(markdown.extensions.Extension):
     def extendMarkdown(self, md, md_globals=None):
         postprocessor = StrikethroughPostprocessor(md)
-        md.postprocessors.add('strikethrough', postprocessor, '>raw_html')
+        md.postprocessors.register(postprocessor, 'strikethrough', 0)
 
 class StrikethroughPostprocessor(markdown.postprocessors.Postprocessor):
     pattern = re.compile(r"~~(((?!~~).)+)~~", re.DOTALL)

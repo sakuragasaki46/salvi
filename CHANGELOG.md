@@ -2,8 +2,6 @@
 
 ## 0.7
 
-+ XXX Custom Markdown extensions are broken with Markdown 3.4.1. While we find a workaround to it,
-  use the config `[markdown]disable_custom_extensions` set to 1.
 + Schema changes:
   + Removed `PagePolicy` and `PagePolicyKey` tables altogether. They were never useful.
   + Added `calendar` field to `Page`.
@@ -16,6 +14,7 @@
 + Now a page can be dated in the calendar.
 + Now you can export and import pages in a JSON format. Importing can be done by admin users only.
 + Improved page history view, and added user contributions page.
++ Updated Markdown extensions to work under latest version.
 + Like it or not, now gzip library is required.
 + Added CSS variables in the site style.
 
