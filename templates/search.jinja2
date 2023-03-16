@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.jinja2" %}
 
 {% block title %}{% if q %}Search results for "{{ q }}"{% else %}Search{% endif %} - {{ app_name }}{% endblock %}
 
@@ -22,7 +22,7 @@
 
 <ul class="nl-list">
   {% for n in results %}
-  <li>{% include "includes/nl_item.html" %}</li>
+  <li>{% include "includes/nl_item.jinja2" %}</li>
   {% endfor %}
 </ul>
 {% elif q %}
