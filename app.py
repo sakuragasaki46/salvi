@@ -29,7 +29,7 @@ from configparser import ConfigParser
 import i18n
 import gzip
 
-__version__ = '0.7-dev'
+__version__ = '0.7.0'
 
 #### CONSTANTS ####
 
@@ -381,7 +381,7 @@ class PageLink(BaseModel):
 
 def init_db():
     database.create_tables([
-        Page, PageText, PageRevision, PageTag, PageProperty, PageLink
+        User, Page, PageText, PageRevision, PageTag, PageProperty, PageLink
     ])
 
 #### WIKI SYNTAX ####
@@ -454,7 +454,6 @@ login_manager = LoginManager(app)
 
 login_manager.login_view = 'accounts_login'
 
-
 #### ROUTES ####
 
 @app.before_request
@@ -487,12 +486,12 @@ def _inject_variables():
 def _inject_user(userid):
     return User[userid]
 
-
 @app.template_filter()
 def linebreaks(text):
     text = html.escape(text)
     text = text.replace("\n\n", '</p><p>').replace('\n', '<br />')
     return Markup(text)
+
 
 @app.route('/')
 def homepage():

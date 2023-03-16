@@ -46,11 +46,6 @@ directory = /path/to/database/
 + You can now access Salvi in your browser at port 5000.
 
 
-## Caveats
-
-+ All pages created are, as of now, viewable and editable by anyone, with no
-  trace of users and/or passwords.
-
 ## License
 
 [MIT License](./LICENSE).
