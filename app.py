@@ -75,7 +75,7 @@ else:
 markdown_katex = None
 try:
     if _getconf('appearance', 'math') != 'off':
-        import markdown_katex
+        import markdown_katex #pragma: no cover
 except ImportError:
     pass
 
@@ -497,7 +497,7 @@ def linebreaks(text):
 @app.route('/')
 def homepage():
     page_limit = _getconf("appearance","items_per_page",20,cast=int)
-    return render_template('home.html', new_notes=Page.select()
+    return render_template('home.jinja2', new_notes=Page.select()
         .order_by(Page.touched.desc()).limit(page_limit))
 
 @app.route('/robots.txt')
@@ -512,19 +512,19 @@ def favicon():
 
 @app.errorhandler(404)
 def error_404(body):
-    return render_template('notfound.html'), 404
+    return render_template('notfound.jinja2'), 404
 
 @app.errorhandler(403)
 def error_403(body):
-    return render_template('forbidden.html'), 403
+    return render_template('forbidden.jinja2'), 403
 
 @app.errorhandler(400)
 def error_400(body):
-    return render_template('badrequest.html'), 400
+    return render_template('badrequest.jinja2'), 400
 
 @app.errorhandler(500)
 def error_500(body):
-    return render_template('internalservererror.html'), 500
+    return render_template('internalservererror.jinja2'), 500
 
 # Middle point during page editing.
 def savepoint(form, is_preview=False, pageobj=None):
@@ -539,7 +539,7 @@ def savepoint(form, is_preview=False, pageobj=None):
         page_id = pageobj.id if pageobj else None
     )
     return render_template(
-        'edit.html',
+        'edit.jinja2',
         pl_url=form['url'],
         pl_title=form['title'],
         pl_text=form['text'],
@@ -714,7 +714,7 @@ def view_unnamed(id):
             return redirect(p.get_url())
         else:
             flash('The URL of this page is a reserved URL. Please change it.')
-    return render_template('view.html', p=p, rev=p.latest)
+    return render_template('view.jinja2', p=p, rev=p.latest)
 
 @app.route('/embed/<int:id>/')
 def embed_view(id):
@@ -730,7 +730,7 @@ def embed_view(id):
 @app.route('/p/most_recent/<int:page>/')
 def view_most_recent(page=1):
     general_query = Page.select().order_by(Page.touched.desc())
-    return render_template('listrecent.html', notes=general_query.paginate(page),
+    return render_template('listrecent.jinja2', notes=general_query.paginate(page),
         page_n=page, total_count=general_query.count(), min=min)
 
 @app.route('/p/random/')
@@ -758,7 +758,7 @@ def page_leaderboard():
         pages.append((p, score, p.back_links.count(), p.forward_links.count(), p.latest.length))
     pages.sort(key = lambda x: (x[1], x[2], x[4], x[3]), reverse = True)
         
-    return render_template('leaderboard.html', pages=pages), headers
+    return render_template('leaderboard.jinja2', pages=pages), headers
 
 @app.route('/<slug:name>/')
 def view_named(name):
@@ -766,7 +766,7 @@ def view_named(name):
         p = Page.get(Page.url == name)
     except Page.DoesNotExist:
         abort(404)
-    return render_template('view.html', p=p, rev=p.latest)
+    return render_template('view.jinja2', p=p, rev=p.latest)
 
 @app.route('/init-config/tables/')
 def init_config_tables():
@@ -780,7 +780,7 @@ def history(id):
         p = Page[id]
     except Page.DoesNotExist:
         abort(404)
-    return render_template('history.html', p=p, history=p.revisions.order_by(PageRevision.pub_date.desc()))
+    return render_template('history.jinja2', p=p, history=p.revisions.order_by(PageRevision.pub_date.desc()))
 
 @app.route('/u/<username>/')
 def contributions(username):
@@ -788,11 +788,11 @@ def contributions(username):
         user = User.get(User.username == username)
     except User.DoesNotExist:
         abort(404)
-    return render_template('contributions.html', u=user, contributions=user.contributions.order_by(PageRevision.pub_date.desc()))
+    return render_template('contributions.jinja2', u=user, contributions=user.contributions.order_by(PageRevision.pub_date.desc()))
 
 @app.route('/calendar/')
 def calendar_view():
-    return render_template('calendar.html')
+    return render_template('calendar.jinja2')
 
 @app.route('/calendar/<int:y>/<int:m>')
 def calendar_month(y, m):
@@ -801,7 +801,7 @@ def calendar_month(y, m):
         (Page.calendar < datetime.date(y+1 if m==12 else y, 1 if m==12 else m+1, 1))
     ).order_by(Page.calendar)
 
-    return render_template('month.html', d=datetime.date(y, m, 1), notes=notes)
+    return render_template('month.jinja2', d=datetime.date(y, m, 1), notes=notes)
 
 @app.route('/history/revision/<int:revisionid>/')
 def view_old(revisionid):
@@ -810,7 +810,7 @@ def view_old(revisionid):
     except PageRevision.DoesNotExist:
         abort(404)
     p = rev.page
-    return render_template('viewold.html', p=p, rev=rev)
+    return render_template('viewold.jinja2', p=p, rev=rev)
 
 @app.route('/backlinks/<int:id>/')
 def backlinks(id):
@@ -818,7 +818,7 @@ def backlinks(id):
         p = Page[id]
     except Page.DoesNotExist:
         abort(404)
-    return render_template('backlinks.html', p=p, backlinks=Page.select().join(PageLink, on=PageLink.to_page).where(PageLink.from_page == p))
+    return render_template('backlinks.jinja2', p=p, backlinks=Page.select().join(PageLink, on=PageLink.to_page).where(PageLink.from_page == p))
 
 @app.route('/search/', methods=['GET', 'POST'])
 def search():
@@ -830,27 +830,27 @@ def search():
             query |= Page.select().join(PageTag, on=PageTag.page
                 ).where(PageTag.name ** ('%' + q + '%'))
         query = query.order_by(Page.touched.desc())
-        return render_template('search.html', q=q, pl_include_tags=include_tags,
+        return render_template('search.jinja2', q=q, pl_include_tags=include_tags,
             results=query.paginate(1))
-    return render_template('search.html', pl_include_tags=True)
+    return render_template('search.jinja2', pl_include_tags=True)
 
 @app.route('/tags/<slug:tag>/')
 @app.route('/tags/<slug:tag>/<int:page>/')
 def listtag(tag, page=1):
     general_query = Page.select().join(PageTag, on=PageTag.page).where(PageTag.name == tag).order_by(Page.touched.desc())
     page_query = general_query.paginate(page)
-    return render_template('listtag.html', tagname=tag, tagged_notes=page_query,
+    return render_template('listtag.jinja2', tagname=tag, tagged_notes=page_query,
         page_n=page, total_count=general_query.count(), min=min)
 
 
 # symbolic route as of v0.5
 @app.route('/upload/', methods=['GET'])
 def upload():
-    return render_template('upload.html')
+    return render_template('upload.jinja2')
 
 @app.route('/stats/')
 def stats():
-    return render_template('stats.html', 
+    return render_template('stats.jinja2', 
         notes_count=Page.select().count(),
         notes_with_url=Page.select().where(Page.url != None).count(),
         revision_count=PageRevision.select().count(),
@@ -876,7 +876,7 @@ def accounts_login():
             user = User.get(User.username == username)
             if not check_password_hash(user.password, request.form['password']):
                 flash('Invalid username or password.')
-                return render_template('login.html')
+                return render_template('login.jinja2')
         except User.DoesNotExist:
             flash('Invalid username or password.')
         else:
@@ -887,7 +887,7 @@ def accounts_login():
             else:
                 login_user(user)
             return redirect(request.args.get('next', '/'))
-    return render_template('login.html')
+    return render_template('login.jinja2')
 
 @app.route('/accounts/register/', methods=['GET','POST'])
 def accounts_register():
@@ -896,10 +896,10 @@ def accounts_register():
         password = request.form['password']
         if not is_username(username):
             flash('Invalid username: usernames can contain only letters, numbers, underscores and hyphens.')
-            return render_template('register.html')
+            return render_template('register.jinja2')
         if request.form['password'] != request.form['confirm_password']:
             flash('Passwords do not match.')
-            return render_template('register.html')
+            return render_template('register.jinja2')
         if not request.form['legal']:
             flash('You must accept Terms in order to register.')
         try:
@@ -915,7 +915,7 @@ def accounts_register():
             return redirect(request.args.get('next', '/'))
         except IntegrityError:
             flash('Username taken')
-    return render_template('register.html')
+    return render_template('register.jinja2')
 
 @app.route('/accounts/logout/')
 def accounts_logout():
@@ -963,10 +963,10 @@ def easter_y(y=None):
     if y:
         if y > 2499:
             flash('Years above 2500 A.D. are currently not supported.')
-            return render_template('easter.html')
-        return render_template('easter.html', y=y, easter_dates=stash_easter(y))
+            return render_template('easter.jinja2')
+        return render_template('easter.jinja2', y=y, easter_dates=stash_easter(y))
     else:
-        return render_template('easter.html')
+        return render_template('easter.jinja2')
 
 ## import / export ##
 
@@ -1075,7 +1075,7 @@ def exportpages():
                 q_list.append(Page.select().where(Page.title == item)) 
         if not q_list:
             flash('Failed to export pages: The list is empty!')
-            return render_template('exportpages.html')
+            return render_template('exportpages.jinja2')
         query = q_list.pop(0)
         while q_list:
             query |= q_list.pop(0)
@@ -1083,7 +1083,7 @@ def exportpages():
         e.add_page_list(query, include_history='history' in request.form)
         return e.export(), {'Content-Type': 'application/json', 'Content-Disposition': 'attachment; ' + 
             'filename=export-{}.json'.format(datetime.datetime.now().strftime('%Y%m%d-%H%M%S'))}
-    return render_template('exportpages.html')
+    return render_template('exportpages.jinja2')
 
 @app.route('/manage/import/', methods=['GET', 'POST'])
 @login_required
@@ -1098,7 +1098,7 @@ def importpages():
             flash('Imported successfully {} pages and {} revisions'.format(*res))
         else:
             flash('Pages can be imported by Administrators only!')
-    return render_template('importpages.html')
+    return render_template('importpages.jinja2')
 
 #### EXTENSIONS ####
 

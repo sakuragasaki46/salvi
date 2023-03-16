@@ -17,6 +17,7 @@
 + Updated Markdown extensions to work under latest version.
 + Like it or not, now gzip library is required.
 + Added CSS variables in the site style.
++ Templates are now with `.jinja2` extension.
 
 ## 0.6
 
