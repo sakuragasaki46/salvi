@@ -1,5 +1,18 @@
 # What’s New
 
+## 0.8
+
++ Schema changes:
+  + New tables `UserGroup`, `UserGroupMembership` and `PagePermission`.
+  + Added flag `is_cw` to `Page`.
+  + Added `restrictions` field to `User`.
++ Pages now can have a Content Warning. It prevents them to show up in previews, and adds a
+  caution message when viewing them.
++ Added Terms and Privacy Policy.
++ Changed user page URLs (contributions page) from `/u/user` to `/@user`.
++ Style changes: added a top bar with the site title. It replaces the floating menu on the top right.
++ Added a built-in installer (`app_init.py`). You still need to manually create `site.conf`.
+
 ## 0.7.1
 
 + Improved calendar view. Now `/calendar` shows a list of years and months.

@@ -1,0 +1,145 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Terms of Service — {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1 id="firstHeading">Terms of Service</h1>
+
+<div class="inner-content">
+{% filter markdown %}
+## Scope and Definitions
+
+These terms of service ("Terms") are between {{ app_name }} 
+("{{ request.headers['Host'] }}") and You, regarding Your use of the social platform 
+{{ app_name }}, and any other services or test servers which may exist 
+now or in the future (collectively "{{ app_name }}").
+
+Content on this page displayed in blockquotes is provided for convenience 
+and readability only. Blockquote text is not part of the terms of service.
+
+## Conduct and content
+
+You agree to follow the Content Policy [here](/rules/). 
+The Content Policy is incorporated into these Terms by this reference.
+
+## Age
+
+You warrant that You are at least 13 years old. 
+You warrant that You are at least 18 years old, 
+if You indicate as such in Your user settings.
+
+
+## Account Access
+
+Your {{ app_name }} account is nontransferable. You will not buy, sell, gift, loan, or otherwise grant a third party access to Your {{ app_name }} account. You will not provide a third party with Your {{ app_name }} password or two-factor authentication codes.
+
+In the event that Your {{ app_name }} account is accessed by a third party anyways, You remain accountable for all actions taken by Your account.
+
+## Liability
+
+{{ app_name }} shall not be liable for Your damages arising from any of the following:
+
+* Use of the {{ app_name }} platform
+* Technical failure of {{ app_name }}
+* Administrative actions performed by {{ app_name }}, including both automatic and manual actions
+* Unauthorized access of a third party to Your {{ app_name }} account
+* Loss or breach of {{ app_name }} data
+* Force majeur
+
+You accept full liability for all content You upload to, or embed within, {{ app_name }}, and indemnify {{ app_name }} from all such liability.
+
+> You are responsible for everything You do, and everything that happens with, with Your {{ app_name }} account. Don't use {{ app_name }} to store important data or sensitive data.
+
+## Intellectual Property
+
+You grant {{ app_name }} a permanent, worldwide, and irrevocable license to store, modify, copy, and distribute all content that You submit to or upload to {{ app_name }}, including any creative works. Additionally, You grant {{ app_name }} a permanent, worldwide, and irrevocable license to sublicense these same rights to {{ app_name }}'s service providers. Additionally, You warrant that You are authorized to grant {{ app_name }} these rights.
+
+You retain all other intellectual property rights, including ownership.
+
+> We need to be able to store, copy, and distribute Your content, because that's just how websites like {{ app_name }} work. We also need to be able to modify it for security and formatting purposes.
+
+## Acceptable Use
+
+You will not use {{ app_name }} as a means to support any other website or service without written permission by {{ app_name }}.
+
+You will not attempt to gain access to a {{ app_name }} account that does not belong to You.
+
+You will not use {{ app_name }} to engage in child sexual abuse activities, as defined in the [CSAM Policy](/help/csam). The CSAM Policy is incorporated into these terms by this reference.
+
+## Multiple Accounts
+
+You are permitted to create and use multiple {{ app_name }} accounts.
+
+You will not use multiple accounts to circumvent per-user limits.
+
+Additionally, these terms apply to all of Your accounts, which may exist now or in the future. {{ app_name }} reserves the right to take administrative action against all of Your accounts in the event of a terms of service violation on any of Your accounts.
+
+## Your Privacy
+
+{{ app_name }} will never intentionally share Your personal information with third parties, except:
+
+* As required by United States law.
+* We will share Your data with our own service providers that are necessary for {{ app_name }} operations.
+* At our discretion, {{ app_name }} may share Your information with United States law enforcement in the event of an emergency, if we have good cause to believe that doing so would avert or mitigate the emergency.
+
+{{ app_name }} will make all reasonable efforts to ensure that user information is kept confidential.
+
+## Legal Forms
+
+{{ app_name }} grants You the ability to use Your {{ app_name }} account to send us certain types of legal forms through our help portal. These include, but are not limited to:
+
+* DMCA takedown request
+* DMCA takedown counter-request
+* Subpoenas and court orders
+
+You acknowledge that these forms are provided for the sake of convenience and speed, and that {{ app_name }} does not waive any of its rights regarding legal process, including the right to object for lack of proper service.
+
+You agree to refrain from making abusive, frivolous, or otherwise improper submissions to these forms. This includes, but is not limited to:
+
+* Nonsensical or incomplete requests
+* Duplicate submissions
+* DMCA takedown requests not made in good faith
+* DMCA takedown requests for content protected by Fair Use
+* DMCA takedown requests for content that you are not authorized to claim.
+* Legal demands not based in fact and/or not backed by appropriate law.
+* Legal documents from courts or law enforcement that lack jurisdiction inside the United States
+* Legal documents that are not in English and are not accompanied by an official English translation.
+
+## Enforcement
+
+{{ app_name }} retains sole discretion in all determinations regarding content policy and terms of service violations.
+
+{{ app_name }} reserves the right to remove content that we deem to violate content policy or the terms of service, and to deactivate accounts responsible for such violations.
+
+## Severability
+
+If one clause of these Terms or the Content Policy is determined by a court to be unenforceable, the remainder of the Terms and Content Policy shall remain in force.
+
+## No Implied Waiver
+
+A failure by {{ app_name }} in one or more instances to insist upon Your strict adherence to these terms or the Content Policy, shall not be construed as a waiver of any continuing or subsequent violations of these terms or the Content Policy.
+
+## Completeness
+
+These Terms, together with the other policies incorporated into them by reference, contain all the terms and conditions agreed upon by You and {{ app_name }} regarding Your use of the {{ app_name }} service. No other agreement, oral or otherwise, will be deemed to exist or to bind either of the parties to this Agreement.
+
+## Governing Law
+
+These terms of service are governed by, and shall be interpreted in accordance with, the laws of Italy. You consent to the sole jurisdiction of Italy for all disputes between You and {{ app_name }}, and You consent to the sole application of Italian and E.U. law for all such disputes.
+
+## Updates
+
+{{ app_name }} may periodically update these terms of service and/or the Content Policy. When this happens, {{ app_name }} will make reasonable efforts to notify You of such changes.
+
+Whenever {{ app_name }} updates these terms of service or the Content Policy, Your continued use of the {{ app_name }} platform constitutes Your agreement to the updated terms of service.
+
+## Translations
+
+If there is any inconsistency between these terms and any translation into other languages, the English language version takes precedence.
+
+
+
+{% endfilter %}
+
+</div>
+{% endblock %}

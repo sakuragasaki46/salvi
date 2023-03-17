@@ -82,6 +82,10 @@
     <label for="CB__usecalendar">Use calendar:</label>
     <input type="date" name="calendar" {% if pl_calendar %}value="{{ pl_calendar }}"{% endif %}>
   </div>
+  <div>
+    <input type="checkbox" id="CB__cw" name="cw" {% if pl_cw %}checked=""{% endif %}>
+    <label for="CB__cw">Content Warning</label>
+  </div>
   {% endif %}
 </form>
 

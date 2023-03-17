@@ -22,8 +22,15 @@
 
 /* basic styles */
 * {box-sizing: border-box;}
-body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-main)}
+body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-main);margin:0;position:relative}
 .content{margin: 3em 1.3em}
+.footer{text-align:center;}
+
+/* header styles */
+.header{padding:1em;display:flex;flex-direction:row;justify-content:space-between;position:sticky;top:0;background-color:var(--bg-alt); z-index: 99}
+.header .header-blank {flex: 1; margin: 0 .5em}
+.header ul{list-style:none;padding:0;margin:0;font-size:0.9em;border-left:var(--border) 1px solid}
+.header ul > li{display:inline-block;padding-right:1em}
 
 /* content styles */
 #firstHeading {font-family:sans-serif; text-align: center;font-size:3em; font-weight: normal}
@@ -105,8 +112,6 @@ ul.inline > li:last-child::after {content: ""}
 
 
 /* floating elements */
-.top-menu{list-style:none;padding:0;margin:0;font-size:0.9em;position:absolute;right:0;top:.5em;text-transform:lowercase}
-.top-menu li{display:inline-block;padding-right:1em}
 .toc{float:right}
 @media (max-width:639px){
   .toc{display:none}

@@ -43,9 +43,14 @@ name = Salvi
 directory = /path/to/database/
 ```
 
++ Run `python3 -m app_init` to initialize the database and create the administrator user.
 + Run `flask run`.
 + You can now access Salvi in your browser at port 5000.
 
+## Caveats
+
++ The whole application is untested.
++ If you forget the password, there is currently no way to reset it.
 
 ## License
 

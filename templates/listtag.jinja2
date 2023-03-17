@@ -16,21 +16,23 @@
   <li>
     <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
     <p class="nl-desc">{{ n.short_desc() }}</p>
-    <p class="nl-tags">Tags: 
-    {% for tag in n.tags %}
+    <p class="nl-tags">
+      <span class="material-icons">tag</span>
+      {{ T('tags') }}: 
+      {% for tag in n.tags %}
       {% set tn = tag.name %}
       {% if tn == tagname %}
       <strong class="nl-tag-hl">#{{ tn }}</strong>
       {% else %}
       <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
       {% endif %}
-    {% endfor %}
-    {% if n.calendar %}
-    <p class="nl-calendar">
-      <span class="material-icons">calendar_today</span>
-      <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
-    </p>
-    {% endif %}
+      {% endfor %}
+      {% if n.calendar %}
+      <p class="nl-calendar">
+        <span class="material-icons">calendar_today</span>
+        <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+      </p>
+      {% endif %}
     </p>
   </li>
   {% endfor %}

@@ -22,9 +22,13 @@
       {% endif %}
     </a>
     by
+    {% if rev.user_id %}
     <a href="/u/{{ rev.user.username }}">
       {{ rev.user.username }}
     </a>
+    {% else %}
+    <span>&lt;Unknown User&gt;</span>
+    {% endif %}
   </li>
 {% endfor %}
 </ul>

@@ -25,7 +25,7 @@
     </div>
     <div>
         <input type="checkbox" name="legal" value="1" />
-        <label>{{ T('have-read-terms').format(T('terms-of-service'), T('privacy-policy')) }}</label>
+        <label>{{ T('have-read-terms').format(('<a href="/terms/">%s</a>' | safe) % T('terms-of-service'), ('<a href="/privacy/">%s</a>' | safe) % T('privacy-policy')) }}</label>
     </div>
     <div>
         <input type="submit" value="{{ T('sign-up') }}" />

@@ -18,11 +18,13 @@
     <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
     <p class="nl-desc">{{ n.short_desc() }}</p>
     {% if n.tags %}
-    <p class="nl-tags">{{ T('tags') }}: 
-    {% for tag in n.tags %}
+    <p class="nl-tags">
+      <span class="material-icons">tag</span>
+      {{ T('tags') }}: 
+      {% for tag in n.tags %}
       {% set tn = tag.name %}
       <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
-    {% endfor %}
+      {% endfor %}
     </p>
     {% endif %}
     {% if n.calendar %}

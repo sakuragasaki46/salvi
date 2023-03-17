@@ -27,23 +27,33 @@
     {% endif %}
     {% block json_info %}{% endblock %}
   </head>
-  <body{% if request.cookies.get('dark') == '1' %} class="dark"{% endif %}>
+  <body {% if request.cookies.get('dark') == '1' %}class="dark"{% endif %}>
     <div id="__top"></div>
+    <header class="header">
+      <span class="header-app-name"><a href="/">{{ app_name }}</a></span>
+      <span class="header-blank">&nbsp;</span>
+      <ul class="top-menu">
+        <li class="dark-theme-toggle-anchor"><a href="{{ url_for('theme_switch', next=request.path) }}" onclick="toggleDarkTheme(true);return false" class="dark-theme-toggle-on" title="Dark theme"><span class="material-icons">brightness_3</span></a><a href="{{ url_for('theme_switch', next=request.path) }}" onclick="toggleDarkTheme(false);return false" class="dark-theme-toggle-off" title="Light theme"><span class="material-icons">brightness_5</span></a><script>function toggleDarkTheme(a){document.cookie="dark="+(+a)+";max-age=31556952;path=/;SameSite=Strict";document.body.classList.toggle("dark",a)}</script></li>
+        <li><a href="/search/" title="{{ T('search') }}" rel="nofollow"><span class="material-icons">search</span></a></li>
+        <li><a href="/p/random/" title="{{ T('random-page') }}" rel="nofollow"><span class="material-icons">shuffle</span></a></li>
+        <li><a href="/create/" title="{{ T('new-note') }}" rel="nofollow"><span class="material-icons">create</span></a></li>
+      </ul>
+      <ul class="user_menu">
+        {% if current_user.is_authenticated %}
+        <li><a href="/@{{ current_user.username }}/">{{ current_user.username }}</a></li>
+        <li><a href="/accounts/logout/" title="{{ T('logout') }}" rel="nofollow"><span class="material-icons">logout</span></a></li>
+        {% else %}
+        <li><a href="/accounts/login/" title="{{ T('login') }}" rel="nofollow"><span class="material-icons">login</span></a></li>
+        {% endif %}
+      </ul>
+    </header>
     <div class="content">
       {% for msg in get_flashed_messages() %}
       <div class="flash">{{ msg }}</div>
       {% endfor %}
       {% block content %}{% endblock %}
     </div>
-    <ul class="top-menu">
-      <li class="dark-theme-toggle-anchor"><a href="{{ url_for('theme_switch', next=request.path) }}" onclick="toggleDarkTheme(true);return false" class="dark-theme-toggle-on" title="Dark theme"><span class="material-icons">brightness_3</span></a><a href="{{ url_for('theme_switch', next=request.path) }}" onclick="toggleDarkTheme(false);return false" class="dark-theme-toggle-off" title="Light theme"><span class="material-icons">brightness_5</span></a><script>function toggleDarkTheme(a){document.cookie="dark="+(+a)+";max-age=31556952;path=/;SameSite=Strict";document.body.classList.toggle("dark",a)}</script></li>
-      <li><a href="/" title="{{ T('homepage') }}"><span class="material-icons">home</span></a></li>
-      <li><a href="/search/" title="{{ T('search') }}" rel="nofollow"><span class="material-icons">search</span></a></li>
-      <li><a href="/p/random/" title="{{ T('random-page') }}" rel="nofollow"><span class="material-icons">shuffle</span></a></li>
-      <li><a href="/create/" title="{{ T('new-note') }}" rel="nofollow"><span class="material-icons">create</span></a></li>
-      <li><a href="/accounts/login/" title="{{ T('login') }}" rel="nofollow"><span class="material-icons">login</span></a></li>
-    </ul>
-    <div class="footer">
+    <footer class="footer">
       <div class="footer-copyright">&copy; 2020–2023 Sakuragasaki46.</div>
       <div class="footer-loggedinas">
         {% if current_user.is_authenticated %}
@@ -54,7 +64,7 @@
       </div>
       <div class="footer-actions" id="page-actions">{% block actions %}{% endblock %}</div>
       <div class="footer-versions">{{app_name}} version {{app_version}}</div>
-    </div>
+    </footer>
     <div class="backontop"><a href="#__top" title="Back on top"><span class="material-icons">arrow_upward</span></a></div>
     {% block scripts %}{% endblock %}
   </body>

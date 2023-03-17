@@ -19,6 +19,14 @@
 
   {% block history_nav %}{% endblock %}
 
+  {% if p.is_cw %}
+  <div class="flash">
+    <strong>Content Warning</strong> -
+    this page may contain shocking or unexpected content, spoilers, or similar.
+    Proceed with caution.
+  </div>
+  {% endif %}
+
   <div class="inner-content">
     {{ rev.html(math = request.args.get('math') not in ['0', 'false', 'no', 'off'])|safe }}
   </div>

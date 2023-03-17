@@ -28,8 +28,9 @@ from urllib.parse import quote
 from configparser import ConfigParser
 import i18n
 import gzip
+from getpass import getpass
 
-__version__ = '0.7.1'
+__version__ = '0.8-dev'
 
 #### CONSTANTS ####
 
@@ -65,10 +66,8 @@ if _cfp.read([CONFIG_FILE]):
                 v = fallback
         return v
 else:
-    def _getconf(k1, k2, fallback=None, cast=None):
-        if fallback is None:
-            fallback = DEFAULT_CONF.get((k1, k2))
-        return fallback
+    print('Uh oh, site.conf not found.')
+    exit(-1)
 
 #### OPTIONAL IMPORTS ####
 
@@ -148,6 +147,8 @@ class User(BaseModel):
     karma = IntegerField(default=1)
     privileges = BitField()
     is_admin = privileges.flag(1)
+    restrictions = BitField()
+    is_disabled = restrictions.flag(1)
 
     # helpers for flask_login
     @property
@@ -155,10 +156,41 @@ class User(BaseModel):
         return False
     @property
     def is_active(self):
-        return True
+        return not self.is_disabled
     @property
     def is_authenticated(self):
         return True
+
+class UserGroup(BaseModel):
+    name = CharField(32, unique=True)
+    permissions = BitField()
+    # Can read pages.
+    can_read = permissions.flag(1)
+    # Can edit all non-locked pages.
+    can_edit = permissions.flag(2)
+    # Can create and edit their own pages.
+    can_create = permissions.flag(4)
+    # Can set page URL.
+    can_set_url = permissions.flag(8)
+    # Can change page tags.
+    can_set_tags = permissions.flag(16)
+
+    @classmethod
+    def get_default_group(cls):
+        try:
+            return cls[1]
+        except cls.DoesNotExist:
+            return cls.get(cls.name == 'default')
+
+class UserGroupMembership(BaseModel):
+    user = ForeignKeyField(User, backref='group_memberships')
+    group = ForeignKeyField(UserGroup, backref='user_memberships')
+    since = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        indexes = (
+            (('user', 'group'), True),
+        )
 
 
 class Page(BaseModel):
@@ -172,6 +204,7 @@ class Page(BaseModel):
     is_sync = flags.flag(2)
     is_math_enabled = flags.flag(4)
     is_locked = flags.flag(8)
+    is_cw = flags.flag(16)
     @property
     def latest(self):
         if self.revisions:
@@ -179,6 +212,8 @@ class Page(BaseModel):
     def get_url(self):
         return '/' + self.url + '/' if self.url else '/p/{}/'.format(self.id)
     def short_desc(self):
+        if self.is_cw:
+            return '(Content Warning)'
         full_text = self.latest.text
         text = remove_tags(full_text, convert = not self.is_math_enabled and not _getconf('appearance', 'simple_remove_tags', False))
         return text[:200] + ('\u2026' if len(text) > 200 else '')
@@ -377,12 +412,75 @@ class PageLink(BaseModel):
     def refresh_all_links(cls):
         for p in Page.select():
             cls.parse_links(p, p.latest.text)
-            
+
+class PagePermission(BaseModel):
+    page = ForeignKeyField(Page, backref='permission_overrides')
+    group = ForeignKeyField(UserGroup, backref='page_permissions')
+    permissions = BitField()
+    # Can read pages.
+    can_read = permissions.flag(1)
+    # Can edit all non-locked pages.
+    can_edit = permissions.flag(2)
+    # Can create and edit their own pages.
+    can_create = permissions.flag(4)
+    # Can set page URL.
+    can_set_url = permissions.flag(8)
+    # Can change page tags.
+    can_set_tags = permissions.flag(16)
+
+    class Meta:
+        indexes = (
+            (('page', 'group'), True),
+        )
 
 def init_db():
     database.create_tables([
-        User, Page, PageText, PageRevision, PageTag, PageProperty, PageLink
+        User, UserGroup, UserGroupMembership,
+        Page, PageText, PageRevision, PageTag, PageProperty, PageLink,
+        PagePermission
     ])
+
+def init_db_and_create_first_user():
+    try:
+        User[1]
+        UserGroup[1]
+    except Exception:
+        pass
+    else:
+        print('Looks like this site is already set up!')
+        return
+    username = input('Username: ')
+    password = getpass('Password: ')
+    confirm_password = getpass('Confirm password: ')
+    email = input('Email: (optional)') or None
+    if not is_username(username):
+        print('Invalid username: usernames can contain only letters, numbers, underscores and hyphens.')
+        return
+    if password != confirm_password:
+        print('Passwords do not match.')
+        return
+    default_permissions = 31 # all permissions
+    if not input('Agree to the Terms of Use?')[0].lower() == 'y':
+        print('You must accept Terms in order to register.')
+        return
+    with database.atomic():
+        init_db()
+        ua = User.create(
+            username = username,
+            email = email,
+            password = generate_password_hash(password),
+            join_date = datetime.datetime.now(),
+            is_admin = True
+        )
+        ug = UserGroup.create(
+            name = 'default',
+            permissions = int(default_permissions)
+        )
+        UserGroupMembership.create(
+            user = ua,
+            group = ug
+        )
+    print('Installed successfully!')
 
 #### WIKI SYNTAX ####
 
@@ -456,8 +554,7 @@ login_manager.login_view = 'accounts_login'
 
 #### ROUTES ####
 
-@app.before_request
-def _before_request():
+def _get_lang():
     if request.args.get('uselang') is not None:
         lang = request.args['uselang']
     else:
@@ -468,12 +565,17 @@ def _before_request():
                 break
         else:
             lang = 'en'
-    g.lang = lang
+    return lang
+
+@app.before_request
+def _before_request():
+    g.lang = _get_lang()
 
 @app.context_processor
 def _inject_variables():
+    
     return {
-        'T': partial(get_string, g.lang),
+        'T': partial(get_string, _get_lang()),
         'app_name': _getconf('site', 'title'),
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
         'app_version': __version__,
@@ -492,6 +594,7 @@ def linebreaks(text):
     text = text.replace("\n\n", '</p><p>').replace('\n', '<br />')
     return Markup(text)
 
+app.template_filter(name='markdown')(md)
 
 @app.route('/')
 def homepage():
@@ -523,6 +626,10 @@ def error_400(body):
 
 @app.errorhandler(500)
 def error_500(body):
+    try:
+        User[1]
+    except OperationalError:
+        g.need_install = True
     return render_template('internalservererror.jinja2'), 500
 
 # Middle point during page editing.
@@ -550,7 +657,8 @@ def savepoint(form, is_preview=False, pageobj=None):
         preview=preview,
         pl_js_info=pl_js_info,
         pl_calendar=('usecalendar' in form) and form['calendar'],
-        pl_readonly=not pageobj.can_edit(current_user) if pageobj else False
+        pl_readonly=not pageobj.can_edit(current_user) if pageobj else False,
+        pl_cw=('cw' in form) and form['cw']
     )
 
 @app.route('/create/', methods=['GET', 'POST'])
@@ -581,7 +689,8 @@ def create():
                 owner_id=current_user.id,
                 calendar=datetime.date.fromisoformat(request.form["calendar"]) if 'usecalendar' in request.form else None,
                 is_math_enabled='enablemath' in request.form,
-                is_locked = 'lockpage' in request.form
+                is_locked = 'lockpage' in request.form,
+                is_cw = 'cw' in request.form
             )
             p.change_tags(p_tags)
         except IntegrityError as e:
@@ -636,6 +745,7 @@ def edit(id):
         p.touched = datetime.datetime.now()
         p.is_math_enabled = 'enablemath' in request.form
         p.is_locked = 'lockpage' in request.form
+        p.is_cw = 'cw' in request.form
         p.calendar = datetime.date.fromisoformat(request.form["calendar"]) if 'usecalendar' in request.form else None
         p.save()
         p.change_tags(p_tags)
@@ -767,12 +877,6 @@ def view_named(name):
         abort(404)
     return render_template('view.jinja2', p=p, rev=p.latest)
 
-@app.route('/init-config/tables/')
-def init_config_tables():
-    init_db()
-    flash('Tables successfully created.')
-    return redirect('/')
-
 @app.route('/history/<int:id>/')
 def history(id):
     try:
@@ -782,6 +886,10 @@ def history(id):
     return render_template('history.jinja2', p=p, history=p.revisions.order_by(PageRevision.pub_date.desc()))
 
 @app.route('/u/<username>/')
+def contributions_legacy_url(username):
+    return redirect(f'/@{username}/')
+
+@app.route('/@<username>/')
 def contributions(username):
     try:
         user = User.get(User.username == username)
@@ -912,6 +1020,10 @@ def accounts_register():
                     email = request.form.get('email'),
                     password = generate_password_hash(password),
                     join_date = datetime.datetime.now()
+                )
+                UserGroupMembership.create(
+                    user = u,
+                    group = UserGroup.get_default_group()
                 )
             
             login_user(u)
@@ -1058,7 +1170,6 @@ class Importer(object):
                 continue
         return no_pages, no_revs
 
-
 @app.route('/manage/export/', methods=['GET', 'POST'])
 def exportpages():
     if request.method == 'POST':
@@ -1102,6 +1213,16 @@ def importpages():
         else:
             flash('Pages can be imported by Administrators only!')
     return render_template('importpages.jinja2')
+
+## terms / privacy ##
+
+@app.route('/terms/')
+def terms():
+    return render_template('terms.jinja2')
+
+@app.route('/privacy/')
+def privacy():
+    return render_template('privacy.jinja2')
 
 #### EXTENSIONS ####
 
