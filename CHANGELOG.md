@@ -1,5 +1,9 @@
 # What’s New
 
+## 0.7.1
+
++ Improved calendar view. Now `/calendar` shows a list of years and months.
+
 ## 0.7
 
 + Schema changes:

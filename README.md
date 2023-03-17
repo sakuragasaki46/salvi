@@ -14,6 +14,7 @@ suitable as a community or team knowledge base.
 + Stored in SQLite/MySQL databases
 + Material Icons
 + Light/dark theme
++ Calendar
 + Works fine even with JavaScript disabled.
 
 ## Requirements

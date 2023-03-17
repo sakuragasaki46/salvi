@@ -29,7 +29,7 @@ from configparser import ConfigParser
 import i18n
 import gzip
 
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 
 #### CONSTANTS ####
 
@@ -791,7 +791,11 @@ def contributions(username):
 
 @app.route('/calendar/')
 def calendar_view():
-    return render_template('calendar.jinja2')
+    now = datetime.datetime.now()
+    return render_template('calendar.jinja2', now=now,
+        from_year=int(request.args.get('from_year', now.year - 12)),
+        till_year=int(request.args.get('till_year', now.year + 5))
+    )
 
 @app.route('/calendar/<int:y>/<int:m>')
 def calendar_month(y, m):
