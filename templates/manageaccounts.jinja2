@@ -1,0 +1,52 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Manage accounts - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1>Manage accounts</h1>
+
+{% if current_user.is_admin %}
+<p>
+  Here is the list of users registered on {{ app_name }}, in reverse chronological order.
+  <strong>Beware: you are managing sensitive informations.</strong>
+</p>
+
+<p class="nl-pagination">Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong> of <strong>{{ total_count }}</strong> total.</p>
+
+<form enctype="multipart/form-data" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+  
+  <ul>
+    {% if page_n > 1 %}
+    <li class="nl-prev"><a href="?page={{ page_n - 1}}">&laquo; Previous page</a></li>
+    {% endif %}
+    
+    {% for u in users %}
+    <li>
+      <input type="checkbox" name="u{{ u.id }}">
+      <a href="/@{{ u.username }}">{{ u.username }}</a> 
+      {% if u == current_user %}<strong>(you)</strong>{% endif %}
+      -
+      Groups:
+      <ul class="inline">
+        {% for ug in u.groups() %}
+        <li>{{ ug.name }}</li>
+        {% endfor %}
+      </ul>
+      -
+      Registered on:
+      {{ u.join_date }}
+    </li>
+    {% endfor %}
+
+    {% if page_n < total_count // 20 %}
+    <li class="nl-next"><a href="?page={{ page_n + 1 }}">Next page &raquo;</a></li>
+    {% endif %}
+  </ul>
+
+
+</form>
+{% else %}
+<p>Managing accounts can be done by users with Admin permissions only.</p>
+{% endif %}
+{% endblock %}

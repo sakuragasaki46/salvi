@@ -4,12 +4,14 @@
 
 {% block json_info %}<script>window.page_info={{ p.js_info()|tojson|safe }};</script>{% endblock %}
 
+{% set html_and_toc = rev.html_and_toc(math = request.args.get('math') not in ['0', 'false', 'no', 'off']) %}
+
 {% block content %}
 <article>
   <h1 id="firstHeading">{{ p.title }}</h1>
 
   {% if p.calendar %}
-  <p class="calendar-subtitle"><span class="material-icons">calendar_today</span>{{ p.calendar.strftime('%B %-d, %Y') }}</div>
+  <p class="calendar-subtitle"><span class="material-icons">calendar_today</span>{{ p.calendar.strftime('%B %-d, %Y') }}</p>
   {% endif %}
   
   <div class="jump-to-actions">
@@ -28,7 +30,7 @@
   {% endif %}
 
   <div class="inner-content">
-    {{ rev.html(math = request.args.get('math') not in ['0', 'false', 'no', 'off'])|safe }}
+    {{ html_and_toc[0]|safe }}
   </div>
 
   {% if p.tags %}
@@ -52,6 +54,12 @@
 {{ T('last-changed') }} <time datetime="{{ rev.pub_date.isoformat() }}">{{ rev.pub_date.strftime('%B %-d, %Y at %H:%M:%S') }}</time> - 
 {{ T('page-id') }}: {{ p.id }} -
 {{ T('owner') }}: {{ p.owner.username }}
+{% endblock %}
+
+{% block toc %}
+<nav class="toc">
+  {{ html_and_toc[1] }}
+</nav>
 {% endblock %}
 
 {% block scripts %}

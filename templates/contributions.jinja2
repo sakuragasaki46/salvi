@@ -7,10 +7,17 @@
 {% endblock %}
 
 {% block content %}
-<h1>Contributions of {{ u.username }}</div>
+<h1>Contributions of {{ u.username }}</h1>
+
+<p class="nl-pagination">Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong> of <strong>{{ total_count }}</strong> total.</p>
 
 <ul>
-{% for rev in contributions %}
+  {% if page_n > 1 %}
+  <li class="nl-prev"><a href="?page={{ page_n - 1}}">&laquo; Previous page</a></li>
+  {% endif %}
+    
+
+  {% for rev in contributions %}
   <li>
     <a href="/history/revision/{{ rev.id }}/">
       #{{ rev.id }}
@@ -25,6 +32,10 @@
       {{ rev.page.title }}
     </a>
   </li>
-{% endfor %}
+  {% endfor %}
+
+  {% if page_n < total_count // 20 %}
+  <li class="nl-next"><a href="?page={{ page_n + 1 }}">Next page &raquo;</a></li>
+  {% endif %}
 </ul>
 {% endblock %}

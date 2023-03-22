@@ -1,9 +1,9 @@
 {% extends "base.jinja2" %}
 
-{% block title %}Not found - {{ app_name }}{% endblock %}
+{% block title %}{{ T('not-found') }} - {{ app_name }}{% endblock %}
 
 {% block content %}
 <h1>{{ T('not-found') }}</h1>
 
-<p>{{ T('not-found-text-1')}} <strong>{{ request.path }}</strong> {{ T('not-found-text-2' )}}.</p>
+<p>{{ T('not-found-text-1') }} <strong>{{ request.path }}</strong> {{ T('not-found-text-2') }}.</p>
 {% endblock %}

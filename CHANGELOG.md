@@ -10,6 +10,9 @@
   caution message when viewing them.
 + Added Terms and Privacy Policy.
 + Changed user page URLs (contributions page) from `/u/user` to `/@user`.
++ `/manage/` is now a list of all managing options, including export/import and the brand new 
+  `/manage/accounts`.
++ TOC is now shown in pages where screen width is greater than 960 pixels.
 + Style changes: added a top bar with the site title. It replaces the floating menu on the top right.
 + Added a built-in installer (`app_init.py`). You still need to manually create `site.conf`.
 

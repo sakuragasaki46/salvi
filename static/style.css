@@ -23,7 +23,7 @@
 /* basic styles */
 * {box-sizing: border-box;}
 body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-main);margin:0;position:relative}
-.content{margin: 3em 1.3em}
+.content{margin: 3em 1.3em; position: relative}
 .footer{text-align:center;}
 
 /* header styles */
@@ -112,9 +112,10 @@ ul.inline > li:last-child::after {content: ""}
 
 
 /* floating elements */
-.toc{float:right}
-@media (max-width:639px){
-  .toc{display:none}
+nav.toc{display:none}
+@media only screen and (min-width:960px){
+    nav.toc{display:block;position:absolute; top: 0; right: 0; width: 320px;}
+    .inner-content {margin-right: 320px}
 }
 .backontop{position:fixed;bottom:0;right:0}
 @media print{

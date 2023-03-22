@@ -161,6 +161,12 @@ class User(BaseModel):
     def is_authenticated(self):
         return True
 
+    def groups(self):
+        return (
+            UserGroup.select().join(UserGroupMembership, on=UserGroupMembership.group)
+            .where(UserGroupMembership.user == self)
+        )
+
 class UserGroup(BaseModel):
     name = CharField(32, unique=True)
     permissions = BitField()
@@ -295,6 +301,8 @@ class PageRevision(BaseModel):
         return self.textref.get_content()
     def html(self, *, math=True):
         return md(self.text, math=self.page.is_math_enabled and math)
+    def html_and_toc(self, *, math=True):
+        return md_and_toc(self.text, math=self.page.is_math_enabled and math)
     def human_pub_date(self):
         delta = datetime.datetime.now() - self.pub_date
         T = partial(get_string, g.lang)
@@ -484,7 +492,7 @@ def init_db_and_create_first_user():
 
 #### WIKI SYNTAX ####
 
-def md(text, expand_magic=False, toc=True, math=True):
+def md_and_toc(text, expand_magic=False, toc=True, math=True):
     if expand_magic:
         # DEPRECATED seeking for a better solution.
         warnings.warn('Magic words are no more supported.', DeprecationWarning)
@@ -502,9 +510,16 @@ def md(text, expand_magic=False, toc=True, math=True):
             'insert_fonts_css': not _getconf('site', 'katex_url')
         }
     try:
-        return markdown.Markdown(extensions=extensions, extension_configs=extension_configs).convert(text)
+        converter = markdown.Markdown(extensions=extensions, extension_configs=extension_configs)
+        if toc:
+            return converter.convert(text), converter.toc
+        else:
+            return converter.convert(text), ''
     except Exception as e:
-        return '<p class="error">There was an error during rendering: {e.__class__.__name__}: {e}</p>'.format(e=e)
+        return '<p class="error">There was an error during rendering: {e.__class__.__name__}: {e}</p>'.format(e=e), ''
+
+def md(text, expand_magic=False, toc=True, math=True):
+    return md_and_toc(text, expand_magic=expand_magic, toc=toc, math=math)[0]
 
 def remove_tags(text, convert=True, headings=True):
     if headings:
@@ -538,7 +553,7 @@ def is_url_available(url):
 
 forbidden_urls = [
     'about', 'accounts', 'ajax', 'backlinks', 'calendar', 'circles', 'create',
-    'easter', 'edit', 'embed', 'help', 'history', 'init-config', 'kt',
+    'easter', 'edit', 'embed', 'group', 'help', 'history', 'init-config', 'kt',
     'manage', 'media', 'p', 'privacy', 'protect', 'search', 'static', 'stats', 
     'tags', 'terms', 'u', 'upload', 'upload-info'
 ]
@@ -783,11 +798,7 @@ def edit(id):
 
 @app.route("/__sync_start")
 def __sync_start():
-    if _getconf("sync", "master", "this") == "this":
-        abort(403)
-    from app_sync import main
-    main()
-    flash("Successfully synced messages.")
+    flash("Sync is unavailable. Please import and export pages manually.")
     return redirect("/")
 
 @app.route('/_jsoninfo/<int:id>', methods=['GET', 'POST'])
@@ -895,7 +906,15 @@ def contributions(username):
         user = User.get(User.username == username)
     except User.DoesNotExist:
         abort(404)
-    return render_template('contributions.jinja2', u=user, contributions=user.contributions.order_by(PageRevision.pub_date.desc()))
+    contributions = user.contributions.order_by(PageRevision.pub_date.desc())
+    page = int(request.args.get('page', 1))
+    return render_template('contributions.jinja2', 
+        u=user, 
+        contributions=contributions.paginate(page),
+        page_n=page,
+        total_count=contributions.count(),
+        min=min
+    )
 
 @app.route('/calendar/')
 def calendar_view():
@@ -1083,6 +1102,12 @@ def easter_y(y=None):
     else:
         return render_template('easter.jinja2')
 
+## administration ##
+
+@app.route('/manage/')
+def manage_main():
+    return render_template('administration.jinja2')
+
 ## import / export ##
 
 class Exporter(object):
@@ -1213,6 +1238,23 @@ def importpages():
         else:
             flash('Pages can be imported by Administrators only!')
     return render_template('importpages.jinja2')
+
+@app.route('/manage/accounts/', methods=['GET', 'POST'])
+@login_required
+def manage_accounts():
+    users = User.select().order_by(User.join_date.desc())
+    page = int(request.args.get('page', 1))
+    if request.method == 'POST':
+        if current_user.is_admin:
+            pass
+        else:
+            flash('Operation not permitted!')
+    return render_template('manageaccounts.jinja2', 
+        users=users.paginate(page),
+        page_n=page,
+        total_count=users.count(),
+        min=min
+    )
 
 ## terms / privacy ##
 
