@@ -13,6 +13,7 @@
         "last-changed": "Last changed", 
         "page-id": "Page ID", 
         "action-edit": "Edit", 
+        "action-view-source": "View source",
         "action-history": "History", 
         "tags": "Tags", 
         "old-revision-notice": "Showing an old revision of the page as of", 
@@ -58,6 +59,8 @@
         "not-logged-in": "Not logged in",
         "owner": "Owner",
         "page-created": "Page created",
-        "write-a-comment": "Write a comment…"
+        "write-a-comment": "Write a comment…",
+        "input-tags": "Tags (comma separated)",
+        "no-tags": "No tags"
     }
 }

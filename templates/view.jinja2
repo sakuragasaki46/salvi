@@ -8,16 +8,24 @@
 
 {% block content %}
 <article>
-  <h1 id="firstHeading">{{ p.title }}</h1>
+  <header class="article-header">
+    <h1 id="firstHeading">{{ p.title }}</h1>
 
-  {% if p.calendar %}
-  <p class="calendar-subtitle"><span class="material-icons">calendar_today</span>{{ p.calendar.strftime('%B %-d, %Y') }}</p>
-  {% endif %}
-  
-  <div class="jump-to-actions">
-    <span>{{ T('last-changed') }} {{ rev.human_pub_date() }}</span> ·
-    <a href="#page-actions">{{ T('jump-to-actions') }}</a>
-  </div>
+    {% if p.calendar %}
+    <p class="calendar-subtitle"><span class="material-icons">calendar_today</span>{{ p.calendar.strftime('%B %-d, %Y') }}</p>
+    {% endif %}
+    
+    <ul class="article-actions inline">
+      {% if current_user and current_user.is_authenticated %}
+      {% if p.is_editable() %}
+      <li><span class="material-icons">edit</span><a href="/edit/{{ p.id }}">{{ T('action-edit') }}</a></li>
+      {% else %}
+      <li><span class="material-icons">code</span><a href="/edit/{{ p.id }}">{{ T('action-view-source') }}</a></li>
+      {% endif %}
+      {% endif %}
+      <li><span class="material-icons">history</span><a href="/history/{{ p.id }}">{{ rev.human_pub_date() }}</a></li>
+    </ul>
+  </header>
 
   {% block history_nav %}{% endblock %}
 

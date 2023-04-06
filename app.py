@@ -258,7 +258,7 @@ class Page(BaseModel):
         return True
     def is_owned_by(self, user):
         return user.id == self.owner.id
-            
+
 
 class PageText(BaseModel):
     content = BlobField()

@@ -13,6 +13,7 @@
         "last-changed": "Ultima modifica",
         "page-id": "ID pagina",
         "action-edit": "Modifica",
+        "action-view-source": "Visualizza sorgente",
         "action-history": "Cronologia",
         "tags": "Etichette",
         "old-revision-notice": "\u00c8 mostrata una revisione vecchia della pagina, risalente al",
@@ -48,6 +49,8 @@
         "revision-count-per-page": "Media di revisioni per pagina",
         "remember-me-for": "Ricordami per",
         "owner": "Proprietario",
-        "write-a-comment": "Scrivi un commento…"
+        "write-a-comment": "Scrivi un commento…",
+        "input-tags": "Etichette (separate da virgola)",
+        "no-tags": "Nessuna etichetta"
     }
 }

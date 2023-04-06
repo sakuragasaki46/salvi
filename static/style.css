@@ -33,6 +33,7 @@ body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-mai
 .header ul > li{display:inline-block;padding-right:1em}
 
 /* content styles */
+.article-header {text-align: center;}
 #firstHeading {font-family:sans-serif; text-align: center;font-size:3em; font-weight: normal}
 .inner-content{font-family:serif; margin: 1.7em auto; max-width: 1280px; line-height: 1.9; color: var(--fg-main)}
 .inner-content em,.inner-content strong{color: var(--fg-sharp)}

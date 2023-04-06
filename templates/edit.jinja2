@@ -57,8 +57,8 @@
     <textarea name="text" class="text-input" {% if pl_readonly %}disabled=""{% endif %}>{{ pl_text }}</textarea>
   </div>
   <div>
-    <label for="tags">Tags (comma separated):</label>
-    <input type="text" name="tags" class="tags-input" placeholder="No tags" value="{{ pl_tags }}">
+    <label for="tags">{{ T('input-tags') }}:</label>
+    <input type="text" name="tags" class="tags-input" placeholder="{{ T('no-tags') }}" value="{{ pl_tags }}" {% if pl_readonly %}disabled=""{% endif %}>
   </div>
   {% if not pl_readonly %}
   <div>
