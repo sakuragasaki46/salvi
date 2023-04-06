@@ -930,8 +930,10 @@ def calendar_month(y, m):
         (datetime.date(y, m, 1) <= Page.calendar) &
         (Page.calendar < datetime.date(y+1 if m==12 else y, 1 if m==12 else m+1, 1))
     ).order_by(Page.calendar)
+    page = int(request.args.get('page', 1))
 
-    return render_template('month.jinja2', d=datetime.date(y, m, 1), notes=notes)
+    return render_template('month.jinja2', d=datetime.date(y, m, 1), notes=notes.paginate(page),
+        page_n=page, total_count=notes.count(), min=min)
 
 @app.route('/history/revision/<int:revisionid>/')
 def view_old(revisionid):
@@ -984,7 +986,8 @@ def stats():
         notes_count=Page.select().count(),
         notes_with_url=Page.select().where(Page.url != None).count(),
         revision_count=PageRevision.select().count(),
-        users_count = User.select().count()
+        users_count = User.select().count(),
+        groups_count = UserGroup.select().count()
     )
 
 ## account management ##

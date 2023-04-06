@@ -61,6 +61,9 @@
         "page-created": "Page created",
         "write-a-comment": "Write a comment…",
         "input-tags": "Tags (comma separated)",
-        "no-tags": "No tags"
+        "no-tags": "No tags",
+        "notes-month-empty": "None found :(",
+        "calendar": "Calendar",
+        "groups-count": "User group count"
     }
 }

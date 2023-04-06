@@ -3,39 +3,43 @@
 {% block title %}{{ T('homepage') }} - {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>{{ T('welcome').format(app_name) }}</h1>
+<article class="homepage">
+  <h1 id="firstHeading">{{ T('welcome').format(app_name) }}</h1>
 
-<div class="nl-new">
-  <a href="/create/"><button class="submit-primary">{{ T('new-note') }}</button></a>
-</div>
+  <div class="nl-new">
+    <a href="/create/"><button class="submit-primary">{{ T('new-note') }}</button></a>
+  </div>
 
-<h2>{{ T('latest-notes') }}</h2>
+  <h2>{{ T('latest-notes') }}</h2>
 
-<br style="clear:both">
-<ul class="nl-list">
-  {% for n in new_notes %}
-  <li>
-    <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
-    <p class="nl-desc">{{ n.short_desc() }}</p>
-    {% if n.tags %}
-    <p class="nl-tags">
-      <span class="material-icons">tag</span>
-      {{ T('tags') }}: 
-      {% for tag in n.tags %}
-      {% set tn = tag.name %}
-      <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
-      {% endfor %}
-    </p>
-    {% endif %}
-    {% if n.calendar %}
-    <p class="nl-calendar">
-      <span class="material-icons">calendar_today</span>
-      <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
-    </p>
-    {% endif %}
-  </li>
-  {% endfor %}
-  <li><a href="/p/most_recent/">{{ T('show-all') }}</a></li>
-</ul>
+  <br style="clear:both">
+  <ul class="nl-list">
+    {% for n in new_notes %}
+    <li>
+      <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
+      <p class="nl-desc">{{ n.short_desc() }}</p>
+      {% if n.tags %}
+      <p class="nl-tags">
+        <span class="material-icons">tag</span>
+        {{ T('tags') }}: 
+        {% for tag in n.tags %}
+        {% set tn = tag.name %}
+        <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+        {% endfor %}
+      </p>
+      {% endif %}
+      {% if n.calendar %}
+      <p class="nl-calendar">
+        <span class="material-icons">calendar_today</span>
+        <a href="/calendar/{{ n.calendar.year }}/{{ n.calendar.month }}">
+          <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+        </a>
+      </p>
+      {% endif %}
+    </li>
+    {% endfor %}
+    <li><a href="/p/most_recent/">{{ T('show-all') }}</a></li>
+  </ul>
+</article>
 
 {% endblock %}

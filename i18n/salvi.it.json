@@ -48,9 +48,21 @@
         "revision-count": "Numero di revisioni",
         "revision-count-per-page": "Media di revisioni per pagina",
         "remember-me-for": "Ricordami per",
+        "confirm-password": "Conferma password",
+        "email": "E-mail",
+        "optional": "opzionale",
+        "have-read-terms": "Ho letto i {0} e la {1}",
+        "terms-of-service": "Termini di Servizio",
+        "privacy-policy": "Politica sulla riservatezza",
+        "already-have-account": "Hai già un account?",
+        "logged-in-as": "Autenticato come",
+        "not-logged-in": "Non autenticato",
         "owner": "Proprietario",
         "write-a-comment": "Scrivi un commento…",
         "input-tags": "Etichette (separate da virgola)",
-        "no-tags": "Nessuna etichetta"
+        "no-tags": "Nessuna etichetta",
+        "notes-month-empty": "Non c\u2019\u00e8 nulla :(",
+        "calendar": "Calendario",
+        "groups-count": "Numero di gruppi utente"
     }
 }

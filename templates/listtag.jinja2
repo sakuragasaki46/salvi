@@ -3,46 +3,51 @@
 {% block title %}Notes tagged #{{ tagname }} - {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>{{ T('notes-tagged') }} #{{ tagname }}</h1>
+<article>
+  <h1 id="firstHeading">#{{ tagname }}</h1>
+  <div class="preview-subtitle">{{ T('notes-tagged') }}</div>
 
-{% if total_count > 0 %}
-<p class="nl-pagination">Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong> of <strong>{{ total_count }}</strong> total.</p>
+  {% if total_count > 0 %}
+  <p class="nl-pagination">Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong> of <strong>{{ total_count }}</strong> total.</p>
 
-<ul class="nl-list">
-  {% if page_n > 1 %}
-  <li class="nl-prev"><a href="/tags/{{ tagname }}/{{ page_n - 1 }}/">&laquo; Previous page</a></li>
-  {% endif %}
-  {% for n in tagged_notes %}
-  <li>
-    <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
-    <p class="nl-desc">{{ n.short_desc() }}</p>
-    <p class="nl-tags">
-      <span class="material-icons">tag</span>
-      {{ T('tags') }}: 
-      {% for tag in n.tags %}
-      {% set tn = tag.name %}
-      {% if tn == tagname %}
-      <strong class="nl-tag-hl">#{{ tn }}</strong>
-      {% else %}
-      <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
-      {% endif %}
-      {% endfor %}
-      {% if n.calendar %}
-      <p class="nl-calendar">
-        <span class="material-icons">calendar_today</span>
-        <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+  <ul class="nl-list">
+    {% if page_n > 1 %}
+    <li class="nl-prev"><a href="/tags/{{ tagname }}/{{ page_n - 1 }}/">&laquo; Previous page</a></li>
+    {% endif %}
+    {% for n in tagged_notes %}
+    <li>
+      <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
+      <p class="nl-desc">{{ n.short_desc() }}</p>
+      <p class="nl-tags">
+        <span class="material-icons">tag</span>
+        {{ T('tags') }}: 
+        {% for tag in n.tags %}
+        {% set tn = tag.name %}
+        {% if tn == tagname %}
+        <strong class="nl-tag-hl">#{{ tn }}</strong>
+        {% else %}
+        <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if n.calendar %}
+        <p class="nl-calendar">
+          <span class="material-icons">calendar_today</span>
+          <a href="/calendar/{{ n.calendar.year }}/{{ n.calendar.month }}">
+            <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+          </a>
+        </p>
+        {% endif %}
       </p>
-      {% endif %}
-    </p>
-  </li>
-  {% endfor %}
-  {% if page_n < total_count // 20 %}
-  <li class="nl-next"><a href="/tags/{{ tagname }}/{{ page_n + 1 }}/">Next page &raquo;</a></li>
+    </li>
+    {% endfor %}
+    {% if page_n < total_count // 20 %}
+    <li class="nl-next"><a href="/tags/{{ tagname }}/{{ page_n + 1 }}/">Next page &raquo;</a></li>
+    {% endif %}
+  </ul>
+  {% else %}
+  <p class="nl-placeholder">{{ T('notes-tagged-empty') }}</p>
   {% endif %}
-</ul>
-{% else %}
-<p class="nl-placeholder">{{ T('notes-tagged-empty') }}</p>
-{% endif %}
 
+</article>
 
 {% endblock %}

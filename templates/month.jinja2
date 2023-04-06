@@ -3,30 +3,47 @@
 {% block title %}{{ d.strftime("%B %Y") }} – {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>{{ d.strftime("%B %Y") }}</h1>
+<article>
+  <h1 id="firstHeading">{{ d.strftime("%B %Y") }}</h1>
 
-<ul>
-  {% for n in notes %}
-  <li>
-    <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
-    <p class="nl-desc">{{ n.short_desc() }}</p>
-    {% if n.tags %}
-    <p class="nl-tags">{{ T('tags') }}: 
-    {% for tag in n.tags %}
-      {% set tn = tag.name %}
-      <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+  {% if total_count > 0 %}
+  <p class="nl-pagination">Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong> of <strong>{{ total_count }}</strong> total.</p>
+
+  <ul class="nl-list">
+    {% for n in notes %}
+    <li>
+      <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
+      <p class="nl-desc">{{ n.short_desc() }}</p>
+      {% if n.tags %}
+      <p class="nl-tags">{{ T('tags') }}: 
+      {% for tag in n.tags %}
+        {% set tn = tag.name %}
+        <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+      {% endfor %}
+      </p>
+      {% endif %}
+      {% if n.calendar %}
+      <p class="nl-calendar">
+        <span class="material-icons">calendar_today</span>
+        {% if n.calendar.year == d.year and n.calendar.month == d.month %}
+        <strong>
+          <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+        </strong>
+        {% else %}
+        <a href="/calendar/{{ n.calendar.year }}/{{ n.calendar.month }}">
+          <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+        </a>
+        {% endif %}
+      </p>
+      {% endif %}
+    </li>
     {% endfor %}
-    </p>
-    {% endif %}
-    {% if n.calendar %}
-    <p class="nl-calendar">
-      <span class="material-icons">calendar_today</span>
-      <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
-    </p>
-    {% endif %}
-  </li>
-  {% endfor %}
-</ul> 
+  </ul> 
+  {% else %}
+  <p class="nl-placeholder">{{ T('notes-month-empty') }}</p>
+  {% endif %}
 
+  <p>{{ T('back-to') }} <a href="/calendar">{{ T('calendar') }}</a></p>
+</article>
 
 {% endblock %}

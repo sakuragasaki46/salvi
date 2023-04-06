@@ -35,6 +35,7 @@ body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-mai
 /* content styles */
 .article-header {text-align: center;}
 #firstHeading {font-family:sans-serif; text-align: center;font-size:3em; font-weight: normal}
+@media (min-width:800px) {.homepage #firstHeading {font-size: 4.5em}}
 .inner-content{font-family:serif; margin: 1.7em auto; max-width: 1280px; line-height: 1.9; color: var(--fg-main)}
 .inner-content em,.inner-content strong{color: var(--fg-sharp)}
 .inner-content h1{color: var(--fg-error)}
@@ -64,6 +65,7 @@ body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-mai
 .nl-new{margin:6px 0 12px 0;display:flex;justify-content:start; float: right}
 .nl-new > a{margin-right:12px}
 .nl-prev,.nl-next{text-align:center}
+.nl-placeholder {font-style: italic; text-align: center;}
 input{border:0;border-bottom:3px solid var(--border);font:inherit;color:var(--fg-main);background-color:transparent}
 input:focus{color:var(--fg-sharp);border-bottom-color:var(--border-sharp)}
 input.error{border-bottom-color:var(--btn-error)}
@@ -160,6 +162,10 @@ a:hover{color:var(--fg-link-hover)}
 @media (min-width:800px) {
     .nl-list {display: grid; grid-template-rows: auto; grid-template-columns: 1fr 1fr; column-gap: 1.5em}
     .nl-list > .nl-prev, .nl-list > .nl-next {grid-column-end: span 2}
+}
+@media (min-width:1200px){
+    .nl-list {grid-template-columns: 1fr 1fr 1fr}
+    .nl-list > .nl-prev, .nl-list > .nl-next {grid-column-end: span 3}
 }
 
 

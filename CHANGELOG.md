@@ -14,6 +14,8 @@
   `/manage/accounts`.
 + TOC is now shown in pages where screen width is greater than 960 pixels.
 + Style changes: added a top bar with the site title. It replaces the floating menu on the top right.
++ Now logged-in users have an “Edit” button below the first heading. All users can access page history
+  by clicking the last modified time.
 + Added a built-in installer (`app_init.py`). You still need to manually create `site.conf`.
 
 ## 0.7.1
