@@ -58,9 +58,9 @@
       <div class="footer-copyright">&copy; 2020–2023 Sakuragasaki46.</div>
       <div class="footer-loggedinas">
         {% if current_user.is_authenticated %}
-        {{ T('logged-in-as') }}: <strong>{{ current_user.username }}</strong>
+        <span class="material-icons">person</span> {{ T('logged-in-as') }}: <strong>{{ current_user.username }}</strong>
         {% else %}
-        {{ T('not-logged-in') }}. <a href="/accounts/login">{{ T("login") }}</a>
+        <span class="material-icons">person_off</span> {{ T('not-logged-in') }}. <a href="/accounts/login">{{ T("login") }}</a>
         {% endif %}
       </div>
       <div class="footer-actions" id="page-actions">{% block actions %}{% endblock %}</div>

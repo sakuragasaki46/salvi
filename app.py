@@ -161,11 +161,22 @@ class User(BaseModel):
     def is_authenticated(self):
         return True
 
+    @property
     def groups(self):
         return (
             UserGroup.select().join(UserGroupMembership, on=UserGroupMembership.group)
             .where(UserGroupMembership.user == self)
         )
+
+
+# page perms (used as bitmasks)
+PERM_READ = 1
+PERM_EDIT = 2
+PERM_CREATE = 4
+PERM_SET_URL = 8
+PERM_SET_TAGS = 16
+PERM_ALL = 31
+PERM_LOCK = ~(PERM_EDIT | PERM_CREATE | PERM_SET_URL | PERM_SET_TAGS)
 
 class UserGroup(BaseModel):
     name = CharField(32, unique=True)
@@ -250,14 +261,37 @@ class Page(BaseModel):
     def prop(self):
         return PagePropertyDict(self)
     def is_editable(self):
-        return not self.is_locked
+        return self.can_edit(current_user)
 
     def can_edit(self, user):
-        if self.is_locked:
-            return user.id == self.owner.id
-        return True
+        perm = self.get_perms(user)
+        return perm & PERM_EDIT or (self.owner == user and perm & PERM_CREATE)
     def is_owned_by(self, user):
         return user.id == self.owner.id
+
+    def get_perms(self, user=None):
+        if user is None:
+            user = current_user
+
+        if user.is_anonymous:
+            return UserGroup.get_default_group().permissions & PERM_LOCK
+
+        if user.is_admin:
+            return PERM_ALL
+
+        perm = 0
+        # default groups  
+        for gr in user.groups:
+            perm |= gr.permissions
+
+        # page overrides
+        for ov in self.permission_overrides:
+            if ov.group in user.groups:
+                perm |= ov.permissions
+
+        if self.is_locked and self.owner.id != user.id:
+            perm &= PERM_LOCK
+        return perm
 
 
 class PageText(BaseModel):

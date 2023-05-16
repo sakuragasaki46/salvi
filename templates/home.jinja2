@@ -7,7 +7,9 @@
   <h1 id="firstHeading">{{ T('welcome').format(app_name) }}</h1>
 
   <div class="nl-new">
-    <a href="/create/"><button class="submit-primary">{{ T('new-note') }}</button></a>
+    <a href="/create/">
+      <button class="submit-primary"><span class="material-icons">create</span> {{ T('new-note') }}</button>
+    </a>
   </div>
 
   <h2>{{ T('latest-notes') }}</h2>
