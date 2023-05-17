@@ -950,6 +950,18 @@ def contributions(username):
         min=min
     )
 
+def _advance_calendar(date, offset=0):
+    if offset == -2:
+        return datetime.date(date.year - 1, date.month, 1)
+    elif offset == -1:
+        return datetime.date(date.year, date.month - 1, 1) if date.month > 1 else datetime.date(date.year - 1, 12, 1)
+    elif offset == 1:
+        return datetime.date(date.year, date.month + 1, 1) if date.month < 12 else datetime.date(date.year + 1, 1, 1)
+    elif offset == 2:
+        return datetime.date(date.year + 1, date.month, 1)
+    else:
+        return date
+
 @app.route('/calendar/')
 def calendar_view():
     now = datetime.datetime.now()
@@ -967,7 +979,7 @@ def calendar_month(y, m):
     page = int(request.args.get('page', 1))
 
     return render_template('month.jinja2', d=datetime.date(y, m, 1), notes=notes.paginate(page),
-        page_n=page, total_count=notes.count(), min=min)
+        page_n=page, total_count=notes.count(), min=min, advance_calendar=_advance_calendar)
 
 @app.route('/history/revision/<int:revisionid>/')
 def view_old(revisionid):

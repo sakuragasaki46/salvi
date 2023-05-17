@@ -43,6 +43,20 @@
   <p class="nl-placeholder">{{ T('notes-month-empty') }}</p>
   {% endif %}
 
+  {% set past_year = advance_calendar(d, -2) %}
+  {% set past_month = advance_calendar(d, -1) %}
+  {% set next_month = advance_calendar(d, 1) %}
+  {% set next_year = advance_calendar(d, 2) %}
+  <div class="calendar-navigation">
+    <ul class="inline">
+      <li>&laquo; <a href="/calendar/{{ past_year.year }}/{{ past_year.month }}">{{ past_year.strftime("%B %Y") }}</a></li>
+      <li><a href="/calendar/{{ past_month.year }}/{{ past_month.month }}">{{ past_month.strftime("%B %Y") }}</a></li>
+      <li><strong>{{ d.strftime("%B %Y") }}</strong></li>
+      <li><a href="/calendar/{{ next_month.year }}/{{ next_month.month }}">{{ next_month.strftime("%B %Y") }}</a></li>
+      <li><a href="/calendar/{{ next_year.year }}/{{ next_year.month }}">{{ next_year.strftime("%B %Y") }}</a> &raquo;</li>
+    </ul>
+  </div>
+
   <p>{{ T('back-to') }} <a href="/calendar">{{ T('calendar') }}</a></p>
 </article>
 
