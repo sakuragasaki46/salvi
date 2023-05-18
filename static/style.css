@@ -37,22 +37,23 @@ body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-mai
 .article-header {text-align: center;}
 #firstHeading {font-family:sans-serif; text-align: center;font-size:3em; font-weight: normal}
 @media (min-width:800px) {.homepage #firstHeading {font-size: 4.5em}}
-.inner-content{font-family:serif; margin: 1.7em auto; max-width: 1280px; line-height: 1.9; color: var(--fg-main)}
-.inner-content em,.inner-content strong{color: var(--fg-sharp)}
-.inner-content h1{color: var(--fg-error)}
-.inner-content table {font-family: sans-serif}
-.inner-content h2, .inner-content h3, .inner-content h4, .inner-content h5, .inner-content h6{font-family:sans-serif; color: var(--fg-sharp); font-weight: normal}
-.inner-content h2{border-bottom: 1px solid var(--border)}
-.inner-content h3{margin:0.8em 0}
-.inner-content h4{margin:0.6em 0}
-.inner-content h5{margin:0.5em 0}
-.inner-content h6{margin:0.4em 0}
-.inner-content p{text-indent: 1.9em; margin: 0}
-.inner-content li{margin: .3em 0}
-.inner-content blockquote{color:var(--fg-alt); border-left: 4px solid var(--bg-alt);margin-left:0;padding-left:12px}
-.inner-content table{border:var(--bg-alt) 1px solid;border-collapse:collapse;line-height: 1.5;overflow-x:auto}
-.inner-content table > * > tr > th, .inner-content table > tr > th {background-color:var(--bg-alt);border:var(--border) 1px solid;padding:2px}
-.inner-content table > * > tr > td, .inner-content table > tr > td {border:var(--border) 1px solid;padding:2px}
+.inner-content, .article-content {margin: 1.7em auto; max-width: 1280px;}
+.article-content{font-family:serif; margin: 1.7em auto; max-width: 1280px; line-height: 1.9; color: var(--fg-main)}
+.article-content em,.article-content strong{color: var(--fg-sharp)}
+.article-content h1{color: var(--fg-error)}
+.article-content table {font-family: sans-serif}
+.article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6{font-family:sans-serif; color: var(--fg-sharp); font-weight: normal}
+.article-content h2{border-bottom: 1px solid var(--border)}
+.article-content h3{margin:0.8em 0}
+.article-content h4{margin:0.6em 0}
+.article-content h5{margin:0.5em 0}
+.article-content h6{margin:0.4em 0}
+.article-content p{text-indent: 1.9em; margin: 0}
+.article-content li{margin: .3em 0}
+.article-content blockquote{color:var(--fg-alt); border-left: 4px solid var(--bg-alt);margin-left:0;padding-left:12px}
+.article-content table{border:var(--bg-alt) 1px solid;border-collapse:collapse;line-height: 1.5;overflow-x:auto}
+.article-content table > * > tr > th, .article-content table > tr > th {background-color:var(--bg-alt);border:var(--border) 1px solid;padding:2px}
+.article-content table > * > tr > td, .article-content table > tr > td {border:var(--border) 1px solid;padding:2px}
 
 /* spoiler styles */
 .spoiler {color: var(--fg-sharp); background-color: var(--fg-sharp)}

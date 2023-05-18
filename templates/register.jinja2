@@ -5,7 +5,8 @@
 {% block content %}
 <h1>{{ T('sign-up') }}</h1>
 
-<form method="POST">
+<div class="inner-content">
+  <form method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <div>
         <label>{{ T('username') }}:</label>
@@ -30,7 +31,9 @@
     <div>
         <input type="submit" value="{{ T('sign-up') }}" />
     </div>
-</form>
+  </form>
 
-<p>{{ T('already-have-account') }} <a href="/accounts/login" rel="nofollow">{{ T("login") }}</a></p>
+  <p>{{ T('already-have-account') }} <a href="/accounts/login" rel="nofollow">{{ T("login") }}</a></p>
+</div>
+
 {% endblock %}

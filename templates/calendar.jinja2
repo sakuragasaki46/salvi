@@ -6,29 +6,31 @@
 <article>
   <h1 id="firstHeading">{{ T('calendar') }}</h1>
 
-  <ul>
-    {% for year in range(till_year, from_year-1, -1) %}
-    <li>
-      <strong>{{ year }} {% if year == now.year %}(current){% endif %}:</strong>
-      <ul class="inline">
-        {% for month in range(1, 13) %}
-        <li><a href="/calendar/{{year}}/{{month}}">{{ year }}.{{ month }}</a></li>
-        {% endfor %}
-      </ul>
-    </li>
-    {% endfor %}
-  </ul>
-
-  <p>
-    Show more years: 
-    <ul class="inline">
+  <div class="inner-content">
+    <ul>
+      {% for year in range(till_year, from_year-1, -1) %}
       <li>
-        <a href="?till_year={{ till_year + 15 }}">in the future</a>
+        <strong>{{ year }} {% if year == now.year %}(current){% endif %}:</strong>
+        <ul class="inline">
+          {% for month in range(1, 13) %}
+          <li><a href="/calendar/{{year}}/{{month}}">{{ year }}.{{ month }}</a></li>
+          {% endfor %}
+        </ul>
       </li>
-      <li>
-        <a href="?from_year={{ from_year - 15 }}">in the past</a>
-      </li>
+      {% endfor %}
     </ul>
-  </p>
+
+    <p>
+      Show more years: 
+      <ul class="inline">
+        <li>
+          <a href="?till_year={{ till_year + 15 }}">in the future</a>
+        </li>
+        <li>
+          <a href="?from_year={{ from_year - 15 }}">in the past</a>
+        </li>
+      </ul>
+    </p>
+  </div>
 </article>
 {% endblock %}

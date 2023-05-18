@@ -10,17 +10,20 @@
 <h1 id="firstHeading">{{ p.title }}</h1>
 <div class="preview-subtitle">{{ T('backlinks') }}</div>
 
-{% if backlinks %}
-<ul>
-{% for op in backlinks %}
-  <li><a href="{{ op.get_url() }}">
-    {{ op.title }} (<strong>#{{ op.id }}</strong>)
-  </a></li>
-{% endfor %}
-</ul>
-{% else %}
-<p class="placeholder">{{ T("backlinks-empty") }}</p>
-{% endif %}
+<div class="inner-content">
+  {% if backlinks %}
+  <ul>
+    {% for op in backlinks %}
+    <li><a href="{{ op.get_url() }}">
+      {{ op.title }} (<strong>#{{ op.id }}</strong>)
+    </a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="placeholder">{{ T("backlinks-empty") }}</p>
+  {% endif %}
+</div>
+
 
 <p>{{ T("back-to") }} <a href="{{ p.get_url() }}">{{ p.title }}</a>.</p>
 {% endblock %}

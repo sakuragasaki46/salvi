@@ -5,19 +5,21 @@
 {% block content %}
 <h1>Administrative tools</h1>
 
-{% if current_user and current_user.is_admin %}
-<ul>
-  <li>
-    <a href="/manage/export">Export pages</a>
-  </li>
-  <li>
-    <a href="/manage/import">Import pages</a>
-  </li>
-  <li>
-    <a href="/manage/accounts">Manage accounts</a>
-  </li>
-</ul>
-{% else %}
-<p>Administrative tools can be accessed by administrator users only.</p>
-{% endif %}
+<div class="inner-content">
+  {% if current_user and current_user.is_admin %}
+  <ul>
+    <li>
+      <a href="/manage/export">Export pages</a>
+    </li>
+    <li>
+      <a href="/manage/import">Import pages</a>
+    </li>
+    <li>
+      <a href="/manage/accounts">Manage accounts</a>
+    </li>
+  </ul>
+  {% else %}
+  <p>Administrative tools can be accessed by administrator users only.</p>
+  {% endif %}
+</div>
 {% endblock %}

@@ -25,69 +25,71 @@
       Remember this is only a preview. 
       <strong>Your changes were not saved yet!</strong>
       <a href="#editing-area">Jump to editing area</a></div>
-    <div class="inner-content">{{ preview|safe }}</div>
+    <div class="inner-content article-content">{{ preview|safe }}</div>
     <div style="clear:both"></div>
   </div>
 </article>
 {% endif %}
 
-<form method="POST">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-  <div>
-    <label for="title"><span class="material-icons">link</span> /</label>
-    <input type="text" name="url" class="url-input" placeholder="(No URL)" maxlength="64" value="{{ pl_url or '' }}" {% if pl_readonly %}disabled=""{% endif %}>
-  </div>
-  <div>
-    <input type="text" required name="title" placeholder="Title (required)" class="title-input" maxlength="256" value="{{ pl_title }}" {% if pl_readonly %}disabled=""{% endif %}>
-  </div>
-  <div id="editing-area">
-    {% if not pl_readonly %}
-    <div class="pre-text-input">
-      <p>This editor is using Markdown for text formatting (e.g. bold, italic, headers and tables). <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" rel="nofollow">More info on Markdown</a>.</p>
-      {% if math_version and pl_enablemath %}
-      <p>Math with KaTeX is <mark>enabled</mark>. <a href="https://katex.org/docs/supported.html">KaTeX guide</a></p>
-      {% endif %}
+<div class="inner-content">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div>
+      <label for="title"><span class="material-icons">link</span> /</label>
+      <input type="text" name="url" class="url-input" placeholder="(No URL)" maxlength="64" value="{{ pl_url or '' }}" {% if pl_readonly %}disabled=""{% endif %}>
     </div>
-    <div class="over-text-input"></div>
-    {% else %}
-    <div class="pre-text-input">
-      <p>This page was locked by the owner, and is therefore not editable. You can still copy the source text.</p>
+    <div>
+      <input type="text" required name="title" placeholder="Title (required)" class="title-input" maxlength="256" value="{{ pl_title }}" {% if pl_readonly %}disabled=""{% endif %}>
+    </div>
+    <div id="editing-area">
+      {% if not pl_readonly %}
+      <div class="pre-text-input">
+        <p>This editor is using Markdown for text formatting (e.g. bold, italic, headers and tables). <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" rel="nofollow">More info on Markdown</a>.</p>
+        {% if math_version and pl_enablemath %}
+        <p>Math with KaTeX is <mark>enabled</mark>. <a href="https://katex.org/docs/supported.html">KaTeX guide</a></p>
+        {% endif %}
+      </div>
+      <div class="over-text-input"></div>
+      {% else %}
+      <div class="pre-text-input">
+        <p>This page was locked by the owner, and is therefore not editable. You can still copy the source text.</p>
+      </div>
+      {% endif %}
+      <textarea name="text" class="text-input" {% if pl_readonly %}disabled=""{% endif %}>{{ pl_text }}</textarea>
+    </div>
+    <div>
+      <label for="tags">{{ T('input-tags') }}:</label>
+      <input type="text" name="tags" class="tags-input" placeholder="{{ T('no-tags') }}" value="{{ pl_tags }}" {% if pl_readonly %}disabled=""{% endif %}>
+    </div>
+    {% if not pl_readonly %}
+    <div>
+      <input type="submit" value="Save" id="save-button" class="submit-primary">
+      <input type="submit" name="preview" value="Preview" id="preview-button" class="submit-secondary">
+      <input type="text" name="comment" value="{{ pl_comment }}" placeholder="{{ T('write-a-comment') }}" />
+    </div>
+    <h3>Advanced options</h3>
+    <div>
+      <input type="checkbox" id="CB__enablemath" name="enablemath" {% if math_version and pl_enablemath %}checked=""{% elif not math_version %}disabled=""{% endif %}>
+      <label for="CB__enablemath">Enable math expressions parsing {% if not math_version %}(disabled for this instance){% endif %}</label>
+    </div>
+    {% if pl_owner_is_current_user %}
+    <div>
+      <input type="checkbox" id="CB__lockpage" name="lockpage" {% if pl_is_locked %}checked=""{% endif %}>
+      <label for="CB__lockpage">Lock page for editing by other users</label>
     </div>
     {% endif %}
-    <textarea name="text" class="text-input" {% if pl_readonly %}disabled=""{% endif %}>{{ pl_text }}</textarea>
-  </div>
-  <div>
-    <label for="tags">{{ T('input-tags') }}:</label>
-    <input type="text" name="tags" class="tags-input" placeholder="{{ T('no-tags') }}" value="{{ pl_tags }}" {% if pl_readonly %}disabled=""{% endif %}>
-  </div>
-  {% if not pl_readonly %}
-  <div>
-    <input type="submit" value="Save" id="save-button" class="submit-primary">
-    <input type="submit" name="preview" value="Preview" id="preview-button" class="submit-secondary">
-    <input type="text" name="comment" value="{{ pl_comment }}" placeholder="{{ T('write-a-comment') }}" />
-  </div>
-  <h3>Advanced options</h3>
-  <div>
-    <input type="checkbox" id="CB__enablemath" name="enablemath" {% if math_version and pl_enablemath %}checked=""{% elif not math_version %}disabled=""{% endif %}>
-    <label for="CB__enablemath">Enable math expressions parsing {% if not math_version %}(disabled for this instance){% endif %}</label>
-  </div>
-  {% if pl_owner_is_current_user %}
-  <div>
-    <input type="checkbox" id="CB__lockpage" name="lockpage" {% if pl_is_locked %}checked=""{% endif %}>
-    <label for="CB__lockpage">Lock page for editing by other users</label>
-  </div>
-  {% endif %}
-  <div>
-    <input type="checkbox" id="CB__usecalendar" name="usecalendar" {% if pl_calendar %}checked=""{% endif %}>
-    <label for="CB__usecalendar">Use calendar:</label>
-    <input type="date" name="calendar" {% if pl_calendar %}value="{{ pl_calendar }}"{% endif %}>
-  </div>
-  <div>
-    <input type="checkbox" id="CB__cw" name="cw" {% if pl_cw %}checked=""{% endif %}>
-    <label for="CB__cw">Content Warning</label>
-  </div>
-  {% endif %}
-</form>
+    <div>
+      <input type="checkbox" id="CB__usecalendar" name="usecalendar" {% if pl_calendar %}checked=""{% endif %}>
+      <label for="CB__usecalendar">Use calendar:</label>
+      <input type="date" name="calendar" {% if pl_calendar %}value="{{ pl_calendar }}"{% endif %}>
+    </div>
+    <div>
+      <input type="checkbox" id="CB__cw" name="cw" {% if pl_cw %}checked=""{% endif %}>
+      <label for="CB__cw">Content Warning</label>
+    </div>
+    {% endif %}
+  </form>
+</div>
 
 {% endblock %}
 

@@ -10,28 +10,30 @@
 <h1 id="firstHeading">{{ p.title }}</h1>
 <div class="preview-subtitle">Page history</div>
 
-<ul>
-{% for rev in history %}
-  <li>
-    <a href="/history/revision/{{ rev.id }}/">
-      #{{ rev.id }}
-      &middot;
-      {{ rev.pub_date.strftime("%B %-d, %Y %H:%M:%S") }}
-      {% if rev.comment %}
-      “{{ rev.comment }}”
+<div class="inner-content">
+  <ul>
+  {% for rev in history %}
+    <li>
+      <a href="/history/revision/{{ rev.id }}/">
+        #{{ rev.id }}
+        &middot;
+        {{ rev.pub_date.strftime("%B %-d, %Y %H:%M:%S") }}
+        {% if rev.comment %}
+        “{{ rev.comment }}”
+        {% endif %}
+      </a>
+      by
+      {% if rev.user_id %}
+      <a href="/u/{{ rev.user.username }}">
+        {{ rev.user.username }}
+      </a>
+      {% else %}
+      <span>&lt;Unknown User&gt;</span>
       {% endif %}
-    </a>
-    by
-    {% if rev.user_id %}
-    <a href="/u/{{ rev.user.username }}">
-      {{ rev.user.username }}
-    </a>
-    {% else %}
-    <span>&lt;Unknown User&gt;</span>
-    {% endif %}
-  </li>
-{% endfor %}
-</ul>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
 
 <p>{{ T("back-to") }} <a href="{{ p.get_url() }}">{{ p.title }}</a>.</p>
 {% endblock %}
