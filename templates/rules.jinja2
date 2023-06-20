@@ -1,0 +1,78 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Content Policy — {{ app_name }}{% endblock %}
+
+{% block content %}
+<h1 id="firstHeading">Content Policy</h1>
+
+<div class="inner-content article-content">
+{% filter markdown %}
+These are the Rules of {{ app_name }}.
+
+{{ app_name }} is a Free Speech environment. However, in order to ensure
+the safety of our users as well as the longevity of the platform, there are a 
+few things you are not permitted to do with the platform.
+
+By using {{ app_name }}, you agree to follow these rules.
+Violations may lead to the suspension or terminaton of your {{ app_name }} account.
+
+## 1. Intellectual Property
+
+You may not upload to, embed within, or link out from {{ app_name }}:
+
+1. Copyrighted material that you are not authorized to distribute
+2. Anything not legal to publish within, or export from, intentionally
+
+## 2. Digital Safety
+
+You may not upload to, embed within, or link out from {{ app_name }}:
+
+1. IP or token grabbers
+2. Viruses or exploits
+3. URL shorteners
+4. Anything with the intent of breaking {{ app_name }}
+
+## 3. User Safety
+
+You may not use {{ app_name }} to do any of the following:
+
+1. Threaten, intimidate, or harass other users
+2. Impersonate other users, real life people, or {{ app_name }} staff
+3. Solicit, collect, or publish personally identifiable information (PII), be it yours or the one 
+  of another individual
+4. Spam (the definition of “spam” is at {{ app_name }}’s own discretion)
+
+## 4. Sexual Content
+
+You may not upload to, embed within, or link out from {{ app_name }}:
+
+1. Sexual or sexually suggestive material not marked "NSFW"
+2. Sexual or sexually suggestive material involving individuals under the age of 18, including fictitious content. Solicitation of such material is also prohibited.
+3. Sexual or sexually suggestive material involving individuals who did not consent to its creation and distribution (commonly called "revenge pornography" or "involuntary pornography"). Solicitation of such material is also prohibited.
+
+## 5. IRL Safety
+
+You may not use {{ app_name }} to do any of the following:
+
+1. Incite, plan, or execute unlawful or violent activity
+2. Engage in fraud
+
+## 6. Evil
+
+While it would be nice to be able to entertain all viewpoints, certain ideologies are ontologically evil. We have a zero tolerance policy on advocacy, propaganda, recruitment, and any other forms of promotion of evil.
+
+Evil ideologies prohibited from {{ app_name }} include, but are not limited to:
+
+* Ethnic, racial, or sex-based supremecism
+* Pedophile acceptance/normalization
+* Terrorism
+
+Discussion of these topics as they relate to current events or other subject matter is permitted; advocacy or promotion of them is not.
+
+## 7. Additional Rules
+
+Additional rules may be put in place by the {{ app_name }} administrator.
+
+{% endfilter %}
+</div>
+{% endblock %}

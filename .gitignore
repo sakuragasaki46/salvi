@@ -5,6 +5,10 @@ database/
 site.conf
 site-*.conf
 run_8180.py
+.env
+alembic.ini
+venv/
+venv-*/
 
 # automatically generated garbage
 **/__pycache__/
@@ -13,3 +17,4 @@ run_8180.py
 **/.\#*
 **/\#*\#
 ig_api_settings/
+node_modules/

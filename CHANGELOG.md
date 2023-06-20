@@ -8,7 +8,7 @@
   + Added `restrictions` field to `User`.
 + Pages now can have a Content Warning. It prevents them to show up in previews, and adds a
   caution message when viewing them.
-+ Added Terms and Privacy Policy.
++ Added Terms, Privacy Policy and Rules.
 + Changed user page URLs (contributions page) from `/u/user` to `/@user`.
 + `/manage/` is now a list of all managing options, including export/import and the brand new 
   `/manage/accounts`.

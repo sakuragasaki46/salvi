@@ -90,6 +90,17 @@ def _makelist(l):
     else:
         return []
 
+def render_paginated_template(template_name, query_name, **kwargs):
+    query = kwargs.pop(query_name)
+    page = int(request.args.get('page', 1))
+    kwargs[query_name] = query.paginate(page)
+    return render_template(
+        template_name,
+        page_n = page,
+        total_count = query.count(),
+        min=min,
+        **kwargs
+    )
 
 #### MARKDOWN EXTENSIONS ####
 
@@ -588,8 +599,8 @@ def is_url_available(url):
 forbidden_urls = [
     'about', 'accounts', 'ajax', 'backlinks', 'calendar', 'circles', 'create',
     'easter', 'edit', 'embed', 'group', 'help', 'history', 'init-config', 'kt',
-    'manage', 'media', 'p', 'privacy', 'protect', 'search', 'static', 'stats', 
-    'tags', 'terms', 'u', 'upload', 'upload-info'
+    'manage', 'media', 'p', 'privacy', 'protect', 'rules', 'search', 'static',
+    'stats', 'tags', 'terms', 'u', 'upload', 'upload-info'
 ]
 
 app = Flask(__name__)
@@ -881,11 +892,9 @@ def embed_view(id):
         html.escape(p.title), rev.html())
 
 @app.route('/p/most_recent/')
-@app.route('/p/most_recent/<int:page>/')
-def view_most_recent(page=1):
+def view_most_recent():
     general_query = Page.select().order_by(Page.touched.desc())
-    return render_template('listrecent.jinja2', notes=general_query.paginate(page),
-        page_n=page, total_count=general_query.count(), min=min)
+    return render_paginated_template('listrecent.jinja2', 'notes', notes=general_query)
 
 @app.route('/p/random/')
 def view_random():
@@ -941,13 +950,10 @@ def contributions(username):
     except User.DoesNotExist:
         abort(404)
     contributions = user.contributions.order_by(PageRevision.pub_date.desc())
-    page = int(request.args.get('page', 1))
-    return render_template('contributions.jinja2', 
+    return render_template('contributions.jinja2',
+        "contributions",
         u=user, 
-        contributions=contributions.paginate(page),
-        page_n=page,
-        total_count=contributions.count(),
-        min=min
+        contributions=contributions,
     )
 
 def _advance_calendar(date, offset=0):
@@ -976,10 +982,8 @@ def calendar_month(y, m):
         (datetime.date(y, m, 1) <= Page.calendar) &
         (Page.calendar < datetime.date(y+1 if m==12 else y, 1 if m==12 else m+1, 1))
     ).order_by(Page.calendar)
-    page = int(request.args.get('page', 1))
 
-    return render_template('month.jinja2', d=datetime.date(y, m, 1), notes=notes.paginate(page),
-        page_n=page, total_count=notes.count(), min=min, advance_calendar=_advance_calendar)
+    return render_paginated_template('month.jinja2', "notes", d=datetime.date(y, m, 1), notes=notes, advance_calendar=_advance_calendar)
 
 @app.route('/history/revision/<int:revisionid>/')
 def view_old(revisionid):
@@ -1013,12 +1017,9 @@ def search():
     return render_template('search.jinja2', pl_include_tags=True)
 
 @app.route('/tags/<slug:tag>/')
-@app.route('/tags/<slug:tag>/<int:page>/')
-def listtag(tag, page=1):
+def listtag(tag):
     general_query = Page.select().join(PageTag, on=PageTag.page).where(PageTag.name == tag).order_by(Page.touched.desc())
-    page_query = general_query.paginate(page)
-    return render_template('listtag.jinja2', tagname=tag, tagged_notes=page_query,
-        page_n=page, total_count=general_query.count(), min=min)
+    return render_paginated_template('listtag.jinja2', "tagged_notes", tagname=tag, tagged_notes=general_query)
 
 
 # symbolic route as of v0.5
@@ -1298,12 +1299,7 @@ def manage_accounts():
             pass
         else:
             flash('Operation not permitted!')
-    return render_template('manageaccounts.jinja2', 
-        users=users.paginate(page),
-        page_n=page,
-        total_count=users.count(),
-        min=min
-    )
+    return render_paginated_template('manageaccounts.jinja2', 'users', users=users)
 
 ## terms / privacy ##
 
@@ -1314,6 +1310,10 @@ def terms():
 @app.route('/privacy/')
 def privacy():
     return render_template('privacy.jinja2')
+
+@app.route('/rules/')
+def rules():
+    return render_template('rules.jinja2')
 
 #### EXTENSIONS ####
 

@@ -68,6 +68,7 @@ body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-mai
 .nl-new > a{margin-right:12px}
 .nl-prev,.nl-next{text-align:center}
 .nl-placeholder {font-style: italic; text-align: center;}
+.nl-pagination {text-align: center; color: var(--fg-alt)}
 input{border:0;border-bottom:3px solid var(--border);font:inherit;color:var(--fg-main);background-color:transparent}
 input:focus{color:var(--fg-sharp);border-bottom-color:var(--border-sharp)}
 input.error{border-bottom-color:var(--btn-error)}
@@ -119,8 +120,11 @@ ul.inline > li:last-child::after {content: ""}
 /* floating elements */
 nav.toc{display:none}
 @media only screen and (min-width:960px){
-    nav.toc{display:block;position:absolute; top: 0; right: 0; width: 320px;}
-    .inner-content {margin-right: 320px}
+    nav.toc{display:block;position:absolute; top: 0; right: 0; width: 240px;}
+    .inner-content {margin-right: 240px;}
+}
+@media only screen and (min-width:1200px){
+    .inner-content {margin-left: 240px}
 }
 .backontop{position:fixed;bottom:0;right:0}
 @media print{
