@@ -1167,7 +1167,7 @@ class Exporter(object):
         pobj['title'] = p.title
         pobj['url'] = p.url
         pobj['tags'] = [tag.name for tag in p.tags]
-        pobj['calendar'] = p.calendar
+        pobj['calendar'] = p.calendar.isoformat("T") if p.calendar else None
         pobj['flags'] = p.flags
         if include_users:
             pobj['owner'] = p.owner_id
@@ -1217,7 +1217,7 @@ class Importer(object):
                 p = Page.create(
                     url = purl if self.overwrite_urls else None,
                     title = pobj['title'],
-                    calendar = pobj.get('calendar'),
+                    calendar = datetime.datetime.fromisoformat(pobj["calendar"]) if 'calendar' in pobj else None,
                     owner = self.owner.id,
                     flags = pobj.get('flags'),
                     touched = datetime.datetime.now()
