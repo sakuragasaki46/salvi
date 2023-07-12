@@ -178,6 +178,17 @@ class User(BaseModel):
             UserGroup.select().join(UserGroupMembership, on=UserGroupMembership.group)
             .where(UserGroupMembership.user == self)
         )
+    
+    def get_perms(self):
+        if self.is_admin:
+            return PERM_ALL
+
+        perm = 0
+
+        for gr in self.groups:
+            perm |= gr.permissions
+        
+        return perm
 
 
 # page perms (used as bitmasks)
@@ -241,7 +252,7 @@ class Page(BaseModel):
         return '/' + self.url + '/' if self.url else '/p/{}/'.format(self.id)
     def short_desc(self):
         if self.is_cw:
-            return '(Content Warning)'
+            return '(Content Warning: we are not allowed to show a description.)'
         full_text = self.latest.text
         text = remove_tags(full_text, convert = not self.is_math_enabled and not _getconf('appearance', 'simple_remove_tags', False))
         return text[:200] + ('\u2026' if len(text) > 200 else '')
@@ -303,6 +314,17 @@ class Page(BaseModel):
         if self.is_locked and self.owner.id != user.id:
             perm &= PERM_LOCK
         return perm
+    
+    def seo_keywords(self):
+        kw = []
+        for tag in self.tags:
+            kw.append(tag.name.replace("-", " "))
+        for bkl in self.back_links:
+            try:
+                kw.append(bkl.from_page.title.replace(",", ""))
+            except Exception:
+                pass
+        return ", ".join(kw)
 
 
 class PageText(BaseModel):
@@ -535,6 +557,18 @@ def init_db_and_create_first_user():
         )
     print('Installed successfully!')
 
+#### PERMS HELPERS ####
+
+def has_perms(user, flags, page=None):
+    if page:
+        perm = page.get_perms(user)
+    else:
+        perm = user.get_perms()
+    
+    if perm & flags:
+        return True
+    return False
+
 #### WIKI SYNTAX ####
 
 def md_and_toc(text, expand_magic=False, toc=True, math=True):
@@ -724,6 +758,9 @@ def savepoint(form, is_preview=False, pageobj=None):
 @app.route('/create/', methods=['GET', 'POST'])
 @login_required
 def create():
+    if not has_perms(current_user, PERM_CREATE):
+        flash("You are not allowed to create pages.")
+        abort(403)
     if request.method == 'POST':
         if request.form.get('preview'):
             return savepoint(request.form, is_preview=True)

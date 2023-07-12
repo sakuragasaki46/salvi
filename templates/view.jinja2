@@ -2,6 +2,11 @@
 
 {% block title %}{{ p.title }} - {{ app_name }}{% endblock %}
 
+{% block meta %}
+<meta name="description" content="{{ p.short_desc() }}" />
+<meta name="keywords" content="{{ p.seo_keywords() }}" />
+{% endblock %}
+
 {% block json_info %}<script>window.page_info={{ p.js_info()|tojson|safe }};</script>{% endblock %}
 
 {% set html_and_toc = rev.html_and_toc(math = request.args.get('math') not in ['0', 'false', 'no', 'off']) %}

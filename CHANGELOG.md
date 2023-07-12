@@ -8,11 +8,12 @@
   + Added `restrictions` field to `User`.
 + Pages now can have a Content Warning. It prevents them to show up in previews, and adds a
   caution message when viewing them.
++ SEO improvement: added `keywords` and `description` meta tags to viewing pages.
 + Added Terms, Privacy Policy and Rules.
 + Changed user page URLs (contributions page) from `/u/user` to `/@user`.
 + `/manage/` is now a list of all managing options, including export/import and the brand new 
   `/manage/accounts`.
-+ TOC is now shown in pages where screen width is greater than 960 pixels.
++ TOC is now shown in pages when screen width is greater than 960 pixels.
 + Style changes: added a top bar with the site title. It replaces the floating menu on the top right.
 + Now logged-in users have an “Edit” button below the first heading. All users can access page history
   by clicking the last modified time.
