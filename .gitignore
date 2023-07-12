@@ -9,6 +9,8 @@ run_8180.py
 alembic.ini
 venv/
 venv-*/
+.venv
+env
 
 # automatically generated garbage
 **/__pycache__/

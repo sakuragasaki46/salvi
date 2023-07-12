@@ -534,7 +534,7 @@ def init_db_and_create_first_user():
     if password != confirm_password:
         print('Passwords do not match.')
         return
-    default_permissions = 31 # all permissions
+    default_permissions = PERM_ALL # all permissions
     if not input('Agree to the Terms of Use?')[0].lower() == 'y':
         print('You must accept Terms in order to register.')
         return
@@ -680,7 +680,9 @@ def _inject_variables():
 
 @login_manager.user_loader
 def _inject_user(userid):
-    return User[userid]
+    u = User[userid]
+    if not u.is_disabled:
+        return u 
 
 @app.template_filter()
 def linebreaks(text):
@@ -987,7 +989,7 @@ def contributions(username):
     except User.DoesNotExist:
         abort(404)
     contributions = user.contributions.order_by(PageRevision.pub_date.desc())
-    return render_template('contributions.jinja2',
+    return render_paginated_template('contributions.jinja2',
         "contributions",
         u=user, 
         contributions=contributions,
@@ -1097,6 +1099,10 @@ def accounts_login():
         except User.DoesNotExist:
             flash('Invalid username or password.')
         else:
+            if user.is_disabled:
+                flash("Your account is disabled.")
+                return render_template("login.jinja2")
+
             remember_for = int(request.form['remember'])
             if remember_for > 0:
                 login_user(user, remember=True,
@@ -1119,6 +1125,7 @@ def accounts_register():
             return render_template('register.jinja2')
         if not request.form['legal']:
             flash('You must accept Terms in order to register.')
+            return render_template('register.jinja2')
         try:
             with database.atomic():
                 u = User.create(
@@ -1333,7 +1340,24 @@ def manage_accounts():
     page = int(request.args.get('page', 1))
     if request.method == 'POST':
         if current_user.is_admin:
-            pass
+            action = request.form.get("action")
+            userids = []
+            if action == "disable":
+                for key in request.form.keys():
+                    if key.startswith("u") and key[1:].isdigit():
+                        userids.append(int(key[1:]))
+                uu = 0
+                for uid in userids:
+                    try:
+                        u = User[uid]
+                    except User.DoesNotExist:
+                        continue
+                    u.is_disabled = not u.is_disabled
+                    u.save()
+                    uu += 1
+                flash(f"Successfully disabled {uu} users!")
+            else:
+                flash("Unknown action")
         else:
             flash('Operation not permitted!')
     return render_paginated_template('manageaccounts.jinja2', 'users', users=users)

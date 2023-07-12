@@ -24,9 +24,12 @@
       
       {% for u in users %}
       <li>
-        <input type="checkbox" name="u{{ u.id }}">
+        <input type="checkbox" name="u{{ u.id }}" value="1">
+        {% if u.is_disabled %}<del>{% endif %}
         <a href="/@{{ u.username }}">{{ u.username }}</a> 
+        {% if u.is_disabled %}</del>{% endif %}
         {% if u == current_user %}<strong>(you)</strong>{% endif %}
+        {% if u.is_disabled %}<strong>(disabled)</strong>{% endif %}
         -
         Groups:
         <ul class="inline">
@@ -44,6 +47,15 @@
       <li class="nl-next"><a href="?page={{ page_n + 1 }}">Next page &raquo;</a></li>
       {% endif %}
     </ul>
+
+    <div>
+      <select name="action">
+        <option selected value="-">Select an action</option>
+        <option value="disable">Disable selected accounts</option>
+      </select>
+
+      <input type="submit" value="Submit">
+    </div>
   </form>
   {% else %}
   <p>Managing accounts can be done by users with Admin permissions only.</p>
