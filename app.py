@@ -30,7 +30,7 @@ import i18n
 import gzip
 from getpass import getpass
 
-__version__ = '0.8-dev'
+__version__ = '0.8'
 
 #### CONSTANTS ####
 
