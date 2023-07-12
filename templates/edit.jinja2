@@ -45,9 +45,6 @@
       {% if not pl_readonly %}
       <div class="pre-text-input">
         <p>This editor is using Markdown for text formatting (e.g. bold, italic, headers and tables). <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" rel="nofollow">More info on Markdown</a>.</p>
-        {% if math_version and pl_enablemath %}
-        <p>Math with KaTeX is <mark>enabled</mark>. <a href="https://katex.org/docs/supported.html">KaTeX guide</a></p>
-        {% endif %}
       </div>
       <div class="over-text-input"></div>
       {% else %}
@@ -68,10 +65,6 @@
       <input type="text" name="comment" value="{{ pl_comment }}" placeholder="{{ T('write-a-comment') }}" />
     </div>
     <h3>Advanced options</h3>
-    <div>
-      <input type="checkbox" id="CB__enablemath" name="enablemath" {% if math_version and pl_enablemath %}checked=""{% elif not math_version %}disabled=""{% endif %}>
-      <label for="CB__enablemath">Enable math expressions parsing {% if not math_version %}(disabled for this instance){% endif %}</label>
-    </div>
     {% if pl_owner_is_current_user %}
     <div>
       <input type="checkbox" id="CB__lockpage" name="lockpage" {% if pl_is_locked %}checked=""{% endif %}>

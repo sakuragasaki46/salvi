@@ -24,16 +24,13 @@ suitable as a community or team knowledge base.
 + **Peewee** ORM.
 + **Markdown** for page rendering.
 + **Python-I18n**.
+* **Python-Dotenv**.
 + The database drivers needed for the type of database.
-
-### Optional requirements
-
-* **Markdown-KaTeX** if you want to display math inside pages.
 
 ## Usage
 
 + Clone this repository: `git clone https://github.com/sakuragasaki46/salvi`
-+ Edit site.conf with the needed parameters. An example site.conf:
++ Edit site.conf (old way) or .env (new way) with the needed parameters. An example site.conf with SQLite:
 
 ```
 [site]
@@ -41,6 +38,13 @@ name = Salvi
 
 [database]
 directory = /path/to/database/
+```
+
+  An example .env with MySQL:
+
+```
+APP_NAME=Salvi
+DATABASE_URL=mysql://root:root@localhost/salvi
 ```
 
 + Run `python3 -m app_init` to initialize the database and create the administrator user.
@@ -51,6 +55,7 @@ directory = /path/to/database/
 
 + The whole application is untested.
 + If you forget the password, there is currently no way to reset it.
++ This app comes with no content. It means, you have to write it yourself.
 
 ## License
 

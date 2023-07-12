@@ -21,7 +21,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.routing import BaseConverter
 from peewee import *
 from playhouse.db_url import connect as dbconnect
-import calendar, datetime, hashlib, html, importlib, json, markdown, os, random, \
+import datetime, hashlib, html, importlib, json, markdown, os, random, \
     re, sys, warnings
 from functools import lru_cache, partial
 from urllib.parse import quote
@@ -29,8 +29,9 @@ from configparser import ConfigParser
 import i18n
 import gzip
 from getpass import getpass
+import dotenv
 
-__version__ = '0.8'
+__version__ = '0.9-dev'
 
 #### CONSTANTS ####
 
@@ -45,11 +46,17 @@ PING_RE = r'(?<!\w)@(' + USERNAME_RE + r')'
 
 #### GENERAL CONFIG ####
 
-CONFIG_FILE = os.environ.get('SALVI_CONF', APP_BASE_DIR + '/site.conf')
+dotenv.load_dotenv()
+
+CONFIG_FILE = os.getenv('SALVI_CONF', APP_BASE_DIR + '/site.conf')
+
+# security check: one may specify only configuration files INSIDE
+# the code directory.
+if not os.path.abspath(CONFIG_FILE).startswith(APP_BASE_DIR):
+    raise OSError("Invalid configuration file")
 
 DEFAULT_CONF = {
-    ('site', 'title'):          'Salvi',
-    ('database', 'directory'):  APP_BASE_DIR + "/database",
+    ('site', 'title'): os.getenv('APP_NAME', 'Salvi'),
 }
 
 _cfp = ConfigParser()
@@ -68,15 +75,6 @@ if _cfp.read([CONFIG_FILE]):
 else:
     print('Uh oh, site.conf not found.')
     exit(-1)
-
-#### OPTIONAL IMPORTS ####
-
-markdown_katex = None
-try:
-    if _getconf('appearance', 'math') != 'off':
-        import markdown_katex #pragma: no cover
-except ImportError:
-    pass
 
 #### misc. helpers ####
 
@@ -134,11 +132,12 @@ class SpoilerExtension(markdown.extensions.Extension):
 
 #### DATABASE SCHEMA ####
 
-database_url = _getconf('database', 'url')
+database_url = os.getenv("DATABASE_URL") or _getconf('database', 'url')
 if database_url:
     database = dbconnect(database_url)
 else:
-    database = SqliteDatabase(_getconf("database", "directory") + '/data.sqlite')
+    print("Database URL required.")
+    exit(-1)
 
 class BaseModel(Model):
     class Meta:
@@ -241,7 +240,7 @@ class Page(BaseModel):
     flags = BitField()
     is_redirect = flags.flag(1)
     is_sync = flags.flag(2)
-    is_math_enabled = flags.flag(4)
+    is_math_enabled = flags.flag(4) # legacy, math is no more supported
     is_locked = flags.flag(8)
     is_cw = flags.flag(16)
     @property
@@ -254,7 +253,7 @@ class Page(BaseModel):
         if self.is_cw:
             return '(Content Warning: we are not allowed to show a description.)'
         full_text = self.latest.text
-        text = remove_tags(full_text, convert = not self.is_math_enabled and not _getconf('appearance', 'simple_remove_tags', False))
+        text = remove_tags(full_text, convert = not _getconf('appearance', 'simple_remove_tags', False))
         return text[:200] + ('\u2026' if len(text) > 200 else '')
     def change_tags(self, new_tags):
         old_tags = set(x.name for x in self.tags)
@@ -366,10 +365,10 @@ class PageRevision(BaseModel):
     @property
     def text(self):
         return self.textref.get_content()
-    def html(self, *, math=True):
-        return md(self.text, math=self.page.is_math_enabled and math)
-    def html_and_toc(self, *, math=True):
-        return md_and_toc(self.text, math=self.page.is_math_enabled and math)
+    def html(self):
+        return md(self.text)
+    def html_and_toc(self):
+        return md_and_toc(self.text)
     def human_pub_date(self):
         delta = datetime.datetime.now() - self.pub_date
         T = partial(get_string, g.lang)
@@ -571,10 +570,7 @@ def has_perms(user, flags, page=None):
 
 #### WIKI SYNTAX ####
 
-def md_and_toc(text, expand_magic=False, toc=True, math=True):
-    if expand_magic:
-        # DEPRECATED seeking for a better solution.
-        warnings.warn('Magic words are no more supported.', DeprecationWarning)
+def md_and_toc(text, toc=True):
     extensions = ['tables', 'footnotes', 'fenced_code', 'sane_lists']
     extension_configs = {}
     if not _getconf('markdown', 'disable_custom_extensions'): 
@@ -582,12 +578,6 @@ def md_and_toc(text, expand_magic=False, toc=True, math=True):
         extensions.append(SpoilerExtension())
     if toc:
         extensions.append('toc')
-    if math and markdown_katex and ('$`' in text or '```math' in text):
-        extensions.append('markdown_katex')
-        extension_configs['markdown_katex'] = {
-            'no_inline_svg': True,
-            'insert_fonts_css': not _getconf('site', 'katex_url')
-        }
     try:
         converter = markdown.Markdown(extensions=extensions, extension_configs=extension_configs)
         if toc:
@@ -597,14 +587,14 @@ def md_and_toc(text, expand_magic=False, toc=True, math=True):
     except Exception as e:
         return '<p class="error">There was an error during rendering: {e.__class__.__name__}: {e}</p>'.format(e=e), ''
 
-def md(text, expand_magic=False, toc=True, math=True):
-    return md_and_toc(text, expand_magic=expand_magic, toc=toc, math=math)[0]
+def md(text, toc=True):
+    return md_and_toc(text, toc=toc)[0]
 
 def remove_tags(text, convert=True, headings=True):
     if headings:
         text = re.sub(r'\#[^\n]*', '', text)
     if convert:
-        text = md(text, toc=False, math=False)
+        text = md(text, toc=False)
     return re.sub(r'<.*?>', '', text)
 
 def is_username(s):
@@ -670,12 +660,10 @@ def _inject_variables():
     
     return {
         'T': partial(get_string, _get_lang()),
-        'app_name': _getconf('site', 'title'),
+        'app_name': os.getenv("APP_NAME") or _getconf('site', 'title'),
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
         'app_version': __version__,
-        'math_version': markdown_katex.__version__ if markdown_katex else None,
-        'material_icons_url': _getconf('site', 'material_icons_url'),
-        'katex_url': _getconf('site', 'katex_url')
+        'material_icons_url': _getconf('site', 'material_icons_url')
     }
 
 @login_manager.user_loader
@@ -694,7 +682,7 @@ app.template_filter(name='markdown')(md)
 
 @app.route('/')
 def homepage():
-    page_limit = _getconf("appearance","items_per_page",20,cast=int)
+    page_limit = _getconf("appearance", "items_per_page", 20, cast=int)
     return render_template('home.jinja2', new_notes=Page.select()
         .order_by(Page.touched.desc()).limit(page_limit))
 
@@ -731,7 +719,7 @@ def error_500(body):
 # Middle point during page editing.
 def savepoint(form, is_preview=False, pageobj=None):
     if is_preview:
-        preview = md(form['text'], math='enablemath' in form)
+        preview = md(form['text'])
     else:
         preview = None
     pl_js_info = dict()
@@ -747,7 +735,6 @@ def savepoint(form, is_preview=False, pageobj=None):
         pl_text=form['text'],
         pl_tags=form['tags'],
         pl_comment=form['comment'],
-        pl_enablemath='enablemath' in form,
         pl_is_locked='lockpage' in form,
         pl_owner_is_current_user=pageobj.is_owned_by(current_user) if pageobj else True,
         preview=preview,
@@ -787,7 +774,6 @@ def create():
                 touched=datetime.datetime.now(),
                 owner_id=current_user.id,
                 calendar=datetime.date.fromisoformat(request.form["calendar"]) if 'usecalendar' in request.form else None,
-                is_math_enabled='enablemath' in request.form,
                 is_locked = 'lockpage' in request.form,
                 is_cw = 'cw' in request.form
             )
@@ -842,7 +828,6 @@ def edit(id):
         p.url = p_url
         p.title = request.form['title']
         p.touched = datetime.datetime.now()
-        p.is_math_enabled = 'enablemath' in request.form
         p.is_locked = 'lockpage' in request.form
         p.is_cw = 'cw' in request.form
         p.calendar = datetime.date.fromisoformat(request.form["calendar"]) if 'usecalendar' in request.form else None
@@ -867,8 +852,6 @@ def edit(id):
         "tags": ','.join(x.name for x in p.tags),
         "comment": ""
     }
-    if p.is_math_enabled:
-        form["enablemath"] = "1"
     if p.is_locked:
         form["lockpage"] = "1"
     if p.calendar:

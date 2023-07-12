@@ -9,7 +9,7 @@
 
 {% block json_info %}<script>window.page_info={{ p.js_info()|tojson|safe }};</script>{% endblock %}
 
-{% set html_and_toc = rev.html_and_toc(math = request.args.get('math') not in ['0', 'false', 'no', 'off']) %}
+{% set html_and_toc = rev.html_and_toc() %}
 
 {% block content %}
 <article>

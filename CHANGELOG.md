@@ -1,5 +1,14 @@
 # What’s New
 
+## 0.9
+
++ Removed `markdown_katex` dependency, and therefore support for math.
+  It is bloat; moreover, it ships executables with it, negatively impacting the lightweightness of the app.
++ Added support for `.env` (dotenv) file.
++ Now a database URL is required. For example, `[database]directory = /path/to/data/` becomes 
+  `[database]url = sqlite:////path/to/data/data.sqlite` (site.conf) or 
+  `DATABASE_URL=sqlite:////path/to/data/data.sqlite` (.env).
+
 ## 0.8
 
 + Schema changes:
