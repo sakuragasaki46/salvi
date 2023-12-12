@@ -5,6 +5,9 @@
         "latest-notes": "Dernières notes",
         "latest-uploads": "Derniers téléchargements",
         "new-note": "Créer un note",
-        "upload-file": "Télécharger une image"
+        "upload-file": "Télécharger une image",
+        "easter-date-calc": "Calculer la date de Pâques",
+        "easter": "Pâques",
+        "other-dates": "Autres dates"
     }
 }

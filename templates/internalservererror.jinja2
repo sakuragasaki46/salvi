@@ -3,9 +3,11 @@
 {% block title %}% _ % - {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>Internal Server Error</h1>
+<main class="error-page">
+  <h1 id="firstHeading">Internal Server Error</h1>
 
-<div class="inner-content">
-  <p>We’re sorry, an unexpected error occurred. Try refreshing the page.</p>
-</div>
+  <div class="inner-content">
+    <p>We’re sorry, an unexpected error occurred. Try refreshing the page.</p>
+  </div>
+</main>
 {% endblock %}

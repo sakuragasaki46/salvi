@@ -13,8 +13,9 @@ Application is kept compact, with all its core in a single file.
 #### IMPORTS ####
 
 from flask import (
-    Flask, Markup, abort, flash, g, jsonify, make_response, redirect, request,
+    Flask, abort, flash, g, jsonify, make_response, redirect, request,
     render_template, send_from_directory)
+from markupsafe import Markup
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_wtf import CSRFProtect
 #from flask_arrest import RestBlueprint, serialize_response
@@ -1005,7 +1006,15 @@ def calendar_month(y, m):
         (Page.calendar < datetime.date(y+1 if m==12 else y, 1 if m==12 else m+1, 1))
     ).order_by(Page.calendar)
 
-    return render_paginated_template('month.jinja2', "notes", d=datetime.date(y, m, 1), notes=notes, advance_calendar=_advance_calendar)
+    #toc_q = Page.select(fn.Month(Page.calendar).alias('month'), fn.Count(Page.id).alias('n_notes')).where(
+    #    (datetime.date(y, 1, 1) <= Page.calendar) &
+    #    (Page.calendar < datetime.date(y+1, 1, 1))
+    #).group_by()
+    toc = {}
+    #for i in toc_q:
+    #    toc[i.month] = i.n_notes
+
+    return render_paginated_template('month.jinja2', "notes", d=datetime.date(y, m, 1), notes=notes, advance_calendar=_advance_calendar, toc=toc)
 
 @app.route('/history/revision/<int:revisionid>/')
 def view_old(revisionid):

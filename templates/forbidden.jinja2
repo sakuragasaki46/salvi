@@ -3,9 +3,11 @@
 {% block title %}Access Denied - {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>Forbidden</h1>
+<main class="error-page">
+  <h1 id="firstHeading">Forbidden</h1>
 
-<div class="inner-content">
-  <p>You don’t have permission to access this resource.</p>
-</div>
+  <div class="inner-content">
+    <p>You don’t have permission to access this resource.</p>
+  </div>
+</main>
 {% endblock %}

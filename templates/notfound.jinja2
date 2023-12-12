@@ -3,9 +3,11 @@
 {% block title %}{{ T('not-found') }} - {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>{{ T('not-found') }}</h1>
+<main class="error-page">
+  <h1 id="firstHeading">{{ T('not-found') }}</h1>
 
-<div class="inner-content">
-  <p>{{ T('not-found-text-1') }} <strong>{{ request.path }}</strong> {{ T('not-found-text-2') }}.</p>
-</div>
+  <div class="inner-content">
+    <p>{{ T('not-found-text-1') }} <strong>{{ request.path }}</strong> {{ T('not-found-text-2') }}.</p>
+  </div>
+</main>
 {% endblock %}

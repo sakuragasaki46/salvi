@@ -3,9 +3,11 @@
 {% block title %}Bad Request - {{ app_name }}{% endblock %}
 
 {% block content %}
-<h1>Bad request</h1>
+<main class="error-page">
+  <h1 id="firstHeading">Bad request</h1>
 
-<div class="inner-content">
-  <p>You sent a request the server can’t understand. If you entered the URL manually please check your spelling and try again.</p>
-</div>
+  <div class="inner-content">
+    <p>You sent a request the server can’t understand. If you entered the URL manually please check your spelling and try again.</p>
+  </div>
+</main>
 {% endblock %}

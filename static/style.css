@@ -69,6 +69,7 @@ body{font-family:sans-serif;background-color:var(--bg-main); color: var(--fg-mai
 .nl-prev,.nl-next{text-align:center}
 .nl-placeholder {font-style: italic; text-align: center;}
 .nl-pagination {text-align: center; color: var(--fg-alt)}
+.nl-item {padding: 12px; border: 1px solid gray; border-radius: 12px; box-shadow: 2px 2px 2px gray; background-color: var(--bg-alt);}
 input{border:0;border-bottom:3px solid var(--border);font:inherit;color:var(--fg-main);background-color:transparent}
 input:focus{color:var(--fg-sharp);border-bottom-color:var(--border-sharp)}
 input.error{border-bottom-color:var(--btn-error)}

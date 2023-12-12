@@ -1,21 +1,23 @@
 {% extends "base.jinja2" %}
 
 {% block content %}
-<h1>Upload new file</h1>
+<main>
+  <h1>Upload new file</h1>
 
-<p>Uploads are no more supported. Please use this syntax instead for external images: <code>![alt text](https://www.example.com/path/to/image.jpg)</code>.</p>
+  <p>Uploads are no more supported. Please use this syntax instead for external images: <code>![alt text](https://www.example.com/path/to/image.jpg)</code>.</p>
 
-<form method="POST" enctype="multipart/form-data">
-  <div>
-    <label for="name">Name: </label>
-    <input type="text" id="name-input" name="name" required maxlength="256" disabled="">
-  </div>
-  <div>
-    <label for="file">File: </label>
-    <input type="file" id="file-input" name="file" accept="image/jpeg, image/png" disabled="">
-  </div>
-  <div>
-    <input type="submit" value="Upload" disabled="">
-  </div>
-</form>
+  <form method="POST" enctype="multipart/form-data">
+    <div>
+      <label for="name">Name: </label>
+      <input type="text" id="name-input" name="name" required maxlength="256" disabled="">
+    </div>
+    <div>
+      <label for="file">File: </label>
+      <input type="file" id="file-input" name="file" accept="image/jpeg, image/png" disabled="">
+    </div>
+    <div>
+      <input type="submit" value="Upload" disabled="">
+    </div>
+  </form>
+</main>
 {% endblock %}

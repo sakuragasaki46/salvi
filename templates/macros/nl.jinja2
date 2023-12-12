@@ -1,6 +1,10 @@
 
+{#
+  Recommendations: Always import this macro with context,
+  otherwise it fails. It depends on a couple context-defined functions.
+#}
 
-{% macro nl_list(l, page_n=None, total_count=None, hl_tags=(), other_url='p/most_recent') %}
+{% macro nl_list(l, page_n=None, total_count=None, hl_tags=(), hl_calendar=None, other_url='p/most_recent') %}
 {% if page_n and total_count %}
 <p class="nl-pagination">
   Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong>
@@ -13,36 +17,44 @@
   {% endif %}
   {% for n in l %}
   <li>
-    <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
-    <p class="nl-desc">{{ n.short_desc() }}</p>
-    {% if n.tags %}
-    <p class="nl-tags">
-      <span class="material-icons">tag</span>
-      {{ T('tags') }}: 
-      {% for tag in n.tags %}
-      {% set tn = tag.name %}
-      {% if tn in hl_tags %}
-      <strong class="nl-tag-hl">#{{ tn }}</strong>
-      {% else %}
-      <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+    <article class="nl-item">
+      <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
+      <p class="nl-desc">{{ n.short_desc() }}</p>
+      {% if n.tags %}
+      <p class="nl-tags">
+        <span class="material-icons">tag</span>
+        {{ T('tags') }}: 
+        {% for tag in n.tags %}
+        {% set tn = tag.name %}
+        {% if tn in hl_tags %}
+        <strong class="nl-tag-hl">#{{ tn }}</strong>
+        {% else %}
+        <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
+        {% endif %}
+        {% endfor %}
+      </p>
       {% endif %}
-      {% endfor %}
-    </p>
-    {% endif %}
-    {% if n.calendar %}
-    <p class="nl-calendar">
-      <span class="material-icons">calendar_today</span>
-      <a href="/calendar/{{ n.calendar.year }}/{{ n.calendar.month }}">
-        <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
-      </a>
-    </p>
-    {% endif %}
+      {% if n.calendar %}
+      <p class="nl-calendar">
+        <span class="material-icons">calendar_today</span>
+        {% if hl_calendar and hl_calendar.y == n.calendar.y and hl_calendar.m == n.calendar.m %}
+        <strong>
+          <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+        </strong>
+        {% else %}
+        <a href="/calendar/{{ n.calendar.year }}/{{ n.calendar.month }}">
+          <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
+        </a>
+        {% endif %}
+      </p>
+      {% endif %}
+    </article>
   </li>
   {% endfor %}
 
   {% if page_n is none %}
   <li class="nl-next"><a href="/{{ other_url }}/">{{ T('show-all') }}</a></li>
-  {% elif page_n <= total_count // 20 %}
+  {% elif page_n <= (total_count - 1) // 20 %}
   <li class="nl-next"><a href="/{{ other_url }}/?page={{ page_n + 1 }}">Next page &raquo;</a></li>
   {% endif %}
 </ul>

@@ -3,17 +3,19 @@
 {% block title %}Notes tagged #{{ tagname }} - {{ app_name }}{% endblock %}
 
 {% block content %}
-<article>
+<main>
   <h1 id="firstHeading">#{{ tagname }}</h1>
   <div class="preview-subtitle">{{ T('notes-tagged') }}</div>
 
-  {% if total_count > 0 %}
-  {% from "macros/nl.jinja2" import nl_list with context %}
-  {{ nl_list(l, page_n=page_n, total_count=total_count, hl_tags=(tagname,)) }}
-  {% else %}
-  <p class="nl-placeholder">{{ T('notes-tagged-empty') }}</p>
-  {% endif %}
+  <div class="inner-content">
+    {% if total_count > 0 %}
+    {% from "macros/nl.jinja2" import nl_list with context %}
+    {{ nl_list(tagged_notes, page_n=page_n, total_count=total_count, hl_tags=(tagname,), other_url='tags/' + tagname) }}
+    {% else %}
+    <p class="nl-placeholder">{{ T('notes-tagged-empty') }}</p>
+    {% endif %}
+  </div>
 
-</article>
+</main>
 
 {% endblock %}

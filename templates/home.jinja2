@@ -3,22 +3,24 @@
 {% block title %}{{ T('homepage') }} - {{ app_name }}{% endblock %}
 
 {% block content %}
-<article class="homepage">
+<main class="homepage">
   <h1 id="firstHeading">{{ T('welcome').format(app_name) }}</h1>
 
-  <div class="nl-new">
-    <a href="/create/">
-      <button class="submit-primary"><span class="material-icons">create</span> {{ T('new-note') }}</button>
-    </a>
+  <div class="inner-content">
+    <div class="nl-new">
+      <a href="/create/">
+        <button class="submit-primary"><span class="material-icons">create</span> {{ T('new-note') }}</button>
+      </a>
+    </div>
+
+    <h2>{{ T('latest-notes') }}</h2>
+
+    <br style="clear:both">
+    
+    {% from "macros/nl.jinja2" import nl_list with context %}
+    {{ nl_list(new_notes) }}
   </div>
 
-  <h2>{{ T('latest-notes') }}</h2>
-
-  <br style="clear:both">
-  
-  {% from "macros/nl.jinja2" import nl_list with context %}
-  {{ nl_list(new_notes) }}
-
-</article>
+</main>
 
 {% endblock %}
