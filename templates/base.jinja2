@@ -13,8 +13,11 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     {% endif %}
     {% block json_info %}{% endblock %}
+    {% block ldjson %}{% endblock %}
   </head>
-  <body {% if request.cookies.get('dark') == '1' %}class="dark"{% endif %}>
+  <body {% if request.cookies.get('dark') == '1' -%}
+  class="dark"
+  {%- endif %}>
     <div id="__top"></div>
     <header class="header">
       <span class="header-app-name"><a href="/">{{ app_name }}</a></span>

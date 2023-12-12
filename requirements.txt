@@ -4,3 +4,5 @@ markdown
 flask-login
 flask-wtf
 python-i18n
+flask-arrest
+python-dotenv

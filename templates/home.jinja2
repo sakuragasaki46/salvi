@@ -15,33 +15,9 @@
   <h2>{{ T('latest-notes') }}</h2>
 
   <br style="clear:both">
-  <ul class="nl-list">
-    {% for n in new_notes %}
-    <li>
-      <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
-      <p class="nl-desc">{{ n.short_desc() }}</p>
-      {% if n.tags %}
-      <p class="nl-tags">
-        <span class="material-icons">tag</span>
-        {{ T('tags') }}: 
-        {% for tag in n.tags %}
-        {% set tn = tag.name %}
-        <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
-        {% endfor %}
-      </p>
-      {% endif %}
-      {% if n.calendar %}
-      <p class="nl-calendar">
-        <span class="material-icons">calendar_today</span>
-        <a href="/calendar/{{ n.calendar.year }}/{{ n.calendar.month }}">
-          <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
-        </a>
-      </p>
-      {% endif %}
-    </li>
-    {% endfor %}
-    <li class="nl-next"><a href="/p/most_recent/">{{ T('show-all') }}</a></li>
-  </ul>
+  
+  {% from "macros/nl.jinja2" import nl_list with context %}
+  {{ nl_list(new_notes) }}
 
 </article>
 

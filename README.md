@@ -20,7 +20,7 @@ suitable as a community or team knowledge base.
 ## Requirements
 
 + **Python** 3.6+.
-+ **Flask** web framework (and Flask-Login / Flask-WTF extensions).
++ **Flask** web framework (and Flask-Login / Flask-WTF / Flask-Arrest extensions).
 + **Peewee** ORM.
 + **Markdown** for page rendering.
 + **Python-I18n**.

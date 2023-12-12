@@ -17,6 +17,7 @@ from flask import (
     render_template, send_from_directory)
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_wtf import CSRFProtect
+#from flask_arrest import RestBlueprint, serialize_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.routing import BaseConverter
 from peewee import *
@@ -46,9 +47,9 @@ PING_RE = r'(?<!\w)@(' + USERNAME_RE + r')'
 
 #### GENERAL CONFIG ####
 
-dotenv.load_dotenv()
+dotenv.load_dotenv(os.path.join(APP_BASE_DIR, '.env'))
 
-CONFIG_FILE = os.getenv('SALVI_CONF', APP_BASE_DIR + '/site.conf')
+CONFIG_FILE = os.getenv('SALVI_CONF', os.path.join(APP_BASE_DIR, 'site.conf'))
 
 # security check: one may specify only configuration files INSIDE
 # the code directory.
@@ -96,7 +97,6 @@ def render_paginated_template(template_name, query_name, **kwargs):
         template_name,
         page_n = page,
         total_count = query.count(),
-        min=min,
         **kwargs
     )
 
@@ -142,12 +142,6 @@ else:
 class BaseModel(Model):
     class Meta:
         database = database
-
-# Used for PagePolicy
-def _passphrase_hash(pp):
-    pp_bin = pp.encode('utf-8')
-    h = str(len(pp_bin)) + ':' + hashlib.sha256(pp_bin).hexdigest()
-    return h
 
 class User(BaseModel):
     username = CharField(32, unique=True)
@@ -324,6 +318,12 @@ class Page(BaseModel):
             except Exception:
                 pass
         return ", ".join(kw)
+    
+    #def ldjson(self):
+    #    return {
+    #        "@context": "https://www.w3.org/ns/activitystreams",
+    #
+    #    }
 
 
 class PageText(BaseModel):
@@ -657,13 +657,13 @@ def _before_request():
 
 @app.context_processor
 def _inject_variables():
-    
     return {
         'T': partial(get_string, _get_lang()),
         'app_name': os.getenv("APP_NAME") or _getconf('site', 'title'),
         'strong': lambda x:Markup('<strong>{0}</strong>').format(x),
         'app_version': __version__,
-        'material_icons_url': _getconf('site', 'material_icons_url')
+        'material_icons_url': _getconf('site', 'material_icons_url'),
+        'min': min
     }
 
 @login_manager.user_loader

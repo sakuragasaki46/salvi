@@ -7,8 +7,8 @@ site-*.conf
 run_8180.py
 .env
 alembic.ini
-venv/
-venv-*/
+venv
+venv-*
 .venv
 env
 

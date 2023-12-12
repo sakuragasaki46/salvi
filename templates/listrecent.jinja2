@@ -4,39 +4,7 @@
 <article>
   <h1 id="firstHeading">Notes by date</h1>
 
-  <p class="nl-pagination">Showing results <strong>{{ page_n * 20 - 19 }}</strong> to <strong>{{ min(page_n * 20, total_count) }}</strong> of <strong>{{ total_count }}</strong> total.</p>
-
-  <ul class="nl-list">
-    {% if page_n > 1 %}
-    <li class="nl-prev"><a href="/p/most_recent/{{ page_n - 1 }}">&laquo; Previous page</a></li>
-    {% endif %}
-    {% for n in notes %}
-    <li>
-      <a href="{{ n.get_url() }}" class="nl-title">{{ n.title }}</a>
-      <p class="nl-desc">{{ n.short_desc() }}</p>
-      {% if n.tags %}
-      <p class="nl-tags">
-        <span class="material-icons">tag</span>
-        {{ T('tags') }}: 
-        {% for tag in n.tags %}
-        {% set tn = tag.name %}
-        <a href="/tags/{{ tn }}/" class="nl-tag">#{{ tn }}</a>
-        {% endfor %}
-      </p>
-      {% endif %}
-      {% if n.calendar %}
-      <p class="nl-calendar">
-        <span class="material-icons">calendar_today</span>
-        <a href="/calendar/{{ n.calendar.year }}/{{ n.calendar.month }}">
-          <time datetime="{{ n.calendar.isoformat() }}">{{ n.calendar.strftime('%B %-d, %Y') }}</time>
-        </a>
-      </p>
-      {% endif %}
-    </li>
-    {% endfor %}
-    {% if page_n <= total_count // 20 %}
-    <li class="nl-next"><a href="/p/most_recent/{{ page_n + 1 }}/">Next page &raquo;</a></li>
-    {% endif %}
-  </ul>
+  {% from "macros/nl.jinja2" import nl_list with context %}
+  {{ nl_list(notes, page_n=page_n, total_count=total_count) }}
 </article>
 {% endblock %}

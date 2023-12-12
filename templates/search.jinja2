@@ -21,11 +21,8 @@
   {% if results %}
   <h2>Search results for <em>{{ q }}</em></h2>
 
-  <ul class="nl-list">
-    {% for n in results %}
-    <li>{% include "includes/nl_item.jinja2" %}</li>
-    {% endfor %}
-  </ul>
+  {% from "macros/nl.jinja2" import nl_list with context %}
+  {{ nl_list(l, other_url=None) }}
   {% elif q %}
   <h2>{{ T('search-no-results') }} <em>{{ q }}</em></h2>
   {% else %}
